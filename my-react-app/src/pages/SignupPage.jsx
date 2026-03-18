@@ -1,0 +1,113 @@
+import {useState} from "react"
+import {supabase} from "../supabaseClient"
+
+function SignupPage({ setView }) {
+
+    //states
+    const [name,setName] = useState("")
+    const [email,setEmail] = useState("")
+    const [password,setPassword] = useState("")
+    const [loading,setLoading] = useState(false)
+
+    const [errors, setErrors] = useState({}) //error object
+
+    const handleSignup = async (e) => {
+      e.preventDefault()
+
+      if(!validate()) return
+        setLoading(true)
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+      })
+
+      setLoading(false)
+      if(error){
+        setErrors({ api: error.message })
+        return
+      }
+      await supabase.from("users").insert([
+        {
+          id: data.user.id,
+          name: name,
+          email: email
+        }
+      ])
+
+      alert("Signup success")
+
+      
+    }
+      // const { data, error } = await supabase.auth.signUp({
+      //   email: email,
+      //   password: password,
+      // })
+
+      // if(error){
+      //   alert(error.message)
+      //   return
+      // }
+
+      // DB me extra data save
+      // await supabase.from("users").insert([
+      //   {
+      //     id: data.user.id,
+      //     name: name,
+      //     email: email
+      //   }
+      // ])
+
+      //alert("Signup successful")
+   // }
+    //validation
+    const validate = () => {
+        let newErrors = {}
+
+        // Name (signup only)
+        if(!name){
+          newErrors.name = "Name is required"
+        }
+
+        // Email
+        if(!email){
+          newErrors.email = "Email is required"
+        } else if(!email.includes("@")){
+          newErrors.email = "Invalid email"
+        }
+
+        // Password
+        if(!password){
+          newErrors.password = "Password is required"
+        } else if(password.length < 6){
+          newErrors.password = "Min 6 characters"
+        }
+
+        setErrors(newErrors)
+
+        return Object.keys(newErrors).length === 0
+      }
+
+    return (
+      <div className="auth-container">
+        <div className="auth-card">
+          <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
+          {errors.api && <p style={{color:"red"}}>{errors.api}</p>}
+          <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>Create Account</h2>
+          <input type="text" placeholder="Full Name" value={name} onChange={(e)=>setName(e.target.value)} className="auth-input" />
+          {errors.name && <p style={{color:"red"}}>{errors.name}</p>}
+          <input type="email" placeholder="Email Address" value={email} onChange={(e)=>setEmail(e.target.value)} className="auth-input" />
+          {errors.email && <p style={{color:"red"}}>{errors.email}</p>}
+          <input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)} className="auth-input" />
+          {errors.password && <p style={{color:"red"}}>{errors.password}</p>}
+          <button  onClick={handleSignup} className="btn-primary" style={{width: '100%'}} disabled={loading}>{loading ? "Please wait.." : "Signup"}</button>
+          <p style={{marginTop: '1.5rem'}}>
+            Already have an account? 
+            <span className="auth-link" onClick={() => setView('login')}> Login</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+export default SignupPage
+

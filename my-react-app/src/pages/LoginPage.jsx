@@ -1,0 +1,80 @@
+import {useState} from "react"
+import {supabase} from "../supabaseClient"
+
+function LoginPage({ setView }) {
+    
+    //states
+    const [email,setEmail] = useState("")
+    const [password,setPassword] = useState("")
+    const [errors, setErrors] = useState({}) //error object
+    const [loading,setLoading] = useState(false)
+
+     const handleLogin = async (e) => {
+      e.preventDefault()
+
+      if(!validate()) return
+
+      setLoading(true)
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+      setLoading(false)
+
+      if(error){
+        setErrors({ api: error.message })
+        return
+      }
+      // setErrors({api:"Login sccessfull🎉"})
+
+      // setTimedout(() => {
+      //   setView("dashboard")
+      // },1000)
+      alert("Login successfull🎉")
+      setView("dashboard")
+    }
+
+    const validate = () => {
+        let newErrors = {}
+
+        // Email
+        if(!email){
+          newErrors.email = "Email is required"
+        } else if(!email.includes("@")){
+          newErrors.email = "Invalid email"
+        }
+
+        // Password
+        if(!password){
+          newErrors.password = "Password is required"
+        } else if(password.length < 6){
+          newErrors.password = "Min 6 characters"
+        }
+
+        setErrors(newErrors)
+
+        return Object.keys(newErrors).length === 0
+      }
+
+    return (
+      <div className="auth-container">
+        <div className="auth-card">
+          <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
+          {errors.api && <p style={{color:"red"}}>{errors.api}</p>}
+          <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>Welcome Back</h2>
+          <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="Email Address" className="auth-input" />
+          {errors.email && <p style={{color:"red"}}>{errors.email}</p>}
+          <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Password" className="auth-input" />
+          {errors.password && <p style={{color:"red"}}>{errors.password}</p>}
+          <button onClick={handleLogin} className="btn-primary" style={{width: '100%'}} disabled={loading}>
+            {loading ? "Logging you in..." : "Login"}</button>
+          <p style={{marginTop: '1.5rem'}}>
+            Don't have an account? 
+            <span className="auth-link" onClick={() => setView('signup')}> Sign Up</span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+export default LoginPage
