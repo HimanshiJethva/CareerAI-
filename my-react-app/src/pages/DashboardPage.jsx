@@ -25,7 +25,36 @@ function DashboardPage({ setView }) {
    const updateField = (name, value) => {
      setFormData(prev => ({ ...prev, [name]: value }));
    };
+  const canGoNext = () => {
+    if (step === 1) {
+        return formData.Stream !== ""; // Stream select hona zaroori hai
+    }
+    
+    if (step === 2) {
+        // Stream ke according required subjects ki list
+        let required = ['English'];
+        if (formData.Stream.includes("Science")) required.push('Physics', 'Chemistry');
+        if (formData.Stream === "Science_PCM") required.push('Mathematics', 'ComputerScience');
+        if (formData.Stream === "Science_PCB") required.push('Biology');
+        if (formData.Stream === "Commerce") required.push('Accountancy', 'BusinessStudies', 'Economics');
+        if (formData.Stream === "Arts") required.push('History', 'Geography', 'Sociology');
 
+        // Check karein ki saari required fields 0-100 ke beech hain
+        return required.every(field => formData[field] !== "" && formData[field] >= 0 && formData[field] <= 100);
+    }
+    
+    if (step === 3) {
+        return true; // Personality by default 3 hai, toh ye hamesha valid rahega
+    }
+    
+    if (step === 4) {
+        // Kam se kam ek Interest aur ek Participation select hona chahiye
+        const hasInterest = ['Tech', 'Entrepreneurship', 'Leadership', 'Innovation', 'CriticalThinking', 'Research', 'ComputerSkill', 'HardwareSkill', 'Food', 'Creativity'].some(i => formData[`Interest_${i}`]);
+        const hasParticipation = ['Hackathon', 'Olympiad', 'Kabaddi', 'KhoKho', 'Cricket'].some(p => formData[`Participated_${p}`]);
+        return hasInterest || hasParticipation || formData.PositiveThinking;
+    }
+    return false;
+};
    const stepsInfo = [
      { n: 1, t: "Stream Selection", s: "Basic Info" },
      { n: 2, t: "Academic Marks", s: "Subject Scores" },
@@ -100,7 +129,7 @@ function DashboardPage({ setView }) {
                </div>
                <div className="footer-btns">
                  <button className="btn-back" onClick={() => setStep(1)}>Back</button>
-                 <button className="btn-main" onClick={() => setStep(3)}>Next: Personality</button>
+                 <button className="btn-main" disabled={!canGoNext()} onClick={() => setStep(3)}>Next: Personality</button>
                </div>
              </div>
            )}
@@ -108,16 +137,36 @@ function DashboardPage({ setView }) {
            {/* STEP 3: PERSONALITY */}
            {step === 3 && (
              <div className="step-view">
-               <h2>Personality Scaling (1 - 5)</h2>
-               <div className="slider-grid">
-                 {['Oppenness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Neuroticism'].map(t => (
-                   <SliderGroup key={t} label={t} name={t} val={formData[t]} fn={updateField} />
-                 ))}
-               </div>
-               <div className="footer-btns">
-                 <button className="btn-back" onClick={() => setStep(2)}>Back</button>
-                 <button className="btn-main" onClick={() => setStep(4)}>Next: Interests</button>
-               </div>
+              <h2 style={{ marginBottom: '0.5rem' }}>Personality Traits Scale(1: Low,  5: High)</h2>
+              {/* <p style={{ color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                  Scale (1: Low, 5: High). Hints niche diye gaye hain.
+              </p> */}
+              
+              <div className="slider-grid" style={{ gap: '1rem' }}> {/* Gap kam kiya hai */}
+                {['Oppenness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Neuroticism'].map(t => {
+                  const traitInfo = {
+                    Oppenness: "Creativity aur nayi cheezein sikhna.",
+                    Conscientiousness: "Discipline aur planning.",
+                    Extraversion: "Logo se milna aur baatein karna.",
+                    Agreeableness: "Helpful aur friendly nature.",
+                    Neuroticism: "Stress handle karne ki ability."
+                  };
+
+                  return (
+                    <div key={t} style={{ marginBottom: '1rem' }}>
+                      <SliderGroup label={t} name={t} val={formData[t]} fn={updateField} />
+                      <p style={{ fontSize: '0.8rem', color: '#888', marginTop: '2px' }}>
+                        {traitInfo[t]}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="footer-btns" style={{ marginTop: '1.5rem' }}>
+                <button className="btn-back" onClick={() => setStep(2)}>Back</button>
+                <button className="btn-main" disabled={!canGoNext()} onClick={() => setStep(4)}>Next: Interests</button>
+              </div>
              </div>
            )}
 
@@ -177,7 +226,7 @@ function DashboardPage({ setView }) {
                {/* Navigation Buttons */}
                <div className="footer-btns">
                  <button className="btn-back" onClick={() => setStep(3)}>Back</button>
-                 <button className="btn-predict-gradient" onClick={() => alert("AI Prediction Starting...")}>
+                 <button className="btn-predict-gradient" disabled={!canGoNext()} onClick={() => alert("AI Prediction Starting...")}>
                    Predict Career ✨
                  </button>
                </div>

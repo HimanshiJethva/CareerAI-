@@ -34,34 +34,52 @@ function LandingPage({setView})
                 <button className="btn-primary" onClick={()=>setView("login")}>Start Free Prediction</button>
                 </div>
             </div>
-            <div className="hero-visual">
+            {/* <div className="hero-visual">
                 <div className="visual-card">
                 <StatItem label="Match Confidence" value="94%" width="94%" />
                 <StatItem label="Career Paths Found" value="12" width="80%" />
                 <StatItem label="Skill Match Score" value="87%" width="87%" />
                 </div>
-            </div>
+            </div> */}
             </div>
         </section>
 
         {/* FEATURES SECTION */}
         <section id="features" className="features">
-            <div className="section-header">
-            <p style={{color: 'var(--coral)', fontWeight: 'bold', letterSpacing: '2px'}}>WHY CHOOSE US</p>
-            <h2 style={{fontFamily: 'Playfair Display', fontSize: '3.5rem', marginTop: '1rem'}}>Exceptional Features</h2>
-            </div>
+             <div className="section-header" style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            {/* Eyebrow Text */}
+            <p style={{ color: 'var(--coral)', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase' }}>
+              WHY CHOOSE US
+            </p>
+            
+            {/* Heading (HTML wala text) */}
+            <h2 style={{ fontFamily: 'Playfair Display', fontSize: '3.5rem', marginTop: '1rem', color: 'var(--charcoal)' }}>
+              Exceptional Features, Exceptional Results
+            </h2>
+
+            {/* Subtitle (Jo HTML mein tha) */}
+            <p style={{ 
+              fontSize: '1.2rem', 
+              color: '#666', 
+              maxWidth: '800px', 
+              margin: '1rem auto 0', 
+              lineHeight: '1.6' 
+            }}>
+              Powered by cutting-edge AI technology and refined through thousands of successful career transitions
+            </p>
+          </div>
             <div className="features-grid">
-            <FeatureCard icon="🎯" title="Precision Matching" desc="Advanced algorithms analyze 100+ data points from your profile." />
-            <FeatureCard icon="📊" title="Beautiful Insights" desc="Interactive visualizations transform complex data into clear insights." />
-            <FeatureCard icon="🚀" title="Instant Results" desc="Receive comprehensive predictions in seconds, not days." />
-            <FeatureCard icon="🎓" title="Skill Roadmaps" desc="Get personalized learning paths showing exactly which skills to develop for your target career."/>
-            <FeatureCard icon="🔒" title="Complete Privacy" desc="Your data is encrypted and never shared. Your career journey remains completely confidential."/>
-            <FeatureCard icon="💡" title="Expert Guidance" desc="Benefit from insights derived from analyzing millions of successful career transitions worldwide."/>
-            </div>  
+          <FeatureCard icon="🎯" title="Precision Matching" desc="Advanced algorithms analyze 100+ data points from your profile to deliver remarkably accurate career predictions." />
+          <FeatureCard icon="📊" title="Beautiful Insights" desc="Interactive visualizations transform complex data into clear, actionable insights you can understand at a glance." />
+          <FeatureCard icon="🚀" title="Instant Results" desc="Receive comprehensive predictions in seconds, not days. Your future career path is just moments away." />
+          <FeatureCard icon="🎓" title="Skill Roadmaps" desc="Get personalized learning paths showing exactly which skills to develop for your target career."/>
+          <FeatureCard icon="🔒" title="Complete Privacy" desc="Your data is encrypted and never shared. Your career journey remains completely confidential."/>
+          <FeatureCard icon="💡" title="Expert Guidance" desc="Benefit from insights derived from analyzing millions of successful career transitions worldwide."/>
+        </div>  
         </section>
 
         {/* SHOWCASE SECTION */}
-        <section className="showcase">
+        {/* <section className="showcase">
             <div className="showcase-content">
             <div className="showcase-text">
                 <h2 style={{fontFamily: 'Playfair Display', fontSize: '3.5rem', marginBottom: '2rem'}}>See Your Future Unfold</h2>
@@ -75,7 +93,7 @@ function LandingPage({setView})
                 <PredictionBox name="🥉 Full Stack Developer" score="76%" />
             </div>
             </div>
-        </section>
+        </section> */}
         {/* PROCESS SECTION */}
     <section className="process" id="how-it-works">
     <div className="section-header" style={{textAlign: 'center', marginBottom: '4rem'}}>
@@ -115,19 +133,19 @@ function LandingPage({setView})
         </div>
 
         <div className="testimonials-grid">
-            <TestimonialCard 
-                text="This tool completely changed my career trajectory. Now I'm thriving as an ML Engineer at Google." 
-                initials="PS" name="Priya Sharma" role="ML Engineer, Google" 
-            />
-            <TestimonialCard 
-                text="The personalized skill roadmap was incredible. Within 6 months I landed my dream role at Amazon." 
-                initials="AK" name="Amit Kumar" role="Data Scientist, Amazon" 
-            />
-            <TestimonialCard 
-                text="I was amazed by how accurate the predictions were. The visual analytics made everything crystal clear." 
-                initials="SK" name="Sneha Kapoor" role="Developer, Microsoft" 
-            />
-        </div>
+          <TestimonialCard 
+              text="This tool completely changed my career trajectory. I was stuck between multiple paths, but the AI predictions gave me the clarity I needed. Now I'm thriving as an ML Engineer at Google." 
+              initials="PS" name="Priya Sharma" role="ML Engineer, Google" 
+          />
+          <TestimonialCard 
+              text="The personalized skill roadmap was incredible. It showed me exactly what to learn, and within 6 months I landed my dream role as a Data Scientist. Absolutely life-changing!" 
+              initials="AK" name="Amit Kumar" role="Data Scientist, Amazon" 
+          />
+          <TestimonialCard 
+              text="I was amazed by how accurate the predictions were. The visual analytics made everything crystal clear. This is genuinely the best career guidance tool I've ever used." 
+              initials="SK" name="Sneha Kapoor" role="Developer, Microsoft" 
+          />
+      </div>
     </section>
 
     {/* CTA SECTION */}

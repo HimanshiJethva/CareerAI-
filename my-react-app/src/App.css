@@ -45,19 +45,31 @@ body {
 
 /* Header & Nav */
 header {
-    position: fixed; top: 0; width: 100%; z-index: 1000;
-    background: rgba(255, 248, 240, 0.95); backdrop-filter: blur(20px);
+    position: fixed;
+    top: 0; 
+    width: 100%; 
+    z-index: 1000;
+    background: rgba(255, 248, 240, 0.95); 
+    backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(26, 26, 26, 0.08);
 }
 
 nav {
-    max-width: 1400px; margin: 0 auto; padding: 1.5rem 3rem;
-    display: flex; justify-content: space-between; align-items: center;
+    max-width: 1700px; 
+    margin: 0 auto; 
+    padding: 1.5rem 3rem;
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
 }
 
 .logo {
-    font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900;
-    color: var(--charcoal); text-decoration: none; position: relative;
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--charcoal); 
+    text-decoration: none;
+     position: relative;
 }
 
 .logo::after {
@@ -65,13 +77,46 @@ nav {
     width: 40px; height: 3px; background: var(--coral);
 }
 
-.nav-links { display: flex; gap: 3rem; list-style: none; align-items: center; }
-.nav-links a { text-decoration: none; color: var(--charcoal); font-weight: 500; }
+.nav-links {
+     display: flex;
+      gap: 3rem; 
+      list-style: none; 
+      align-items: center;
+     }
+.nav-links a { 
+    text-decoration: none; 
+    color: var(--charcoal);
+    font-weight: 500;
+    position: relative;
+    padding: 5px 0;
+    }
+
+.nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--coral);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-links a:hover::before {
+            width: 100%;
+        }
 
 .nav-cta {
-    background: var(--charcoal); color: var(--cream);
-    padding: 0.9rem 2rem; border-radius: 50px; border: none;
-    font-weight: 600; cursor: pointer; transition: 0.3s;
+    background: var(--charcoal); 
+    color: var(--cream);
+    padding: 1.2rem 2.8rem; 
+    border-radius: 50px;
+    border: none;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    font-weight: 600; 
+    cursor: pointer; 
+    transition: 0.3s;
 }
 
 /* Hero Section */
@@ -103,32 +148,63 @@ nav {
     box-shadow: 0 10px 40px rgba(255, 107, 107, 0.3); cursor: pointer;
 }
 
-/* Visual Card */
+/* Visual Card
 .visual-card {
     background: white; padding: 3rem; border-radius: 30px;
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12);
-}
+} */
 
 .stat-bar { height: 8px; background: rgba(26, 26, 26, 0.08); border-radius: 10px; margin: 10px 0 20px; overflow: hidden; }
 .stat-fill { height: 100%; background: linear-gradient(90deg, var(--coral), var(--sage)); transition: 2s ease-out; }
 
 /* Features */
-.features { padding: 8rem 3rem; background: var(--warm-white); text-align: center; }
+.features { 
+    padding: 8rem 3rem; 
+    background: var(--warm-white);
+     text-align: center; 
+    }
+
 .features-grid {
-    max-width: 1400px; margin: 4rem auto 0;
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem;
+    max-width: 1400px;
+    margin: 3rem auto 0;
+    display: grid;
+     grid-template-columns: repeat(3, 1fr); 
+     gap: 3rem;
 }
 
 .feature-card {
-    background: white; padding: 3.5rem 3rem; border-radius: 24px;
-    border: 1px solid rgba(26, 26, 26, 0.06); transition: 0.5s;
+    background: white; 
+    padding: 3.5rem 3rem; 
+    border-radius: 24px;
+    border: 1px solid rgba(26, 26, 26, 0.06);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
-.feature-card:hover { transform: translateY(-10px); box-shadow: 0 30px 70px rgba(0,0,0,0.12); }
+.feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--coral), var(--gold));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+.feature-card:hover::before {
+            transform: scaleX(1);
+        }
+.feature-card:hover { 
+    transform: translateY(-10px); 
+    box-shadow: 0 30px 70px rgba(0,0,0,0.12); }
 
 /* Showcase Section */
-.showcase { padding: 8rem 3rem; background: var(--charcoal); color: white; }
-.showcase-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+/* .showcase { padding: 8rem 3rem; background: var(--charcoal); color: white; }
+.showcase-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; } */
 .prediction-item {
     background: rgba(255, 255, 255, 0.08); padding: 2rem; border-radius: 20px;
     margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;
@@ -278,7 +354,7 @@ nav {
     .testimonials-grid { grid-template-columns: 1fr; }
 }
 
-/* Footer Styling */
+/* Footer Styling - Updated for Better Visibility */
 footer {
     background: var(--charcoal);
     color: white;
@@ -295,23 +371,29 @@ footer {
     text-align: left;
 }
 
+/* Brand Name (CareerAI) */
 .footer-brand h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 2rem;
+    font-size: 2.5rem; /* 2rem se badhakar 2.5rem kiya */
     font-weight: 900;
     margin-bottom: 1.5rem;
 }
 
+/* CareerAI ke niche wala description */
 .footer-brand p {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.8); /* Opacity thodi badhayi taaki chamke */
     line-height: 1.8;
+    font-size: 1.15rem; /* Font size badhaya */
+    max-width: 400px;
 }
 
+/* Headings (Product, Company, Legal) */
 .footer-section h4 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.2rem;
+    font-size: 1.8rem; /* 1.2rem se badhakar 1.5rem kiya */
     color: var(--coral);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.8rem;
+    font-weight: 700;
 }
 
 .footer-links {
@@ -319,25 +401,29 @@ footer {
 }
 
 .footer-links li {
-    margin-bottom: 1rem;
+    margin-bottom: 1.2rem; /* Gap thoda badhaya */
 }
 
+/* Sabhi Links (Features, Privacy, etc.) */
 .footer-links a {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.2rem; /* Naya font size add kiya */
     text-decoration: none;
     transition: 0.3s;
 }
 
 .footer-links a:hover {
     color: white;
-    padding-left: 5px;
+    padding-left: 8px; /* Hover effect thoda clear kiya */
 }
 
+/* Bottom Copyright Text */
 .footer-bottom {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 2.5rem;
     text-align: center;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1rem; /* Font size fix kiya */
 }
 
 .social-icons {
@@ -347,25 +433,65 @@ footer {
 }
 
 .social-icon {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: 0.3s;
+    font-size: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .social-icon:hover {
     background: var(--coral);
-    transform: translateY(-5px);
+    transform: translateY(-5px) rotate(360deg);
 }
 
 @media (max-width: 1024px) {
     .footer-content { grid-template-columns: 1fr 1fr; }
 }
+
+/* ========== STATS TICKER ========== */
+        .stats-ticker {
+            background: var(--charcoal);
+            padding: 2.5rem 0;
+            overflow: hidden;
+        }
+        
+        .ticker-content {
+            display: flex;
+            gap: 8rem;
+            animation: scroll 30s linear infinite;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            white-space: nowrap;
+        }
+        
+        .ticker-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--coral);
+        }
+        
+        .ticker-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
 
 /* ============================================================
    LOGIN & SIGNUP (AUTH) SECTIONS - NEW & IMPROVED SIZE
@@ -471,27 +597,33 @@ footer {
         font-size: 2rem !important;
     }
 }
-.dashboard-wrapper { display: flex; height: 100vh; background: #f0f2f5; font-family: 'DM Sans', sans-serif; }
+.dashboard-wrapper { display: flex; height: 100vh; background: #FFF5F5; font-family: 'DM Sans', sans-serif; 
+                    overflow: hidden;}
 
 /* Sidebar */
-.dash-sidebar { width: 350px; background: #FF8E9E; color: black; padding: 3.5rem; display: flex; flex-direction: column; }
+.dash-sidebar { width: 350px; background: #FF8E9E; color: black; padding: 3.5rem; display: flex; 
+    flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; height: 100vh;}
 .sidebar-logo { font-family: 'Playfair Display'; font-size: 3rem; color: #1A1A1A; margin-bottom: 3rem; font-weight: 1000; }
 .stepper-vertical { flex-grow: 1; }
 .step-item { display: flex; gap: 15px; margin-bottom: 2.8rem; align-items: center; opacity: 0.4; transition: 0.3s; }
 .step-item.active { opacity: 1; transform: translateX(10px); }
 .step-item.completed { opacity: 0.8; color: #1B5E20; }
-.step-num { width: 32px; height: 32px; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+.step-num { width: 32px; height: 32px; border: 2px solid white; border-radius: 50%; display: flex; align-items: center; 
+    justify-content: center; font-weight: bold; }
 .step-item.active .step-num { background: #FF6B6B; border-color: #FF6B6B; }
 .step-txt span { display: block; font-weight: 600; font-size: 1.4rem; white-space: nowrap;}
 .step-txt small { font-size: 1.1rem; opacity: 0.7; }
 .sidebar-footer { border-top: 1px solid #333; padding-top: 1.5rem; }
-.logout-btn { background: none; border: 1px solid #555; color: black; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+.logout-btn { background: none; border: 1px solid #555; color: black; padding: 0.5rem 1rem; border-radius: 5px; 
+    cursor: pointer; margin-top: 10px; }
 
 /* Main Area */
-.dash-main { flex-grow: 1; padding: 4rem 6rem; overflow-y: auto; text-align: left; }
+.dash-main { flex-grow: 1; padding: 2rem 6rem; overflow-y: hidden; text-align: left; box-sizing: border-box;;
+            margin-left: 350px; width: calc(100% - 350px); height: 100vh; padding: 4rem 6rem; }
 .form-header h1 { font-family: 'Playfair Display'; font-size: 2.8rem; margin-bottom: 0.5rem; }
 .form-header p{ font-size:1.3rem; color:black; margin-top: 5px; font-weight: 500; }
-.wide-card { background: white; padding: 3.5rem; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.04); margin-top: 2rem; min-height: 550px; }
+.wide-card { background: white; padding: 3.5rem; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.04);
+     margin-top: 2rem; min-height: 550px; }
 /* .wide-card (Line 494) ke thik niche ye naya block paste karein */
 .step-view h2, .step-title {
     font-size: 1.8rem !important; /* Isse size badi ho jayegi */
@@ -533,6 +665,7 @@ footer {
 .slider-group label { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 10px; font-size: 1.15rem; }
 .slider-group input { width: 100%; accent-color: #FF6B6B; }
 
+
 .checkbox-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee; }
 .check-grid { display: flex; gap: 2rem; margin-top: 1.5rem; }
 .check-item { display: flex; align-items: center; gap: 10px; font-weight: 500; cursor: pointer; }
@@ -553,7 +686,41 @@ footer {
 }
 .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); color:white;}
 .btn-back { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; text-decoration: underline; }
+.btn-main:disabled, .btn-predict-gradient:disabled {
+    background: #cccccc !important;
+    cursor: not-allowed !important;
+    opacity: 0.7;
+    transform: none !important;
+    box-shadow: none !important;
+}
+/* Predict Career button ka naya style */
+.btn-predict-gradient {
+    background-color: #1A1A1A !important; /* Pure Black shade */
+    color: #FFFFFF !important;         /* Text colour White */
+    padding: 1rem 2.5rem;
+    border-radius: 50px;              /* Round corners */
+    border: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
 
+/* Hover karne par halka sa effect */
+.btn-predict-gradient:hover {
+    background-color: #333333 !important; /* Halka grey-black hover par */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Disabled state (Validation fail hone par) */
+.btn-predict-gradient:disabled {
+    background-color: #cccccc !important;
+    color: #666666 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
 /* Container for scrolling if fields are many */
 .pills-container-scroll {
     max-height: 400px;
