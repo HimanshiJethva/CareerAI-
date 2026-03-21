@@ -8,8 +8,14 @@ import ProcessStep from "../components/ProcessStep"
 import SliderGroup from "../components/SliderGroup"
 import TestimonialCard from "../components/TestimonialCard"
 import {useState} from "react"
+import axios from "axios"
+
+
+
 function DashboardPage({ setView }) {
    const [step, setStep] = useState(1);
+   const [isLoading, setIsLoading] = useState(false); // Ye line missing hai
+   const [predictions, setPredictions] = useState(null);
    const [formData, setFormData] = useState({
      Stream: '', Physics: '', Chemistry: '', Biology: '', English: '', ComputerScience: '',
      Mathematics: '', Accountancy: '', BusinessStudies: '', Economics: '', History: '',
@@ -21,6 +27,42 @@ function DashboardPage({ setView }) {
      Participated_Kabaddi: false, Participated_KhoKho: false, Participated_Cricket: false,
      Oppenness: 3, Conscientiousness: 3, Extraversion: 3, Agreeableness: 3, Neuroticism: 3
    });
+
+  // STEP 2: Prediction Function yahan likhein (Line 30-60 ke aas pass)
+ const handlePredict = async () => {
+    setIsLoading(true);
+    try {
+        // 1. Data ko clean karna: Har khali string ko 0 banao
+        const cleanedData = {};
+        Object.keys(formData).forEach(key => {
+            const value = formData[key];
+            
+            if (typeof value === 'boolean') {
+                cleanedData[key] = value ? 1 : 0; // Booleans to 1/0
+            } else if (value === '' || value === null) {
+                cleanedData[key] = 0; // Khali marks ko 0 banao
+            } else if (!isNaN(value) && key !== 'Stream') {
+                cleanedData[key] = parseFloat(value); // Strings to Numbers
+            } else {
+                cleanedData[key] = value; // Stream selection as it is
+            }
+        });
+
+        console.log("Sending Cleaned Data:", cleanedData);
+
+        const response = await axios.post("http://127.0.0.1:8000/predict", cleanedData);
+        
+        if (response.data) {
+            setPredictions(response.data);
+            setStep(5);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Server Error! Check if uvicorn terminal shows any value errors.");
+    } finally {
+        setIsLoading(false);
+    }
+};
 
    const updateField = (name, value) => {
      setFormData(prev => ({ ...prev, [name]: value }));
@@ -59,7 +101,8 @@ function DashboardPage({ setView }) {
      { n: 1, t: "Stream Selection", s: "Basic Info" },
      { n: 2, t: "Academic Marks", s: "Subject Scores" },
      { n: 3, t: "Personality Traits", s: "Big Five Scaling" },
-     { n: 4, t: "Interests & Skills", s: "Final Assessment" }
+     { n: 4, t: "Interests & Skills", s: "Final Assessment" },
+     { n: 5, t: "AI Results", s: "Prediction" } // <-- YE LINE ADD KARIYE
    ];
 
    return (
@@ -80,7 +123,10 @@ function DashboardPage({ setView }) {
          </div>
          <div className="sidebar-footer">
            <p>Logged in </p>
-           <button className="logout-btn" onClick={() => setView('landing')}>Logout</button>
+           <button className="logout-btn" onClick={() => {
+             localStorage.removeItem("view");
+            setView('landing');
+           }}>Logout</button>
          </div>
        </aside>
 
@@ -226,15 +272,34 @@ function DashboardPage({ setView }) {
                {/* Navigation Buttons */}
                <div className="footer-btns">
                  <button className="btn-back" onClick={() => setStep(3)}>Back</button>
-                 <button className="btn-predict-gradient" disabled={!canGoNext()} onClick={() => alert("AI Prediction Starting...")}>
+                 <button className="btn-predict-gradient" disabled={false} onClick={handlePredict}>
                    Predict Career ✨
                  </button>
                </div>
              </div>
            )}
-         </div>
-       </main>
-     </div>
-   );
- }
+
+   {/* STEP 5: RESULT VIEW (AI Results dikhane ke liye) */}
+          {step === 5 && predictions && (
+            <div className="step-view result-view animate-in">
+               <h2>AI Recommended Careers</h2>
+               <div className="prediction-grid">
+                  {predictions.Top_Predictions.map((res, index) => (
+                    <div key={index} className="prediction-box">
+                       <h3>{res.career} ({res.confidence}%)</h3>
+                       <p>{res.reason}</p>
+                    </div>
+                  ))}
+               </div>
+               <div className="footer-btns" style={{marginTop: '2rem'}}>
+                  <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
+               </div>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
  export default DashboardPage

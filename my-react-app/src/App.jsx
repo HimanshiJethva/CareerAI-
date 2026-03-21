@@ -1,3 +1,4 @@
+import { supabase } from './supabaseClient'; // Path check kar lena apne folder ke hisaab se
 import { useState ,useEffect} from "react"
 import "./App.css"
 
