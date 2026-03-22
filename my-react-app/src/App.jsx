@@ -8,48 +8,145 @@ import SignupPage from "./pages/SignupPage"
 import DashboardPage from "./pages/DashboardPage"
 
 function App() {
-
-  const [view, setView] = useState(() => {
-  return localStorage.getItem("view") || "landing"
-})
-
-  useEffect(()=> {
-    localStorage.setItem("view",view);
-  },[view]);//refresh thi landing na jay ena mate
+  // 1. Loading state add karein taaki check hone tak wait karein
+  const [view, setView] = useState("landing");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const checkSession = async () => {
-    // Supabase se current session mangwayein
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session) {
-      // Agar user login hai, toh use dashboard par hi rakho
+     const initApp = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const savedView = localStorage.getItem("view");
+
+  if (session) {
+    // Agar logged in hai aur user login/signup par refresh kar raha hai -> Dashboard bhejo
+    if (savedView === 'login' || savedView === 'signup' || !savedView) {
       setView('dashboard');
-    } else if (localStorage.getItem("view") === 'dashboard') {
-      // Agar login nahi hai par view dashboard tha, toh wapas landing bhej do
-      setView('landing');
+    } else {
+      setView(savedView); // Jese ki 'dashboard' (step 2/3)
     }
-  };
-  
-  checkSession();
-}, []); // Ye sirf ek baar chalega jab app load hogi
+  } else {
+    // Agar login nahi hai, toh dashboard kabhi mat dikhao
+    if (savedView === 'dashboard') {
+      setView('landing');
+    } else {
+      setView(savedView || 'landing');
+    }
+  }
+  setLoading(false);
+};
+    // const initApp = async () => {
+    //   // 2. Supabase se session check karein
+    //   const { data: { session } } = await supabase.auth.getSession();
+      
+    //   const savedView = localStorage.getItem("view");
 
-  if(view==="login"){
-    return <LoginPage setView={setView}/>
+    //   if (session) {
+    //     // AGAR USER LOGGED IN HAI:
+    //     // Agar wo login/signup page se refresh kar raha hai, toh dashboard bhejo
+    //     if (savedView === 'login' || savedView === 'signup' || !savedView) {
+    //       setView('dashboard');
+    //     } else {
+    //       // Warna jo page user dekh raha tha (jaise landing ya koi aur), wahi rehne do
+    //       setView(savedView);
+    //     }
+    //     //setView('dashboard');
+    //   } else {
+    //     // Agar session nahi hai, tabhi localStorage wala view check karein
+    //     //const savedView = localStorage.getItem("view");
+    //     // Lekin agar purana view 'dashboard' tha bina session ke, toh landing bhej dein
+    //     // AGAR USER LOGGED IN NAHI HAI:
+    //     // Use kabhi dashboard mat dikhao, landing ya login page par rakho
+    //     if (savedView === 'dashboard') {
+    //       setView('landing');
+    //     } else {
+    //       setView(savedView || 'landing');
+    //     }
+    //   }
+    //   setLoading(false); // Check khatam
+    // };
+
+    initApp();
+
+    // 3. Auth State Change Listener (Zaroori hai!)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') setView('dashboard');
+      if (event === 'SIGNED_OUT') {
+        setView('landing');
+        localStorage.removeItem("view");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // 4. Jab bhi view badle, use save karein
+  useEffect(() => {
+    if (!loading) {
+      localStorage.setItem("view", view);
+    }
+  }, [view, loading]);
+
+  // 5. Loading screen (Bahut zaroori hai refresh handle karne ke liye)
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <h2>Checking Session...</h2>
+      </div>
+    );
   }
 
-  if(view==="signup"){
-    return <SignupPage setView={setView}/>
-  }
+  // Conditional Rendering
+  if (view === "login") return <LoginPage setView={setView} />;
+  if (view === "signup") return <SignupPage setView={setView} />;
+  if (view === "dashboard") return <DashboardPage setView={setView} />;
 
-  if(view==="dashboard"){
-    return <DashboardPage setView={setView}/>
-  }
-
-  return <LandingPage setView={setView}/>
+  return <LandingPage setView={setView} />;
 }
 
-export default App
+export default App;
+// function App() {
+
+//   const [view, setView] = useState(() => {
+//   return localStorage.getItem("view") || "landing"
+// })
+
+//   useEffect(()=> {
+//     localStorage.setItem("view",view);
+//   },[view]);//refresh thi landing na jay ena mate
+
+//   useEffect(() => {
+//   const checkSession = async () => {
+//     // Supabase se current session mangwayein
+//     const { data: { session } } = await supabase.auth.getSession();
+    
+//     if (session) {
+//       // Agar user login hai, toh use dashboard par hi rakho
+//       setView('dashboard');
+//     } else if (localStorage.getItem("view") === 'dashboard') {
+//       // Agar login nahi hai par view dashboard tha, toh wapas landing bhej do
+//       setView('landing');
+//     }
+//   };
+  
+//   checkSession();
+// }, []); // Ye sirf ek baar chalega jab app load hogi
+
+//   if(view==="login"){
+//     return <LoginPage setView={setView}/>
+//   }
+
+//   if(view==="signup"){
+//     return <SignupPage setView={setView}/>
+//   }
+
+//   if(view==="dashboard"){
+//     return <DashboardPage setView={setView}/>
+//   }
+
+//   return <LandingPage setView={setView}/>
+// }
+
+// export default App
 
 
 

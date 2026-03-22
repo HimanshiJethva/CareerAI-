@@ -86,7 +86,7 @@ def predict(data: dict):
         
         career_messages = {
             "Doctor": f"Your strong performance in {display_name} reflects the analytical precision and dedication essential for a successful medical career.",
-            "Software Engineer": f"Your proficiency in {display_name} is a key indicator of the logical reasoning required to solve complex architectural challenges in tech.",
+            "Software Developer": f"Your proficiency in {display_name} is a key indicator of the logical reasoning required to solve complex architectural challenges in tech.",
             "Politician": f"Your {display_name} traits highlight a natural ability for strategic influence and community leadership.",
             "Athlete": f"The discipline shown in your {display_name} score aligns perfectly with the high-performance standards of professional sports.",
             "Teacher": f"Your {display_name} skills demonstrate the effective communication and knowledge-sharing abilities needed to be an inspiring educator.",
@@ -94,7 +94,7 @@ def predict(data: dict):
             "Entrepreneur": f"Your {display_name} approach showcases the innovative mindset and risk-assessment skills vital for building successful startups.",
             "Scientist": f"Your aptitude for {display_name} indicates a strong scientific temper and the curiosity required for advanced research and discovery.",
             "Engineer": f"Your excellence in {display_name} demonstrates the technical problem-solving mindset and structural logic required for a successful engineering career.",
-            "Charted Accountant": f"Your excellence in {display_name} demonstrates the numerical accuracy and financial expertise required for professional accounting."
+            "Chartered Accountant": f"Your excellence in {display_name} demonstrates the numerical accuracy and financial expertise required for professional accounting."
         }
 
         # 2. Agar career list mein nahi hai toh ek generic but smart message
