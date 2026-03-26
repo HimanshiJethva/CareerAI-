@@ -12,6 +12,7 @@ function App() {
   const [view, setView] = useState(() => {
   return localStorage.getItem("view") || "landing"
 })
+  // const[view, setView] = useState("landing");
 
   useEffect(()=> {
     localStorage.setItem("view",view);
@@ -33,6 +34,10 @@ function App() {
   
   checkSession();
 }, []); // Ye sirf ek baar chalega jab app load hogi
+
+  useEffect(()=>{
+    document.title = "AI Powered Career Prediction";
+  },  []);
 
   if(view==="login"){
     return <LoginPage setView={setView}/>
