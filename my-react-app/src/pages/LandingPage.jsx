@@ -7,6 +7,7 @@ import PredictionBox from "../components/PredictionBox"
 import ProcessStep from "../components/ProcessStep"
 import SliderGroup from "../components/SliderGroup"
 import TestimonialCard from "../components/TestimonialCard"
+import hero_students from "../assets/hero_students.png"
 function LandingPage({setView})
 {
     return (
@@ -34,13 +35,9 @@ function LandingPage({setView})
                 <button className="btn-primary" onClick={()=>setView("login")}>Start Free Prediction</button>
                 </div>
             </div>
-            {/* <div className="hero-visual">
-                <div className="visual-card">
-                <StatItem label="Match Confidence" value="94%" width="94%" />
-                <StatItem label="Career Paths Found" value="12" width="80%" />
-                <StatItem label="Skill Match Score" value="87%" width="87%" />
-                </div>
-            </div> */}
+             <div className="hero-visual">
+                <img src={hero_students} alt="Career AI" className="hero-main-img" />
+            </div>
             </div>
         </section>
 
