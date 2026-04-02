@@ -57,24 +57,79 @@ function LoginPage({ setView }) {
         return Object.keys(newErrors).length === 0
       }
 
-    return (
+  //   return (
+  //     <div className="auth-container">
+  //       <div className="auth-card">
+  //         <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
+  //         {errors.api && <p style={{color:"red"}}>{errors.api}</p>}
+  //         <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>Welcome Back</h2>
+  //         <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="Email Address" className="auth-input" />
+  //         {errors.email && <p style={{color:"red"}}>{errors.email}</p>}
+  //         <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Password" className="auth-input" />
+  //         {errors.password && <p style={{color:"red"}}>{errors.password}</p>}
+  //         <button onClick={handleLogin} className="btn-primary" style={{width: '100%'}} disabled={loading}>
+  //           {loading ? "Logging you in..." : "Login"}</button>
+  //         <p style={{marginTop: '1.5rem'}}>
+  //           Don't have an account? 
+  //           <span className="auth-link" onClick={() => setView('signup')}> Sign Up</span>
+  //         </p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+   return (
       <div className="auth-container">
         <div className="auth-card">
           <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
-          {errors.api && <p style={{color:"red"}}>{errors.api}</p>}
-          <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>Welcome Back</h2>
-          <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="Email Address" className="auth-input" />
-          {errors.email && <p style={{color:"red"}}>{errors.email}</p>}
-          <input type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="Password" className="auth-input" />
-          {errors.password && <p style={{color:"red"}}>{errors.password}</p>}
-          <button onClick={handleLogin} className="btn-primary" style={{width: '100%'}} disabled={loading}>
-            {loading ? "Logging you in..." : "Login"}</button>
+          
+          <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>
+            Welcome Back
+          </h2>
+
+          {errors.api && <p style={{color:"red", marginBottom: '1rem'}}>{errors.api}</p>}
+
+          {/* CHANGES START HERE: Wrapper Form Tag */}
+          <form onSubmit={handleLogin}>
+            
+            <input 
+              type="email" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              placeholder="Email Address" 
+              className="auth-input" 
+            />
+            {errors.email && <p style={{color:"red", fontSize: '0.9rem', marginBottom: '1rem'}}>{errors.email}</p>}
+
+            <input 
+              type="password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              placeholder="Password" 
+              className="auth-input" 
+            />
+            {errors.password && <p style={{color:"red", fontSize: '0.9rem', marginBottom: '1rem'}}>{errors.password}</p>}
+
+            {/* Change: onClick hata kar type="submit" kiya */}
+            <button 
+              type="submit" 
+              className="btn-primary" 
+              style={{width: '100%', marginTop: '1rem'}} 
+              disabled={loading}
+            >
+              {loading ? "Logging you in..." : "Login"}
+            </button>
+
+          </form>
+          {/* CHANGES END HERE */}
+
           <p style={{marginTop: '1.5rem'}}>
             Don't have an account? 
-            <span className="auth-link" onClick={() => setView('signup')}> Sign Up</span>
+            <span className="auth-link" style={{cursor: 'pointer', color: 'var(--coral)'}} onClick={() => setView('signup')}> 
+              Sign Up
+            </span>
           </p>
         </div>
       </div>
     );
-  }
+}
 export default LoginPage

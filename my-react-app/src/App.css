@@ -56,7 +56,7 @@ header {
 }
 
 nav {
-    max-width: 1700px; 
+    max-width: 100%; 
     margin: 0 auto; 
     padding: 1.5rem 3rem;
     display: flex; 
@@ -71,13 +71,28 @@ nav {
     font-weight: 900;
     color: black; 
     text-decoration: none;
-     position: relative;
+    position: relative;
+    transition: 0.3s;
 }
+.logo:hover{
+    color:var(--charcoal);
+}
+<<<<<<< HEAD
 
 /* .logo::after {
     content: ''; position: absolute; bottom: -5px; left: 0;
     width: 40px; height: 3px; background: var(--coral);
 } */
+=======
+.logo::after {
+    content: ''; 
+    position: absolute; 
+    bottom: -5px; left: 0;
+    width: 40px; 
+    height: 3px; 
+    background: var(--coral);
+}
+>>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 
 .nav-links {
      display: flex;
@@ -122,20 +137,40 @@ nav {
 }
 
 /* Hero Section */
+<<<<<<< HEAD
 /* .hero {
     min-height: 100vh; display: flex; align-items: center;
     padding: 8rem 3rem 4rem; background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
 } */
 
+=======
+.hero {
+    min-height: 100vh;
+    display: flex; 
+    align-items: center;
+    padding: 8rem 3rem 4rem; 
+    background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
+}
+>>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 
 .hero-content {
-    max-width: 1400px; margin: 0 auto;
-    display: grid; grid-template-columns: 1.2fr 1fr; gap: 6rem; align-items: center;
+    max-width: 1300px;
+    /* margin-left:6rem;
+    margin-right:auto;  */
+    margin: 0;
+    padding-left: 5%;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 4rem; 
+    align-items: center;
 }
 
 .hero-text h1 {
-    font-family: 'Playfair Display', serif; font-size: 5.5rem;
-    font-weight: 900; line-height: 1.1; margin-bottom: 2rem;
+    font-family: 'Playfair Display', serif; 
+    font-size: 5.5rem;
+    font-weight: 900; 
+    line-height: 1.1; 
+    margin-bottom: 2rem;
 }
 
 .accent { color: var(--coral); }
@@ -146,10 +181,34 @@ nav {
 }
 
 .btn-primary {
-    background: var(--coral); color: white; padding: 1.3rem 3rem;
-    border: none; border-radius: 50px; font-weight: 700;
-    box-shadow: 0 10px 40px rgba(255, 107, 107, 0.3); cursor: pointer;
+    /* background: var(--coral); 
+    color: white; 
+    padding: 1.5rem 4rem;
+    border: none; 
+    border-radius: 50px; 
+    font-weight: 1.25rem;
+    font-size: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 10px 40px rgba(255, 107, 107, 0.3); 
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); */
+    background: var(--coral);
+    color: white;
+    padding: 1.5rem 4rem;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: 0.4s;
+    margin-top: 2rem;
 }
+.btn-primary:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(255, 107, 107, 0.5);
+    background: #ff5252; /* Thoda dark shade hover par */
+}
+<<<<<<< HEAD
 
 /* 1. Hero ko ekdum clean Solid Cream kar dein (Yahan se gradient hata diya) */
 .hero {
@@ -222,6 +281,8 @@ nav {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); 
 }
 
+=======
+>>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 /* Visual Card
 .visual-card {
     background: white; padding: 3rem; border-radius: 30px;
@@ -436,8 +497,9 @@ footer {
 }
 
 .footer-content {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.5%;
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr;
     gap: 4rem;
@@ -671,11 +733,21 @@ footer {
         font-size: 2rem !important;
     }
 }
-.dashboard-wrapper { display: flex; height: 100vh; background: #FFF5F5; font-family: 'DM Sans', sans-serif; 
-                    overflow: hidden;}
+.dashboard-wrapper { 
+    display: flex; 
+    min-height: 100vh;
+    height: auto; 
+    background: #FFF5F5; 
+    font-family: 'DM Sans', sans-serif; 
+    overflow: hidden;
+}
 
 /* Sidebar */
-.dash-sidebar { width: 350px; background: #FF8E9E; color: black; padding: 3.5rem; display: flex; 
+.dash-sidebar { 
+    width: 350px; 
+    background: #FF8E9E; 
+    color: black; 
+    padding: 3.5rem; display: flex; 
     flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; height: 100vh;}
 .sidebar-logo { font-family: 'Playfair Display'; font-size: 3rem; color: #1A1A1A; margin-bottom: 3rem; font-weight: 1000; }
 .stepper-vertical { flex-grow: 1; }
@@ -692,11 +764,21 @@ footer {
     cursor: pointer; margin-top: 10px; }
 
 /* Main Area */
-.dash-main { flex-grow: 1; padding: 2rem 6rem; overflow-y: hidden; text-align: left; box-sizing: border-box;;
-            margin-left: 350px; width: calc(100% - 350px); height: 100vh; padding: 4rem 6rem; }
+.dash-main { 
+    flex-grow: 1; 
+    padding: 2rem 6rem; 
+    overflow-y: hidden; 
+    text-align: left; 
+    box-sizing: border-box;;
+    margin-left: 350px; 
+    width: calc(100% - 350px); 
+    height: 100vh; 
+    padding: 4rem 6rem; 
+}
 .form-header h1 { font-family: 'Playfair Display'; font-size: 2.8rem; margin-bottom: 0.5rem; }
 .form-header p{ font-size:1.3rem; color:black; margin-top: 5px; font-weight: 500; }
-.wide-card { background: white; padding: 3.5rem; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.04);
+.wide-card {
+    background: white; padding: 3.5rem; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.04);
      margin-top: 2rem; min-height: 550px; }
 /* .wide-card (Line 494) ke thik niche ye naya block paste karein */
 .step-view h2, .step-title {

@@ -331,6 +331,11 @@ function DashboardPage({ setView }) {
                </div>
                <div className="footer-btns" style={{marginTop: '2rem'}}>
                   <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
+                  {/* <button className="btn-back" onClick={() => setStep(3)}>Back</button> */}
+               </div>
+               <div className="footer-btns" style={{marginTop: '2rem'}}>
+                  {/* <button className="btn-main" onClick={() => setStep(1)}>Test Again</button> */}
+                  <button className="btn-back" onClick={() => setStep(3)}>Back</button>
                </div>
             </div>
           )}
@@ -340,4 +345,4 @@ function DashboardPage({ setView }) {
   );
 }
 
- export default DashboardPage
+export default DashboardPage
