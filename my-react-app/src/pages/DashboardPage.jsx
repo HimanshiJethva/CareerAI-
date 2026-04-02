@@ -7,26 +7,61 @@ import PredictionBox from "../components/PredictionBox"
 import ProcessStep from "../components/ProcessStep"
 import SliderGroup from "../components/SliderGroup"
 import TestimonialCard from "../components/TestimonialCard"
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import axios from "axios"
 
 
 
 function DashboardPage({ setView }) {
-   const [step, setStep] = useState(1);
-   const [isLoading, setIsLoading] = useState(false); // Ye line missing hai
-   const [predictions, setPredictions] = useState(null);
-   const [formData, setFormData] = useState({
-     Stream: '', Physics: '', Chemistry: '', Biology: '', English: '', ComputerScience: '',
-     Mathematics: '', Accountancy: '', BusinessStudies: '', Economics: '', History: '',
-     Geography: '', PoliticalScience: '', Sociology: '', Interest_Tech: false, 
-     Interest_Entrepreneurship: false, Interest_Leadership: false, Interest_Innovation: false,
-     Interest_CriticalThinking: false, Interest_Research: false, Interest_ComputerSkill: false,
-     Interest_HardwareSkill:false, Interest_Food: false, Interest_Creativity: false,
-     PositiveThinking: false, Participated_Hackathon: false, Participated_Olympiad: false,
-     Participated_Kabaddi: false, Participated_KhoKho: false, Participated_Cricket: false,
-     Oppenness: 3, Conscientiousness: 3, Extraversion: 3, Agreeableness: 3, Neuroticism: 3
+   //const [step, setStep] = useState(1);
+   // 1. Step ko storage se uthayein taaki refresh par Step 1 na ho jaye
+   const [step, setStep] = useState(() => {
+     return parseInt(localStorage.getItem("formStep")) || 1;
    });
+   const [isLoading, setIsLoading] = useState(false); // Ye line missing hai
+   //const [predictions, setPredictions] = useState(null);
+   // predictions ko storage se uthayein taaki refresh par blank na dikhe
+      const [predictions, setPredictions] = useState(() => {
+    const savedPredictions = localStorage.getItem("careerPredictions");
+    return savedPredictions ? JSON.parse(savedPredictions) : null;
+    });
+    // 2. FormData ko bhi storage se uthayein taaki marks delete na hon
+   const [formData, setFormData] = useState(() => {
+     const savedData = localStorage.getItem("careerFormData");
+     return savedData ? JSON.parse(savedData) : {
+        Stream: '', Physics: '', Chemistry: '', Biology: '', English: '', ComputerScience: '',
+        Mathematics: '', Accountancy: '', BusinessStudies: '', Economics: '', History: '',
+        Geography: '', PoliticalScience: '', Sociology: '', Interest_Tech: false, 
+        Interest_Entrepreneurship: false, Interest_Leadership: false, Interest_Innovation: false,
+        Interest_CriticalThinking: false, Interest_Research: false, Interest_ComputerSkill: false,
+        Interest_HardwareSkill:false, Interest_Food: false, Interest_Creativity: false,
+        PositiveThinking: false, Participated_Hackathon: false, Participated_Olympiad: false,
+        Participated_Kabaddi: false, Participated_KhoKho: false, Participated_Cricket: false,
+        Oppenness: 3, Conscientiousness: 3, Extraversion: 3, Agreeableness: 3, Neuroticism: 3
+     };
+   });
+
+   // 3. Ye NAYA HISSA hai: Isse data hamesha save hota rahega
+   useEffect(() => {
+     localStorage.setItem("view", "dashboard");
+     localStorage.setItem("formStep", step);
+     localStorage.setItem("careerFormData", JSON.stringify(formData));
+     // Agar predictions hain, toh unhe bhi save karo
+    if (predictions) {
+        localStorage.setItem("careerPredictions", JSON.stringify(predictions));
+    }
+   }, [step, formData, predictions]);
+  //  const [formData, setFormData] = useState({
+  //    Stream: '', Physics: '', Chemistry: '', Biology: '', English: '', ComputerScience: '',
+  //    Mathematics: '', Accountancy: '', BusinessStudies: '', Economics: '', History: '',
+  //    Geography: '', PoliticalScience: '', Sociology: '', Interest_Tech: false, 
+  //    Interest_Entrepreneurship: false, Interest_Leadership: false, Interest_Innovation: false,
+  //    Interest_CriticalThinking: false, Interest_Research: false, Interest_ComputerSkill: false,
+  //    Interest_HardwareSkill:false, Interest_Food: false, Interest_Creativity: false,
+  //    PositiveThinking: false, Participated_Hackathon: false, Participated_Olympiad: false,
+  //    Participated_Kabaddi: false, Participated_KhoKho: false, Participated_Cricket: false,
+  //    Oppenness: 3, Conscientiousness: 3, Extraversion: 3, Agreeableness: 3, Neuroticism: 3
+  //  });
 
   // STEP 2: Prediction Function yahan likhein (Line 30-60 ke aas pass)
  const handlePredict = async () => {
@@ -123,10 +158,13 @@ function DashboardPage({ setView }) {
          </div>
          <div className="sidebar-footer">
            <p>Logged in </p>
-           <button className="logout-btn" onClick={() => {
+           { <button className="logout-btn" onClick={() => {
+             localStorage.clear(); // Saara data ek saath saaf taaki next time refresh par landing page aaye
+                 setView('landing');
+                 }}>Logout</button>/* <button className="logout-btn" onClick={() => {
              localStorage.removeItem("view");
             setView('landing');
-           }}>Logout</button>
+           }}>Logout</button> */}
          </div>
        </aside>
 
@@ -293,6 +331,11 @@ function DashboardPage({ setView }) {
                </div>
                <div className="footer-btns" style={{marginTop: '2rem'}}>
                   <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
+                  {/* <button className="btn-back" onClick={() => setStep(3)}>Back</button> */}
+               </div>
+               <div className="footer-btns" style={{marginTop: '2rem'}}>
+                  {/* <button className="btn-main" onClick={() => setStep(1)}>Test Again</button> */}
+                  <button className="btn-back" onClick={() => setStep(3)}>Back</button>
                </div>
             </div>
           )}
@@ -302,4 +345,4 @@ function DashboardPage({ setView }) {
   );
 }
 
- export default DashboardPage
+export default DashboardPage
