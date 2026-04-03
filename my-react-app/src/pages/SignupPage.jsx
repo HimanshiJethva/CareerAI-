@@ -1,113 +1,248 @@
-import {useState} from "react"
-import {supabase} from "../supabaseClient"
+// import {useState} from "react"
+// import {supabase} from "../supabaseClient"
+
+// function SignupPage({ setView }) {
+
+//     //states
+//     const [name,setName] = useState("")
+//     const [email,setEmail] = useState("")
+//     const [password,setPassword] = useState("")
+//     const [loading,setLoading] = useState(false)
+
+//     const [errors, setErrors] = useState({}) //error object
+
+//     const handleSignup = async (e) => {
+//       e.preventDefault()
+
+//       if(!validate()) return
+//         setLoading(true)
+
+//       const { data, error } = await supabase.auth.signUp({
+//         email,
+//         password
+//       })
+
+//       setLoading(false)
+//       if(error){
+//         setErrors({ api: error.message })
+//         return
+//       }
+//       await supabase.from("users").insert([
+//         {
+//           id: data.user.id,
+//           name: name,
+//           email: email
+//         }
+//       ])
+
+//       alert("Signup success")
+
+      
+//     }
+//       // const { data, error } = await supabase.auth.signUp({
+//       //   email: email,
+//       //   password: password,
+//       // })
+
+//       // if(error){
+//       //   alert(error.message)
+//       //   return
+//       // }
+
+//       // DB me extra data save
+//       // await supabase.from("users").insert([
+//       //   {
+//       //     id: data.user.id,
+//       //     name: name,
+//       //     email: email
+//       //   }
+//       // ])
+
+//       //alert("Signup successful")
+//    // }
+//     //validation
+//     const validate = () => {
+//         let newErrors = {}
+
+//         // Name (signup only)
+//         if(!name){
+//           newErrors.name = "Name is required"
+//         }
+
+//         // Email
+//         if(!email){
+//           newErrors.email = "Email is required"
+//         } else if(!email.includes("@")){
+//           newErrors.email = "Invalid email"
+//         }
+
+//         // Password
+//         if(!password){
+//           newErrors.password = "Password is required"
+//         } else if(password.length < 6){
+//           newErrors.password = "Min 6 characters"
+//         }
+
+//         setErrors(newErrors)
+
+//         return Object.keys(newErrors).length === 0
+//       }
+
+//     return (
+//       <div className="auth-container">
+//         <div className="auth-card">
+//           <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
+//           {errors.api && <p style={{color:"red"}}>{errors.api}</p>}
+//           <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>Create Account</h2>
+//           <input type="text" placeholder="Full Name" value={name} onChange={(e)=>setName(e.target.value)} className="auth-input" />
+//           {errors.name && <p style={{color:"red"}}>{errors.name}</p>}
+//           <input type="email" placeholder="Email Address" value={email} onChange={(e)=>setEmail(e.target.value)} className="auth-input" />
+//           {errors.email && <p style={{color:"red"}}>{errors.email}</p>}
+//           <input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)} className="auth-input" />
+//           {errors.password && <p style={{color:"red"}}>{errors.password}</p>}
+//           <button  onClick={handleSignup} className="btn-primary" style={{width: '100%'}} disabled={loading}>{loading ? "Please wait.." : "Signup"}</button>
+//           <p style={{marginTop: '1.5rem'}}>
+//             Already have an account? 
+//             <span className="auth-link" onClick={() => setView('login')}> Login</span>
+//           </p>
+//         </div>
+//       </div>
+//     );
+//   }
+// export default SignupPage
+
+import { useState } from "react"
+import { supabase } from "../supabaseClient"
+import toast from 'react-hot-toast'; // <--- 1. Toast import kiya
 
 function SignupPage({ setView }) {
 
-    //states
-    const [name,setName] = useState("")
-    const [email,setEmail] = useState("")
-    const [password,setPassword] = useState("")
-    const [loading,setLoading] = useState(false)
-
-    const [errors, setErrors] = useState({}) //error object
+    // States
+    const [name, setName] = useState("")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [errors, setErrors] = useState({}) 
 
     const handleSignup = async (e) => {
-      e.preventDefault()
+      // Form submission prevent logic
+      if (e) e.preventDefault();
 
-      if(!validate()) return
-        setLoading(true)
+      if (!validate()) return
+      
+      setLoading(true)
 
+      // Supabase Auth Signup
       const { data, error } = await supabase.auth.signUp({
         email,
         password
       })
 
-      setLoading(false)
-      if(error){
-        setErrors({ api: error.message })
+      if (error) {
+        setLoading(false)
+        toast.error(error.message); // <--- 2. Error Toast
         return
       }
-      await supabase.from("users").insert([
-        {
-          id: data.user.id,
-          name: name,
-          email: email
-        }
-      ])
 
-      alert("Signup success")
+      // Database mein extra data insert (Aapka original logic)
+      if (data.user) {
+        await supabase.from("users").insert([
+          {
+            id: data.user.id,
+            name: name,
+            email: email
+          }
+        ])
+      }
 
+      setLoading(false)
       
+      // <--- 3. Success Toast
+      toast.success("Signup successful! Welcome 🎉");
+
+      // Thoda wait karke redirect
+      setTimeout(() => {
+        setView("login"); // Signup ke baad login par bhejna better hai
+      }, 1000);
     }
-      // const { data, error } = await supabase.auth.signUp({
-      //   email: email,
-      //   password: password,
-      // })
 
-      // if(error){
-      //   alert(error.message)
-      //   return
-      // }
-
-      // DB me extra data save
-      // await supabase.from("users").insert([
-      //   {
-      //     id: data.user.id,
-      //     name: name,
-      //     email: email
-      //   }
-      // ])
-
-      //alert("Signup successful")
-   // }
-    //validation
+    // Validation logic (Same as before)
     const validate = () => {
         let newErrors = {}
-
-        // Name (signup only)
-        if(!name){
-          newErrors.name = "Name is required"
-        }
-
-        // Email
-        if(!email){
+        if (!name) newErrors.name = "Name is required"
+        if (!email) {
           newErrors.email = "Email is required"
-        } else if(!email.includes("@")){
+        } else if (!email.includes("@")) {
           newErrors.email = "Invalid email"
         }
-
-        // Password
-        if(!password){
+        if (!password) {
           newErrors.password = "Password is required"
-        } else if(password.length < 6){
+        } else if (password.length < 6) {
           newErrors.password = "Min 6 characters"
         }
-
         setErrors(newErrors)
-
         return Object.keys(newErrors).length === 0
-      }
+    }
 
     return (
       <div className="auth-container">
         <div className="auth-card">
           <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
-          {errors.api && <p style={{color:"red"}}>{errors.api}</p>}
-          <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>Create Account</h2>
-          <input type="text" placeholder="Full Name" value={name} onChange={(e)=>setName(e.target.value)} className="auth-input" />
-          {errors.name && <p style={{color:"red"}}>{errors.name}</p>}
-          <input type="email" placeholder="Email Address" value={email} onChange={(e)=>setEmail(e.target.value)} className="auth-input" />
-          {errors.email && <p style={{color:"red"}}>{errors.email}</p>}
-          <input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)} className="auth-input" />
-          {errors.password && <p style={{color:"red"}}>{errors.password}</p>}
-          <button  onClick={handleSignup} className="btn-primary" style={{width: '100%'}} disabled={loading}>{loading ? "Please wait.." : "Signup"}</button>
+          
+          <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1.5rem'}}>
+            Create Account
+          </h2>
+
+          {/* Form Tag for Enter Key Support */}
+          <form onSubmit={handleSignup}>
+            
+            <input 
+              type="text" 
+              placeholder="Full Name" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              className="auth-input" 
+            />
+            {errors.name && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.name}</p>}
+
+            <input 
+              type="email" 
+              placeholder="Email Address" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              className="auth-input" 
+            />
+            {errors.email && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.email}</p>}
+
+            <input 
+              type="password" 
+              placeholder="Password" 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              className="auth-input" 
+            />
+            {errors.password && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.password}</p>}
+
+            <button 
+              type="submit" 
+              className="btn-primary" 
+              style={{width: '100%', marginTop: '1rem'}} 
+              disabled={loading}
+            >
+              {loading ? "Please wait.." : "Signup"}
+            </button>
+
+          </form>
+
           <p style={{marginTop: '1.5rem'}}>
             Already have an account? 
-            <span className="auth-link" onClick={() => setView('login')}> Login</span>
+            <span className="auth-link" style={{cursor: 'pointer', color: 'var(--coral)'}} onClick={() => setView('login')}> 
+              Login
+            </span>
           </p>
         </div>
       </div>
     );
-  }
-export default SignupPage
+}
 
+export default SignupPage;

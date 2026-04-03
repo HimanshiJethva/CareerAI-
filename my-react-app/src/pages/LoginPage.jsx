@@ -1,5 +1,6 @@
 import {useState} from "react"
 import {supabase} from "../supabaseClient"
+import toast from "react-hot-toast"
 
 function LoginPage({ setView }) {
     
@@ -23,7 +24,8 @@ function LoginPage({ setView }) {
       setLoading(false)
 
       if(error){
-        setErrors({ api: error.message })
+        toast.error(error.message || "Login Failed. Please check your details.");
+        // setErrors({ api: error.message })
         return
       }
       // setErrors({api:"Login sccessfull🎉"})
@@ -31,8 +33,12 @@ function LoginPage({ setView }) {
       // setTimedout(() => {
       //   setView("dashboard")
       // },1000)
-      alert("Login successfull🎉")
+      // alert("Login successfull🎉")
+      toast.success("Login successfully! 🎉");
       setView("dashboard")
+      // setTimedout(() => {
+      //    setView("dashboard")
+      //  },800)
     }
 
     const validate = () => {

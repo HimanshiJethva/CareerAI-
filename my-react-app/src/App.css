@@ -196,8 +196,17 @@ nav {
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12);
 } */
 
-.stat-bar { height: 8px; background: rgba(26, 26, 26, 0.08); border-radius: 10px; margin: 10px 0 20px; overflow: hidden; }
-.stat-fill { height: 100%; background: linear-gradient(90deg, var(--coral), var(--sage)); transition: 2s ease-out; }
+.stat-bar { 
+    height: 8px; 
+    background: rgba(26, 26, 26, 0.08); 
+    border-radius: 10px; 
+    margin: 10px 0 20px; 
+    overflow: hidden;
+ }
+.stat-fill { 
+    height: 100%; 
+    background: linear-gradient(90deg, var(--coral), var(--sage)); 
+    transition: 2s ease-out; }
 
 /* Features */
 .features { 
@@ -248,8 +257,13 @@ nav {
 /* .showcase { padding: 8rem 3rem; background: var(--charcoal); color: white; }
 .showcase-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; } */
 .prediction-item {
-    background: rgba(255, 255, 255, 0.08); padding: 2rem; border-radius: 20px;
-    margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255, 255, 255, 0.08); 
+    padding: 2rem; 
+    border-radius: 20px;
+    margin-bottom: 1.5rem; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
     border-left: 4px solid var(--coral);
 }
 /* Process Section Styling */
@@ -655,8 +669,20 @@ footer {
     background: #FF8E9E; 
     color: black; 
     padding: 3.5rem; display: flex; 
-    flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; height: 100vh;}
-.sidebar-logo { font-family: 'Playfair Display'; font-size: 3rem; color: #1A1A1A; margin-bottom: 3rem; font-weight: 1000; }
+    flex-direction: column; 
+    position: fixed; 
+    left: 0; 
+    top: 0; 
+    bottom: 0; 
+    height: 100vh;
+}
+.sidebar-logo { 
+    font-family: 'Playfair Display'; 
+    font-size: 3rem; 
+    color: #1A1A1A; 
+    margin-bottom: 3rem; 
+    font-weight: 1000;
+ }
 .stepper-vertical { flex-grow: 1; }
 .step-item { display: flex; gap: 15px; margin-bottom: 2.8rem; align-items: center; opacity: 0.4; transition: 0.3s; }
 .step-item.active { opacity: 1; transform: translateX(10px); }
@@ -682,11 +708,23 @@ footer {
     height: 100vh; 
     padding: 4rem 6rem; 
 }
-.form-header h1 { font-family: 'Playfair Display'; font-size: 2.8rem; margin-bottom: 0.5rem; }
-.form-header p{ font-size:1.3rem; color:black; margin-top: 5px; font-weight: 500; }
+
+.form-header h1 { 
+    font-family: 'Playfair Display'; 
+    font-size: 2.8rem; 
+    margin-bottom: 0.5rem; }
+.form-header p{ 
+    font-size:1.3rem; 
+    color:black; 
+    margin-top: 5px; 
+    font-weight: 500; }
 .wide-card {
-    background: white; padding: 3.5rem; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.04);
-     margin-top: 2rem; min-height: 550px; }
+    background: white; 
+    padding: 3.5rem; 
+    border-radius: 24px; 
+    box-shadow: 0 15px 40px rgba(0,0,0,0.04);
+    margin-top: 2rem; 
+    min-height: 550px; }
 /* .wide-card (Line 494) ke thik niche ye naya block paste karein */
 .step-view h2, .step-title {
     font-size: 1.8rem !important; /* Isse size badi ho jayegi */
@@ -729,13 +767,35 @@ footer {
 .slider-group input { width: 100%; accent-color: #FF6B6B; }
 
 
-.checkbox-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee; }
-.check-grid { display: flex; gap: 2rem; margin-top: 1.5rem; }
-.check-item { display: flex; align-items: center; gap: 10px; font-weight: 500; cursor: pointer; }
+.checkbox-section { 
+    margin-top: 3rem; 
+    padding-top: 2rem; 
+    border-top: 1px solid #eee; }
+.check-grid { 
+    display: flex; 
+    gap: 2rem; 
+    margin-top: 1.5rem; }
+.check-item { 
+    display: flex; 
+    align-items: 
+    center; gap: 10px; 
+    font-weight: 500; 
+    cursor: pointer; }
 
 /* Buttons */
-.footer-btns { margin-top: 4rem; display: flex; justify-content: space-between; }
-.btn-main { background: #121212; color: white; padding: 1.2rem 3.5rem; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.footer-btns {
+     margin-top: 4rem; 
+     display: flex; 
+     justify-content: space-between; }
+.btn-main { 
+    background: #121212; 
+    color: white; 
+    padding: 1.2rem 3.5rem; 
+    border: none; 
+    border-radius: 12px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    transition: 0.3s; }
 /* Line 516 ke paas ye paste karein */
 .btn-predict {
     background: linear-gradient(135deg, #FF6B6B, #FF4757) !important;
@@ -747,8 +807,17 @@ footer {
     cursor: pointer;
     box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
 }
-.btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); color:white;}
-.btn-back { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; text-decoration: underline; }
+.btn-main:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
+    color:white;}
+.btn-back { 
+    background: none; 
+    border: none; 
+    color: #666; 
+    font-weight: 600; 
+    cursor: pointer; 
+    text-decoration: underline; }
 .btn-main:disabled, .btn-predict-gradient:disabled {
     background: #cccccc !important;
     cursor: not-allowed !important;
@@ -814,7 +883,9 @@ footer {
     margin: 5px;
 }
 
-.pill:hover { border-color: #FF758C; }
+.pill:hover { 
+    border-color: #FF758C; 
+}
 
 .pill.selected {
     background: #FF758C; /* Aapka Pink Code */
@@ -822,5 +893,7 @@ footer {
     border-color: #FF758C;
     box-shadow: 0 4px 10px rgba(255, 117, 140, 0.3);
 }
-.animate-in { animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+.animate-in { 
+    animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); 
+}
 @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }

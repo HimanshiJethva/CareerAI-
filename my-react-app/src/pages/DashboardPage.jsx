@@ -41,6 +41,8 @@ function DashboardPage({ setView }) {
      };
    });
 
+
+
    // 3. Ye NAYA HISSA hai: Isse data hamesha save hota rahega
    useEffect(() => {
      localStorage.setItem("view", "dashboard");
@@ -51,17 +53,6 @@ function DashboardPage({ setView }) {
         localStorage.setItem("careerPredictions", JSON.stringify(predictions));
     }
    }, [step, formData, predictions]);
-  //  const [formData, setFormData] = useState({
-  //    Stream: '', Physics: '', Chemistry: '', Biology: '', English: '', ComputerScience: '',
-  //    Mathematics: '', Accountancy: '', BusinessStudies: '', Economics: '', History: '',
-  //    Geography: '', PoliticalScience: '', Sociology: '', Interest_Tech: false, 
-  //    Interest_Entrepreneurship: false, Interest_Leadership: false, Interest_Innovation: false,
-  //    Interest_CriticalThinking: false, Interest_Research: false, Interest_ComputerSkill: false,
-  //    Interest_HardwareSkill:false, Interest_Food: false, Interest_Creativity: false,
-  //    PositiveThinking: false, Participated_Hackathon: false, Participated_Olympiad: false,
-  //    Participated_Kabaddi: false, Participated_KhoKho: false, Participated_Cricket: false,
-  //    Oppenness: 3, Conscientiousness: 3, Extraversion: 3, Agreeableness: 3, Neuroticism: 3
-  //  });
 
   // STEP 2: Prediction Function yahan likhein (Line 30-60 ke aas pass)
  const handlePredict = async () => {
@@ -117,7 +108,7 @@ function DashboardPage({ setView }) {
         if (formData.Stream === "Arts") required.push('History', 'Geography', 'Sociology');
 
         // Check karein ki saari required fields 0-100 ke beech hain
-        return required.every(field => formData[field] !== "" && formData[field] >= 0 && formData[field] <= 100);
+        return required.every(field => formData[field] !== "" && formData[field] >= 33 && formData[field] <= 100);
     }
     
     if (step === 3) {
@@ -169,7 +160,7 @@ function DashboardPage({ setView }) {
        </aside>
 
        {/* Main Content Area */}
-       <main className="dash-main">
+        <main className="dash-main">
          <div className="form-header">
            <h1>{stepsInfo[step-1].t}</h1>
            <p>Please provide accurate details for a better prediction.</p>
@@ -220,40 +211,52 @@ function DashboardPage({ setView }) {
 
            {/* STEP 3: PERSONALITY */}
            {step === 3 && (
-             <div className="step-view">
-              <h2 style={{ marginBottom: '0.5rem' }}>Personality Traits Scale(1: Low,  5: High)</h2>
-              {/* <p style={{ color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                  Scale (1: Low, 5: High). Hints niche diye gaye hain.
-              </p> */}
-              
-              <div className="slider-grid" style={{ gap: '1rem' }}> {/* Gap kam kiya hai */}
-                {['Oppenness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Neuroticism'].map(t => {
-                  const traitInfo = {
-                    Oppenness: "Creativity aur nayi cheezein sikhna.",
-                    Conscientiousness: "Discipline aur planning.",
-                    Extraversion: "Logo se milna aur baatein karna.",
-                    Agreeableness: "Helpful aur friendly nature.",
-                    Neuroticism: "Stress handle karne ki ability."
-                  };
-
-                  return (
-                    <div key={t} style={{ marginBottom: '1rem' }}>
-                      <SliderGroup label={t} name={t} val={formData[t]} fn={updateField} />
-                      <p style={{ fontSize: '0.8rem', color: '#888', marginTop: '2px' }}>
-                        {traitInfo[t]}
-                      </p>
+              <div className="step-view">
+                <h2 style={{ marginBottom: '1.5rem' }}>Personality Profile (Scale 1: Low, 5: High)</h2>
+                
+                <div className="slider-grid" style={{ gap: '1.5rem' }}>
+                  {[
+                    { 
+                      id: 'Oppenness', 
+                      label: 'Creativity & Learning New Things' 
+                    },
+                    { 
+                      id: 'Conscientiousness', 
+                      label: 'Discipline & Planning Skills' 
+                    },
+                    { 
+                      id: 'Extraversion', 
+                      label: 'Socializing & Communication' 
+                    },
+                    { 
+                      id: 'Agreeableness', 
+                      label: 'Friendliness & Teamwork' 
+                    },
+                    { 
+                      id: 'Neuroticism', 
+                      label: 'Stress Management Ability' 
+                    }
+                  ].map(trait => (
+                    <div key={trait.id} style={{ marginBottom: '1.2rem' }}>
+                      {/* Ab label ki jagah description upar dikhega */}
+                      <SliderGroup 
+                        label={trait.label} 
+                        name={trait.id} 
+                        val={formData[trait.id]} 
+                        fn={updateField} 
+                      />
                     </div>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
 
-              <div className="footer-btns" style={{ marginTop: '1.5rem' }}>
-                <button className="btn-back" onClick={() => setStep(2)}>Back</button>
-                <button className="btn-main" disabled={!canGoNext()} onClick={() => setStep(4)}>Next: Interests</button>
+                <div className="footer-btns" style={{ marginTop: '2rem' }}>
+                  <button className="btn-back" onClick={() => setStep(2)}>Back</button>
+                  <button className="btn-main" disabled={!canGoNext()} onClick={() => setStep(4)}>
+                    Next: Interests
+                  </button>
+                </div>
               </div>
-             </div>
-           )}
-
+            )}
            {/* STEP 4: INTERESTS & PARTICIPATION (Pills Layout) */}
            {step === 4 && (
              <div className="step-view animate-in">
@@ -310,7 +313,7 @@ function DashboardPage({ setView }) {
                {/* Navigation Buttons */}
                <div className="footer-btns">
                  <button className="btn-back" onClick={() => setStep(3)}>Back</button>
-                 <button className="btn-predict-gradient" disabled={false} onClick={handlePredict}>
+                 <button className="btn-predict-gradient" disabled={!canGoNext()} onClick={handlePredict}>
                    Predict Career ✨
                  </button>
                </div>
@@ -329,13 +332,14 @@ function DashboardPage({ setView }) {
                     </div>
                   ))}
                </div>
-               <div className="footer-btns" style={{marginTop: '2rem'}}>
+               {/* <div className="footer-btns" style={{marginTop: '2rem'}}>
                   <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
-                  {/* <button className="btn-back" onClick={() => setStep(3)}>Back</button> */}
-               </div>
+              
+               </div> */}
                <div className="footer-btns" style={{marginTop: '2rem'}}>
                   {/* <button className="btn-main" onClick={() => setStep(1)}>Test Again</button> */}
                   <button className="btn-back" onClick={() => setStep(3)}>Back</button>
+                  <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
                </div>
             </div>
           )}
