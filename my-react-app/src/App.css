@@ -77,22 +77,11 @@ nav {
 .logo:hover{
     color:var(--charcoal);
 }
-<<<<<<< HEAD
 
 /* .logo::after {
     content: ''; position: absolute; bottom: -5px; left: 0;
     width: 40px; height: 3px; background: var(--coral);
 } */
-=======
-.logo::after {
-    content: ''; 
-    position: absolute; 
-    bottom: -5px; left: 0;
-    width: 40px; 
-    height: 3px; 
-    background: var(--coral);
-}
->>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 
 .nav-links {
      display: flex;
@@ -137,21 +126,11 @@ nav {
 }
 
 /* Hero Section */
-<<<<<<< HEAD
 /* .hero {
     min-height: 100vh; display: flex; align-items: center;
     padding: 8rem 3rem 4rem; background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
 } */
 
-=======
-.hero {
-    min-height: 100vh;
-    display: flex; 
-    align-items: center;
-    padding: 8rem 3rem 4rem; 
-    background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
-}
->>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 
 .hero-content {
     max-width: 1300px;
@@ -208,7 +187,6 @@ nav {
     box-shadow: 0 20px 50px rgba(255, 107, 107, 0.5);
     background: #ff5252; /* Thoda dark shade hover par */
 }
-<<<<<<< HEAD
 
 /* 1. Hero ko ekdum clean Solid Cream kar dein (Yahan se gradient hata diya) */
 .hero {
@@ -281,8 +259,6 @@ nav {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); 
 }
 
-=======
->>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 /* Visual Card
 .visual-card {
     background: white; padding: 3rem; border-radius: 30px;
@@ -656,6 +632,27 @@ footer {
     animation: fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/* Forgot Password Link Styling */
+.forgot-password-link {
+    color:  rgb(63, 59, 59);
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+
+    /* color: rgb(50, 48, 48);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: 'DM Sans', sans-serif; */
+}
+
+.forgot-password-link:hover {
+    color: var(--coral); /* Hover karne par ye aapke theme ka pink ho jayega */
+    text-decoration: underline; /* Option: Hover par underline dikhane ke liye (Aap chaho toh ise hata sakti ho) */
+}
+
 /* Input fields (Email, Password, Name) */
 .auth-input {
     width: 100%;
@@ -773,7 +770,7 @@ footer {
     margin-left: 350px; 
     width: calc(100% - 350px); 
     height: 100vh; 
-    padding: 4rem 6rem; 
+    padding: 4rem 6rem;
 }
 .form-header h1 { font-family: 'Playfair Display'; font-size: 2.8rem; margin-bottom: 0.5rem; }
 .form-header p{ font-size:1.3rem; color:black; margin-top: 5px; font-weight: 500; }
@@ -917,3 +914,408 @@ footer {
 }
 .animate-in { animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
 @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =========================================
+   DASHBOARD NAVBAR (SkillLink Reference Style)
+   ========================================= */
+.dash-top-navbar {
+    background-color: var(--cream) !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 3rem;
+    height: 75px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+}
+
+.dash-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #000000;
+    cursor: pointer;
+    letter-spacing: -0.5px;
+}
+
+.dash-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem; /* Space between Explore and Profile */
+}
+
+.dash-explore {
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    font-size: 1.05rem;
+    transition: color 0.3s;
+}
+.dash-explore:hover {
+    color: var(--coral);
+}
+
+/* Profile Area */
+.profile-dropdown-container {
+    position: relative;
+}
+
+.profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+}
+
+.avatar-circle {
+    width: 42px;
+    height: 42px;
+    background-color: #7B8B9E; /* Muted slate blue from reference */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.user-icon {
+    width: 22px;
+    height: 22px;
+}
+
+.caret {
+    color: #666;
+    transition: transform 0.3s ease;
+}
+.caret.open {
+    transform: rotate(180deg);
+}
+
+/* Dropdown Card */
+.dropdown-menu {
+    position: absolute;
+    top: 130%;
+    right: 0;
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.04);
+    width: 250px;
+    padding: 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.2s ease;
+}
+
+.dropdown-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+.dropdown-header strong {
+    font-size: 1.05rem;
+    color: #333;
+}
+.dropdown-email {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 0.2rem;
+}
+
+.dropdown-divider {
+    border: none;
+    border-top: 1px solid #f0f0f0;
+    margin: 0.5rem 0;
+}
+
+.dropdown-item {
+    padding: 0.8rem 1.5rem;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 0.95rem;
+    color: #444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.2s;
+}
+
+/* .item-icon {
+    font-size: 1.1rem;
+    opacity: 0.7;
+} */
+
+.logout-item {
+    color: var(--coral) !important;
+    font-weight: 600;
+}
+.logout-item .item-icon {
+    opacity: 1;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 107, 107, 0.08); /* Halka pink background */
+    color: var(--coral); /* Text pink ho jayega */
+}
+
+/* Icons ko bhi pink karne ke liye ye add karein */
+.dropdown-item:hover .item-icon {
+    color: var(--coral);
+}
+
+/* Click karne par aane wali default black border ko hatane ke liye */
+.dropdown-item:focus, .profile-trigger:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* =========================================
+   MY PROFILE PAGE (EXACT REFERENCE MATCH)
+   ========================================= */
+.profile-main-container {
+    padding-top: 105px; /* <--- Upar ki padding kam ki taaki scroll na ho */
+    max-width: 500px; 
+    width: 90%; 
+    margin: 0 auto;
+    padding-bottom: 20px; /* <--- Niche ki padding bhi kam ki */
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; 
+}
+
+/* Base Card with Soft Shadow */
+.profile-card-ref {
+    background: #FFFFFF;
+    border-radius: 24px; 
+    padding: 2.2rem 2.8rem;
+    
+    /* ADDED BOX SHADOW HERE for depth */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06), 0 4px 10px rgba(0,0,0,0.03); 
+    border: 1px solid rgba(0,0,0,0.02); 
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.profile-card-ref.col-layout {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem 2.8rem;
+}
+
+/* Card 1: Header Info */
+.ref-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+}
+
+/* Silhouette Avatar from sketch */
+.ref-avatar {
+    width: 95px;
+    height: 95px;
+    background-color: #5C6E8A; 
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+}
+.ref-avatar svg {
+    width: 80px;
+    height: 80px;
+    margin-bottom: -8px; 
+}
+
+.ref-info h2 {
+    font-size: 1.8rem;
+    color: #101828; 
+    margin-bottom: 0.3rem;
+    font-weight: 700;
+    font-family: sans-serif; 
+}
+.ref-info p {
+    color: #667085;
+    font-size: 1rem;
+}
+.ref-black-pill {
+    width: 32px;
+    height: 7px;
+    background-color: #101828;
+    border-radius: 10px;
+    margin-top: 0.8rem;
+}
+
+/* Exact Minimalist Pencil Button Edit Mode */
+.ref-edit-btn {
+    background: #F8F9FA; /* Very light subtle background */
+    border: 1px solid #E4E7EC; /* Slight border like in reference */
+    width: 48px;
+    height: 48px;
+    border-radius: 14px; /* Squircle shape matching reference exactly */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.ref-edit-btn:hover {
+    background: #E4E7EC;
+    border-color: #D0D5DD;
+}
+.ref-edit-btn:hover svg {
+    stroke: var(--coral); 
+    transform: scale(1.05); 
+}
+
+/* Card 2: Action Rows */
+.ref-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 0;
+    cursor: pointer;
+}
+.ref-row.no-hover { cursor: default; }
+
+.ref-row-left {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+/* Squircle Icon Boxes reference */
+.ref-icon-box {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.blue-box { background: #F0F4FF; color: #4A72FF; }
+.green-box { background: #EAF7ED; color: #28A745; }
+
+.ref-row-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #101828;
+}
+.ref-arrow {
+    color: #98A2B3;
+    font-size: 1.8rem;
+    font-weight: 400;
+}
+.ref-divider {
+    border: none;
+    border-top: 1px solid #EAECF0;
+    margin: 0;
+}
+
+.ref-status-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.ref-badge {
+    color: #039855; 
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.ref-joined-text {
+    text-align: center;
+    color: #98A2B3;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    margin-top: 1.5rem;
+}
+
+/* Edit Mode Layout Fixes */
+.edit-mode-avatar {
+    margin: 0 auto 1.2rem; /* Reduced margin to compress height */
+    position: relative;
+    overflow: visible; 
+}
+.edit-mode-avatar svg {
+    border-radius: 50%;
+    background-color: #5C6E8A;
+    width: 100%; height: 100%;
+}
+.upload-badge {
+    position: absolute; bottom: 0; right: 0;
+    background: #101828; color: white; width: 30px; height: 30px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; border: 2px solid white; z-index: 10;
+}
+
+/* Reduced height for Edit Card */
+/* Reduced height and width specifically for Edit Card */
+.compact-edit-card { 
+    padding: 1.8rem 2.5rem; /* Andar ka space thoda aur compact kiya */
+    max-width: 500px !important; /* <--- YAHAN WIDTH KAM KI HAI */
+    margin: 0 auto; /* Isse aapka chota card ekdum screen ke center mein aayega */
+}
+
+.edit-title { font-size: 1.6rem; font-family: 'Playfair Display', serif; margin-bottom: 0.2rem; }
+.edit-subtitle { color: #777; font-size: 0.9rem; margin-bottom: 1.5rem; } /* Reduced margin */
+
+/* Edit Form Fields */
+.edit-form .input-group { margin-bottom: 1.2rem; text-align: left; } /* Reduced margin */
+.edit-form label { font-size: 0.75rem; font-weight: bold; color: #555; letter-spacing: 1px; display: block; margin-bottom: 0.4rem; }
+.input-wrapper { display: flex; align-items: center; background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 0 10px; }
+.input-wrapper input { flex: 1; border: none; background: transparent; padding: 10px 10px; font-size: 1rem; color: #333; outline: none; } /* Reduced padding inside inputs */
+.input-icon { color: #888; }
+.input-wrapper.disabled { background: #f0f0f0; cursor: not-allowed; }
+.input-wrapper.disabled input { color: #888; cursor: not-allowed; }
+.help-text { display: block; font-size: 0.75rem; color: #999; margin-top: 0.4rem; font-style: italic; }
+
+/* Back Button */
+/* Back Button */
+.back-text-btn { 
+    background: none; 
+    border: none; 
+    color: #666; 
+    cursor: pointer; 
+    font-weight: 500; 
+    margin: 0 auto 0.5rem auto; /* Button ko center align karne ke liye */
+    max-width: 420px; /* Card ki width se match kar diya */
+    display: block;
+    text-align: left; 
+    width: 100%; 
+    transition: color 0.2s; 
+}
+.back-text-btn:hover { 
+    color: var(--coral); 
+}
+
+/* Click karne par aane wali default black border/outline ko hatane ke liye */
+.back-text-btn:focus, 
+.back-text-btn:active,
+.ref-edit-btn:focus, 
+.ref-edit-btn:active,
+.upload-badge:focus,
+.upload-badge:active {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent; /* Mobile par tap color hatane ke liye */
+}
+
+/* Cloud icon ko clickable feel dene ke liye */
+.upload-badge {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.upload-badge:hover {
+    transform: scale(1.1);
+}

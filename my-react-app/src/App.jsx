@@ -6,6 +6,8 @@ import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
 import SignupPage from "./pages/SignupPage"
 import DashboardPage from "./pages/DashboardPage"
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
 
@@ -51,6 +53,13 @@ function App() {
     return <DashboardPage setView={setView}/>
   }
 
+   if(view==="forgotpassword"){
+     return <ForgotPasswordPage setView={setView}/>
+   }
+  
+  if (view === 'profile') {
+    return <ProfilePage setView={setView} />
+  }
   return <LandingPage setView={setView}/>
 }
 

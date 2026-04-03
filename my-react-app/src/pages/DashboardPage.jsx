@@ -9,8 +9,7 @@ import SliderGroup from "../components/SliderGroup"
 import TestimonialCard from "../components/TestimonialCard"
 import {useState, useEffect} from "react"
 import axios from "axios"
-
-
+import DashboardNavbar from "./DashboardNavbar"
 
 function DashboardPage({ setView }) {
    //const [step, setStep] = useState(1);
@@ -142,10 +141,15 @@ function DashboardPage({ setView }) {
 
    return (
      <div className="dashboard-wrapper">
-       {/* Sidebar Stepper */}
-       <aside className="dash-sidebar">
-         <div className="sidebar-logo">CareerAI</div>
-         <div className="stepper-vertical">
+       
+       {/* 1. NAYA NAVBAR */}
+       <DashboardNavbar setView={setView} />
+
+       {/* 2. SIDEBAR - Top exactly 75px (Navbar height) aur bacha hua height 100vh - 75px */}
+       <aside className="dash-sidebar" style={{ top: '75px', height: 'calc(100vh - 75px)' }}>
+         
+         {/* NEW: margin-top add kiya taaki "Stream Selection" text kate nahi */}
+         <div className="stepper-vertical" style={{ marginTop: '2.5rem' }}>
            {stepsInfo.map((item) => (
              <div key={item.n} className={`step-item ${step === item.n ? 'active' : ''} ${step > item.n ? 'completed' : ''}`}>
                <div className="step-num">{step > item.n ? "✓" : item.n}</div>
@@ -156,20 +160,18 @@ function DashboardPage({ setView }) {
              </div>
            ))}
          </div>
+         
          <div className="sidebar-footer">
            <p>Logged in </p>
-           { <button className="logout-btn" onClick={() => {
-             localStorage.clear(); // Saara data ek saath saaf taaki next time refresh par landing page aaye
-                 setView('landing');
-                 }}>Logout</button>/* <button className="logout-btn" onClick={() => {
-             localStorage.removeItem("view");
-            setView('landing');
-           }}>Logout</button> */}
+           <button className="logout-btn" onClick={() => {
+             localStorage.clear(); 
+             setView('landing');
+           }}>Logout</button>
          </div>
        </aside>
 
-       {/* Main Content Area */}
-       <main className="dash-main">
+       {/* 3. MAIN CONTENT AREA - Galti yahan thi! Ab tag proper open hai aur padding-top 110px hai */}
+       <main className="dash-main" style={{ paddingTop: '110px' }}>
          <div className="form-header">
            <h1>{stepsInfo[step-1].t}</h1>
            <p>Please provide accurate details for a better prediction.</p>
@@ -180,6 +182,8 @@ function DashboardPage({ setView }) {
            {step === 1 && (
              <div className="step-view">
                <h2>Select Your Educational Stream</h2>
+               
+               {/* ... (Aapka bacha hua Step 1 ka code waisa hi rahega) ... */}
                <div className="stream-grid">
                  {["Science_PCM", "Science_PCB", "Commerce", "Arts"].map(s => (
                    <button key={s} className={`stream-card ${formData.Stream === s ? 'selected' : ''}`} 
@@ -196,6 +200,7 @@ function DashboardPage({ setView }) {
              </div>
            )}
 
+           {/* ... (Aapka bacha hua Step 2, 3, 4, aur 5 ka code bhi yahan aayega, use mat hatana) ... */}
            {/* STEP 2: MARKS (Dynamic) */}
            {step === 2 && (
              <div className="step-view">

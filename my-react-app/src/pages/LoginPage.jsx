@@ -118,6 +118,15 @@ function LoginPage({ setView }) {
             >
               {loading ? "Logging you in..." : "Login"}
             </button>
+              {/*NEW: Forgot Password Link*/}
+            <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+              <span 
+                className="forgot-password-link" 
+                onClick={() => setView('forgotpassword')}
+              >
+                Forgot your password?
+              </span>
+            </div>
 
           </form>
           {/* CHANGES END HERE */}
