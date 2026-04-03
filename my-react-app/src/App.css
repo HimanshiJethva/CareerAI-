@@ -43,6 +43,7 @@ body {
     overflow-x: hidden;
 }
 
+
 /* Header & Nav */
 header {
     position: fixed;
@@ -63,11 +64,12 @@ nav {
     align-items: center;
 }
 
+
 .logo {
     font-family: 'Playfair Display', serif;
-    font-size: 3.5rem;
+    font-size: 3rem;
     font-weight: 900;
-    color: var(--charcoal); 
+    color: black; 
     text-decoration: none;
     position: relative;
     transition: 0.3s;
@@ -75,6 +77,13 @@ nav {
 .logo:hover{
     color:var(--charcoal);
 }
+<<<<<<< HEAD
+
+/* .logo::after {
+    content: ''; position: absolute; bottom: -5px; left: 0;
+    width: 40px; height: 3px; background: var(--coral);
+} */
+=======
 .logo::after {
     content: ''; 
     position: absolute; 
@@ -83,6 +92,7 @@ nav {
     height: 3px; 
     background: var(--coral);
 }
+>>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 
 .nav-links {
      display: flex;
@@ -127,6 +137,13 @@ nav {
 }
 
 /* Hero Section */
+<<<<<<< HEAD
+/* .hero {
+    min-height: 100vh; display: flex; align-items: center;
+    padding: 8rem 3rem 4rem; background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
+} */
+
+=======
 .hero {
     min-height: 100vh;
     display: flex; 
@@ -134,6 +151,7 @@ nav {
     padding: 8rem 3rem 4rem; 
     background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
 }
+>>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 
 .hero-content {
     max-width: 1300px;
@@ -190,6 +208,81 @@ nav {
     box-shadow: 0 20px 50px rgba(255, 107, 107, 0.5);
     background: #ff5252; /* Thoda dark shade hover par */
 }
+<<<<<<< HEAD
+
+/* 1. Hero ko ekdum clean Solid Cream kar dein (Yahan se gradient hata diya) */
+.hero {
+    min-height: 100vh; 
+    display: flex; 
+    align-items: center;
+    padding: 8rem 3rem 4rem; 
+    background: var(--cream); /* Bas solid cream, koi pink nahi yahan */
+}
+
+/* 2. Image Container ko set karein */
+/* 1. Aapki Original Cream Theme (Sab kuch wapas saaf aur bright) */
+.hero {
+    min-height: 100vh; 
+    display: flex; 
+    align-items: center;
+    padding: 8rem 3rem 4rem; 
+    background: var(--cream) !important; 
+    background-image: none !important; 
+}
+
+/* 2. Image Container */
+.hero-visual {
+    position: relative;
+    z-index: 1; 
+}
+
+/* 3. Top-Left Gola (Deep Background Effect - Bohot zyada blur) */
+.hero-visual::before {
+    content: '';
+    position: absolute;
+    top: -100px;   /* Image se thoda dur */
+    left: -100px;  /* Image se thoda dur */
+    width: 300px;  /* Size bada kiya taaki light faile */
+    height: 300px;
+    background: #FF6B6B; 
+    border-radius: 50%;
+    filter: blur(100px); /* SECRET: 100px blur se ye ekdum background light jaisa lagega */
+    z-index: -1;
+    opacity: 0.45; /* Opacity kam ki taaki door lage */
+    pointer-events: none;
+}
+
+/* 4. Bottom-Right Gola (Image ke thoda nazdeek) */
+.hero-visual::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; /* Image ke thoda nazdeek */
+    right: -30px;  
+    width: 250px; 
+    height: 250px;
+    background: #FF6B6B;
+    border-radius: 50%;
+    filter: blur(80px); /* Ise thoda kam blur kiya hai */
+    z-index: -1;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* 5. Image waisi ki waisi sundar rahegi */
+.hero-main-img {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 20px;
+    position: relative;
+    z-index: 2; 
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); 
+}
+
+=======
+>>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 /* Visual Card
 .visual-card {
     background: white; padding: 3rem; border-radius: 30px;
