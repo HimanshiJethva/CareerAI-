@@ -113,7 +113,7 @@
 
 import { useState } from "react"
 import { supabase } from "../supabaseClient"
-import toast from 'react-hot-toast'; // <--- 1. Toast import kiya
+import toast from 'react-hot-toast';
 
 function SignupPage({ setView }) {
 
@@ -121,11 +121,11 @@ function SignupPage({ setView }) {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("") // <--- 1. Nayi State add ki
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState({}) 
 
     const handleSignup = async (e) => {
-      // Form submission prevent logic
       if (e) e.preventDefault();
 
       if (!validate()) return
@@ -140,11 +140,10 @@ function SignupPage({ setView }) {
 
       if (error) {
         setLoading(false)
-        toast.error(error.message); // <--- 2. Error Toast
+        toast.error(error.message);
         return
       }
 
-      // Database mein extra data insert (Aapka original logic)
       if (data.user) {
         await supabase.from("users").insert([
           {
@@ -156,17 +155,14 @@ function SignupPage({ setView }) {
       }
 
       setLoading(false)
-      
-      // <--- 3. Success Toast
       toast.success("Signup successful! Welcome 🎉");
 
-      // Thoda wait karke redirect
       setTimeout(() => {
-        setView("login"); // Signup ke baad login par bhejna better hai
+        setView("login");
       }, 1000);
     }
 
-    // Validation logic (Same as before)
+    // Validation logic (Updated with Password Match Check)
     const validate = () => {
         let newErrors = {}
         if (!name) newErrors.name = "Name is required"
@@ -175,11 +171,21 @@ function SignupPage({ setView }) {
         } else if (!email.includes("@")) {
           newErrors.email = "Invalid email"
         }
+        
+        // Password Checks
         if (!password) {
           newErrors.password = "Password is required"
         } else if (password.length < 6) {
           newErrors.password = "Min 6 characters"
         }
+
+        // <--- 2. Confirm Password Match Logic YAHAN HAI --->
+        if (!confirmPassword) {
+            newErrors.confirmPassword = "Confirm your password"
+        } else if (password !== confirmPassword) {
+            newErrors.confirmPassword = "Passwords do not match!"
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -187,13 +193,12 @@ function SignupPage({ setView }) {
     return (
       <div className="auth-container">
         <div className="auth-card">
-          <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
+          <span className="back-btn" onClick={() => setView('landing')}>← Back</span>
           
           <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1.5rem'}}>
             Create Account
           </h2>
 
-          {/* Form Tag for Enter Key Support */}
           <form onSubmit={handleSignup}>
             
             <input 
@@ -214,6 +219,7 @@ function SignupPage({ setView }) {
             />
             {errors.email && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.email}</p>}
 
+            {/* Password Input */}
             <input 
               type="password" 
               placeholder="Password" 
@@ -222,6 +228,16 @@ function SignupPage({ setView }) {
               className="auth-input" 
             />
             {errors.password && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.password}</p>}
+
+            {/* <--- 3. NAYA Confirm Password Input Field ---> */}
+            <input 
+              type="password" 
+              placeholder="Confirm Password" 
+              value={confirmPassword} 
+              onChange={(e) => setConfirmPassword(e.target.value)} 
+              className="auth-input" 
+            />
+            {errors.confirmPassword && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.confirmPassword}</p>}
 
             <button 
               type="submit" 

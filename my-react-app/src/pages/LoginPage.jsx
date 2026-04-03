@@ -86,7 +86,7 @@ function LoginPage({ setView }) {
    return (
       <div className="auth-container">
         <div className="auth-card">
-          <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
+          <span className="back-btn" onClick={() => setView('landing')}>← Back</span>
           
           <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>
             Welcome Back
@@ -114,7 +114,7 @@ function LoginPage({ setView }) {
               className="auth-input" 
             />
             {errors.password && <p style={{color:"red", fontSize: '0.9rem', marginBottom: '1rem'}}>{errors.password}</p>}
-
+    
             {/* Change: onClick hata kar type="submit" kiya */}
             <button 
               type="submit" 

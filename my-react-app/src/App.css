@@ -77,22 +77,11 @@ nav {
 .logo:hover{
     color:var(--charcoal);
 }
-<<<<<<< HEAD
 
 /* .logo::after {
     content: ''; position: absolute; bottom: -5px; left: 0;
     width: 40px; height: 3px; background: var(--coral);
 } */
-=======
-.logo::after {
-    content: ''; 
-    position: absolute; 
-    bottom: -5px; left: 0;
-    width: 40px; 
-    height: 3px; 
-    background: var(--coral);
-}
->>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 
 .nav-links {
      display: flex;
@@ -137,21 +126,11 @@ nav {
 }
 
 /* Hero Section */
-<<<<<<< HEAD
 /* .hero {
     min-height: 100vh; display: flex; align-items: center;
     padding: 8rem 3rem 4rem; background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
 } */
 
-=======
-.hero {
-    min-height: 100vh;
-    display: flex; 
-    align-items: center;
-    padding: 8rem 3rem 4rem; 
-    background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
-}
->>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 
 .hero-content {
     max-width: 1300px;
@@ -208,7 +187,6 @@ nav {
     box-shadow: 0 20px 50px rgba(255, 107, 107, 0.5);
     background: #ff5252; /* Thoda dark shade hover par */
 }
-<<<<<<< HEAD
 
 /* 1. Hero ko ekdum clean Solid Cream kar dein (Yahan se gradient hata diya) */
 .hero {
@@ -281,8 +259,6 @@ nav {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); 
 }
 
-=======
->>>>>>> dee3c058905f8802acbba6a259ffdbff2c64913c
 /* Visual Card
 .visual-card {
     background: white; padding: 3rem; border-radius: 30px;
@@ -910,7 +886,8 @@ footer {
     color: #666; 
     font-weight: 600; 
     cursor: pointer; 
-    text-decoration: underline; }
+    text-decoration: underline; 
+}
 .btn-main:disabled, .btn-predict-gradient:disabled {
     background: #cccccc !important;
     cursor: not-allowed !important;
@@ -989,4 +966,5 @@ footer {
 .animate-in { 
     animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); 
 }
+
 @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }

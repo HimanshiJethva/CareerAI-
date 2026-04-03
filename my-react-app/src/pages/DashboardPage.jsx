@@ -203,7 +203,7 @@ function DashboardPage({ setView }) {
                  {formData.Stream === "Arts" && <><InputGroup label="History" name="History" val={formData.History} fn={updateField} /><InputGroup label="Geography" name="Geography" val={formData.Geography} fn={updateField} /><InputGroup label="Sociology" name="Sociology" val={formData.Sociology} fn={updateField} /></>}
                </div>
                <div className="footer-btns">
-                 <button className="btn-back" onClick={() => setStep(1)}>Back</button>
+                 <span className="btn-back" onClick={() => setStep(1)}>Back</span>
                  <button className="btn-main" disabled={!canGoNext()} onClick={() => setStep(3)}>Next: Personality</button>
                </div>
              </div>
@@ -250,7 +250,7 @@ function DashboardPage({ setView }) {
                 </div>
 
                 <div className="footer-btns" style={{ marginTop: '2rem' }}>
-                  <button className="btn-back" onClick={() => setStep(2)}>Back</button>
+                  <span className="btn-back" onClick={() => setStep(2)}>Back</span>
                   <button className="btn-main" disabled={!canGoNext()} onClick={() => setStep(4)}>
                     Next: Interests
                   </button>
@@ -312,7 +312,7 @@ function DashboardPage({ setView }) {
 
                {/* Navigation Buttons */}
                <div className="footer-btns">
-                 <button className="btn-back" onClick={() => setStep(3)}>Back</button>
+                 <span className="btn-back" onClick={() => setStep(3)}>Back</span>
                  <button className="btn-predict-gradient" disabled={!canGoNext()} onClick={handlePredict}>
                    Predict Career ✨
                  </button>
@@ -338,7 +338,7 @@ function DashboardPage({ setView }) {
                </div> */}
                <div className="footer-btns" style={{marginTop: '2rem'}}>
                   {/* <button className="btn-main" onClick={() => setStep(1)}>Test Again</button> */}
-                  <button className="btn-back" onClick={() => setStep(3)}>Back</button>
+                  <span className="btn-back" onClick={() => setStep(4)}>Back</span>
                   <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
                </div>
             </div>
