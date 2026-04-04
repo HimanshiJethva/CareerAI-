@@ -9,8 +9,7 @@ import SliderGroup from "../components/SliderGroup"
 import TestimonialCard from "../components/TestimonialCard"
 import {useState, useEffect} from "react"
 import axios from "axios"
-
-
+import DashboardNavbar from "./DashboardNavbar"
 
 function DashboardPage({ setView }) {
    //const [step, setStep] = useState(1);
@@ -41,6 +40,8 @@ function DashboardPage({ setView }) {
      };
    });
 
+
+
    // 3. Ye NAYA HISSA hai: Isse data hamesha save hota rahega
    useEffect(() => {
      localStorage.setItem("view", "dashboard");
@@ -51,17 +52,6 @@ function DashboardPage({ setView }) {
         localStorage.setItem("careerPredictions", JSON.stringify(predictions));
     }
    }, [step, formData, predictions]);
-  //  const [formData, setFormData] = useState({
-  //    Stream: '', Physics: '', Chemistry: '', Biology: '', English: '', ComputerScience: '',
-  //    Mathematics: '', Accountancy: '', BusinessStudies: '', Economics: '', History: '',
-  //    Geography: '', PoliticalScience: '', Sociology: '', Interest_Tech: false, 
-  //    Interest_Entrepreneurship: false, Interest_Leadership: false, Interest_Innovation: false,
-  //    Interest_CriticalThinking: false, Interest_Research: false, Interest_ComputerSkill: false,
-  //    Interest_HardwareSkill:false, Interest_Food: false, Interest_Creativity: false,
-  //    PositiveThinking: false, Participated_Hackathon: false, Participated_Olympiad: false,
-  //    Participated_Kabaddi: false, Participated_KhoKho: false, Participated_Cricket: false,
-  //    Oppenness: 3, Conscientiousness: 3, Extraversion: 3, Agreeableness: 3, Neuroticism: 3
-  //  });
 
   // STEP 2: Prediction Function yahan likhein (Line 30-60 ke aas pass)
  const handlePredict = async () => {
@@ -117,7 +107,7 @@ function DashboardPage({ setView }) {
         if (formData.Stream === "Arts") required.push('History', 'Geography', 'Sociology');
 
         // Check karein ki saari required fields 0-100 ke beech hain
-        return required.every(field => formData[field] !== "" && formData[field] >= 0 && formData[field] <= 100);
+        return required.every(field => formData[field] !== "" && formData[field] >= 33 && formData[field] <= 100);
     }
     
     if (step === 3) {
@@ -142,10 +132,15 @@ function DashboardPage({ setView }) {
 
    return (
      <div className="dashboard-wrapper">
-       {/* Sidebar Stepper */}
-       <aside className="dash-sidebar">
-         <div className="sidebar-logo">CareerAI</div>
-         <div className="stepper-vertical">
+       
+       {/* 1. NAYA NAVBAR */}
+       <DashboardNavbar setView={setView} />
+
+       {/* 2. SIDEBAR - Top exactly 75px (Navbar height) aur bacha hua height 100vh - 75px */}
+       <aside className="dash-sidebar" style={{ top: '75px', height: 'calc(100vh - 75px)' }}>
+         
+         {/* NEW: margin-top add kiya taaki "Stream Selection" text kate nahi */}
+         <div className="stepper-vertical" style={{ marginTop: '2.5rem' }}>
            {stepsInfo.map((item) => (
              <div key={item.n} className={`step-item ${step === item.n ? 'active' : ''} ${step > item.n ? 'completed' : ''}`}>
                <div className="step-num">{step > item.n ? "✓" : item.n}</div>
@@ -156,20 +151,20 @@ function DashboardPage({ setView }) {
              </div>
            ))}
          </div>
+         
          <div className="sidebar-footer">
            <p>Logged in </p>
-           { <button className="logout-btn" onClick={() => {
-             localStorage.clear(); // Saara data ek saath saaf taaki next time refresh par landing page aaye
-                 setView('landing');
-                 }}>Logout</button>/* <button className="logout-btn" onClick={() => {
-             localStorage.removeItem("view");
-            setView('landing');
-           }}>Logout</button> */}
+           <button className="logout-btn" onClick={() => {
+             localStorage.clear(); 
+             setView('landing');
+           }}>Logout</button>
          </div>
        </aside>
 
+       {/* 3. MAIN CONTENT AREA - Galti yahan thi! Ab tag proper open hai aur padding-top 110px hai */}
+       <main className="dash-main" style={{ paddingTop: '110px' }}>
        {/* Main Content Area */}
-       <main className="dash-main">
+        {/* <main className="dash-main"> */}
          <div className="form-header">
            <h1>{stepsInfo[step-1].t}</h1>
            <p>Please provide accurate details for a better prediction.</p>
@@ -180,6 +175,8 @@ function DashboardPage({ setView }) {
            {step === 1 && (
              <div className="step-view">
                <h2>Select Your Educational Stream</h2>
+               
+               {/* ... (Aapka bacha hua Step 1 ka code waisa hi rahega) ... */}
                <div className="stream-grid">
                  {["Science_PCM", "Science_PCB", "Commerce", "Arts"].map(s => (
                    <button key={s} className={`stream-card ${formData.Stream === s ? 'selected' : ''}`} 
@@ -196,6 +193,7 @@ function DashboardPage({ setView }) {
              </div>
            )}
 
+           {/* ... (Aapka bacha hua Step 2, 3, 4, aur 5 ka code bhi yahan aayega, use mat hatana) ... */}
            {/* STEP 2: MARKS (Dynamic) */}
            {step === 2 && (
              <div className="step-view">
@@ -212,7 +210,7 @@ function DashboardPage({ setView }) {
                  {formData.Stream === "Arts" && <><InputGroup label="History" name="History" val={formData.History} fn={updateField} /><InputGroup label="Geography" name="Geography" val={formData.Geography} fn={updateField} /><InputGroup label="Sociology" name="Sociology" val={formData.Sociology} fn={updateField} /></>}
                </div>
                <div className="footer-btns">
-                 <button className="btn-back" onClick={() => setStep(1)}>Back</button>
+                 <span className="btn-back" onClick={() => setStep(1)}>Back</span>
                  <button className="btn-main" disabled={!canGoNext()} onClick={() => setStep(3)}>Next: Personality</button>
                </div>
              </div>
@@ -220,40 +218,52 @@ function DashboardPage({ setView }) {
 
            {/* STEP 3: PERSONALITY */}
            {step === 3 && (
-             <div className="step-view">
-              <h2 style={{ marginBottom: '0.5rem' }}>Personality Traits Scale(1: Low,  5: High)</h2>
-              {/* <p style={{ color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                  Scale (1: Low, 5: High). Hints niche diye gaye hain.
-              </p> */}
-              
-              <div className="slider-grid" style={{ gap: '1rem' }}> {/* Gap kam kiya hai */}
-                {['Oppenness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Neuroticism'].map(t => {
-                  const traitInfo = {
-                    Oppenness: "Creativity aur nayi cheezein sikhna.",
-                    Conscientiousness: "Discipline aur planning.",
-                    Extraversion: "Logo se milna aur baatein karna.",
-                    Agreeableness: "Helpful aur friendly nature.",
-                    Neuroticism: "Stress handle karne ki ability."
-                  };
-
-                  return (
-                    <div key={t} style={{ marginBottom: '1rem' }}>
-                      <SliderGroup label={t} name={t} val={formData[t]} fn={updateField} />
-                      <p style={{ fontSize: '0.8rem', color: '#888', marginTop: '2px' }}>
-                        {traitInfo[t]}
-                      </p>
+              <div className="step-view">
+                <h2 style={{ marginBottom: '1.5rem' }}>Personality Profile (Scale 1: Low, 5: High)</h2>
+                
+                <div className="slider-grid" style={{ gap: '1.5rem' }}>
+                  {[
+                    { 
+                      id: 'Oppenness', 
+                      label: 'Creativity & Learning New Things' 
+                    },
+                    { 
+                      id: 'Conscientiousness', 
+                      label: 'Discipline & Planning Skills' 
+                    },
+                    { 
+                      id: 'Extraversion', 
+                      label: 'Socializing & Communication' 
+                    },
+                    { 
+                      id: 'Agreeableness', 
+                      label: 'Friendliness & Teamwork' 
+                    },
+                    { 
+                      id: 'Neuroticism', 
+                      label: 'Stress Management Ability' 
+                    }
+                  ].map(trait => (
+                    <div key={trait.id} style={{ marginBottom: '1.2rem' }}>
+                      {/* Ab label ki jagah description upar dikhega */}
+                      <SliderGroup 
+                        label={trait.label} 
+                        name={trait.id} 
+                        val={formData[trait.id]} 
+                        fn={updateField} 
+                      />
                     </div>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
 
-              <div className="footer-btns" style={{ marginTop: '1.5rem' }}>
-                <button className="btn-back" onClick={() => setStep(2)}>Back</button>
-                <button className="btn-main" disabled={!canGoNext()} onClick={() => setStep(4)}>Next: Interests</button>
+                <div className="footer-btns" style={{ marginTop: '2rem' }}>
+                  <span className="btn-back" onClick={() => setStep(2)}>Back</span>
+                  <button className="btn-main" disabled={!canGoNext()} onClick={() => setStep(4)}>
+                    Next: Interests
+                  </button>
+                </div>
               </div>
-             </div>
-           )}
-
+            )}
            {/* STEP 4: INTERESTS & PARTICIPATION (Pills Layout) */}
            {step === 4 && (
              <div className="step-view animate-in">
@@ -309,8 +319,8 @@ function DashboardPage({ setView }) {
 
                {/* Navigation Buttons */}
                <div className="footer-btns">
-                 <button className="btn-back" onClick={() => setStep(3)}>Back</button>
-                 <button className="btn-predict-gradient" disabled={false} onClick={handlePredict}>
+                 <span className="btn-back" onClick={() => setStep(3)}>Back</span>
+                 <button className="btn-predict-gradient" disabled={!canGoNext()} onClick={handlePredict}>
                    Predict Career ✨
                  </button>
                </div>
@@ -329,13 +339,14 @@ function DashboardPage({ setView }) {
                     </div>
                   ))}
                </div>
-               <div className="footer-btns" style={{marginTop: '2rem'}}>
+               {/* <div className="footer-btns" style={{marginTop: '2rem'}}>
                   <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
-                  {/* <button className="btn-back" onClick={() => setStep(3)}>Back</button> */}
-               </div>
+              
+               </div> */}
                <div className="footer-btns" style={{marginTop: '2rem'}}>
                   {/* <button className="btn-main" onClick={() => setStep(1)}>Test Again</button> */}
-                  <button className="btn-back" onClick={() => setStep(3)}>Back</button>
+                  <span className="btn-back" onClick={() => setStep(4)}>Back</span>
+                  <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
                </div>
             </div>
           )}

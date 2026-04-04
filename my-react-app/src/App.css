@@ -43,6 +43,7 @@ body {
     overflow-x: hidden;
 }
 
+
 /* Header & Nav */
 header {
     position: fixed;
@@ -63,11 +64,12 @@ nav {
     align-items: center;
 }
 
+
 .logo {
     font-family: 'Playfair Display', serif;
     font-size: 2rem;
     font-weight: 900;
-    color: var(--charcoal); 
+    color: black; 
     text-decoration: none;
     position: relative;
     transition: 0.3s;
@@ -76,14 +78,11 @@ nav {
 .logo:hover{
     color:var(--charcoal);
 }
-.logo::after {
-    content: ''; 
-    position: absolute; 
-    bottom: -5px; left: 0;
-    width: 40px; 
-    height: 3px; 
-    background: var(--coral);
-}
+
+/* .logo::after {
+    content: ''; position: absolute; bottom: -5px; left: 0;
+    width: 40px; height: 3px; background: var(--coral);
+} */
 
 .nav-links {
      display: flex;
@@ -128,13 +127,11 @@ nav {
 }
 
 /* Hero Section */
-.hero {
-    min-height: 100vh;
-    display: flex; 
-    align-items: center;
-    padding: 8rem 3rem 4rem; 
-    background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
-}
+/* .hero {
+    min-height: 100vh; display: flex; align-items: center;
+    padding: 8rem 3rem 4rem; background: linear-gradient(135deg, var(--cream) 0%, #FFF5E6 100%);
+} */
+
 
 .hero-content {
     max-width: 1300px;
@@ -191,14 +188,95 @@ nav {
     box-shadow: 0 20px 50px rgba(255, 107, 107, 0.5);
     background: #ff5252; /* Thoda dark shade hover par */
 }
+
+/* 1. Hero ko ekdum clean Solid Cream kar dein (Yahan se gradient hata diya) */
+.hero {
+    min-height: 100vh; 
+    display: flex; 
+    align-items: center;
+    padding: 8rem 3rem 4rem; 
+    background: var(--cream); /* Bas solid cream, koi pink nahi yahan */
+}
+
+/* 2. Image Container ko set karein */
+/* 1. Aapki Original Cream Theme (Sab kuch wapas saaf aur bright) */
+.hero {
+    min-height: 100vh; 
+    display: flex; 
+    align-items: center;
+    padding: 8rem 3rem 4rem; 
+    background: var(--cream) !important; 
+    background-image: none !important; 
+}
+
+/* 2. Image Container */
+.hero-visual {
+    position: relative;
+    z-index: 1; 
+}
+
+/* 3. Top-Left Gola (Deep Background Effect - Bohot zyada blur) */
+.hero-visual::before {
+    content: '';
+    position: absolute;
+    top: -100px;   /* Image se thoda dur */
+    left: -100px;  /* Image se thoda dur */
+    width: 300px;  /* Size bada kiya taaki light faile */
+    height: 300px;
+    background: #FF6B6B; 
+    border-radius: 50%;
+    filter: blur(100px); /* SECRET: 100px blur se ye ekdum background light jaisa lagega */
+    z-index: -1;
+    opacity: 0.45; /* Opacity kam ki taaki door lage */
+    pointer-events: none;
+}
+
+/* 4. Bottom-Right Gola (Image ke thoda nazdeek) */
+.hero-visual::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; /* Image ke thoda nazdeek */
+    right: -30px;  
+    width: 250px; 
+    height: 250px;
+    background: #FF6B6B;
+    border-radius: 50%;
+    filter: blur(80px); /* Ise thoda kam blur kiya hai */
+    z-index: -1;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* 5. Image waisi ki waisi sundar rahegi */
+.hero-main-img {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 20px;
+    position: relative;
+    z-index: 2; 
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); 
+}
+
 /* Visual Card
 .visual-card {
     background: white; padding: 3rem; border-radius: 30px;
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.12);
 } */
 
-.stat-bar { height: 8px; background: rgba(26, 26, 26, 0.08); border-radius: 10px; margin: 10px 0 20px; overflow: hidden; }
-.stat-fill { height: 100%; background: linear-gradient(90deg, var(--coral), var(--sage)); transition: 2s ease-out; }
+.stat-bar { 
+    height: 8px; 
+    background: rgba(26, 26, 26, 0.08); 
+    border-radius: 10px; 
+    margin: 10px 0 20px; 
+    overflow: hidden;
+ }
+.stat-fill { 
+    height: 100%; 
+    background: linear-gradient(90deg, var(--coral), var(--sage)); 
+    transition: 2s ease-out; }
 
 /* Features */
 .features { 
@@ -249,8 +327,13 @@ nav {
 /* .showcase { padding: 8rem 3rem; background: var(--charcoal); color: white; }
 .showcase-content { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; } */
 .prediction-item {
-    background: rgba(255, 255, 255, 0.08); padding: 2rem; border-radius: 20px;
-    margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255, 255, 255, 0.08); 
+    padding: 2rem; 
+    border-radius: 20px;
+    margin-bottom: 1.5rem; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
     border-left: 4px solid var(--coral);
 }
 /* Process Section Styling */
@@ -564,6 +647,27 @@ footer {
     animation: fadeInUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/* Forgot Password Link Styling */
+.forgot-password-link {
+    color:  rgb(63, 59, 59);
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+
+    /* color: rgb(50, 48, 48);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    font-family: 'DM Sans', sans-serif; */
+}
+
+.forgot-password-link:hover {
+    color: var(--coral); /* Hover karne par ye aapke theme ka pink ho jayega */
+    text-decoration: underline; /* Option: Hover par underline dikhane ke liye (Aap chaho toh ise hata sakti ho) */
+}
+
 /* Input fields (Email, Password, Name) */
 .auth-input {
     width: 100%;
@@ -656,8 +760,20 @@ footer {
     background: #FF8E9E; 
     color: black; 
     padding: 3.5rem; display: flex; 
-    flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; height: 100vh;}
-.sidebar-logo { font-family: 'Playfair Display'; font-size: 3rem; color: #1A1A1A; margin-bottom: 3rem; font-weight: 1000; }
+    flex-direction: column; 
+    position: fixed; 
+    left: 0; 
+    top: 0; 
+    bottom: 0; 
+    height: 100vh;
+}
+.sidebar-logo { 
+    font-family: 'Playfair Display'; 
+    font-size: 3rem; 
+    color: #1A1A1A; 
+    margin-bottom: 3rem; 
+    font-weight: 1000;
+ }
 .stepper-vertical { flex-grow: 1; }
 .step-item { display: flex; gap: 15px; margin-bottom: 2.8rem; align-items: center; opacity: 0.4; transition: 0.3s; }
 .step-item.active { opacity: 1; transform: translateX(10px); }
@@ -681,13 +797,25 @@ footer {
     margin-left: 350px; 
     width: calc(100% - 350px); 
     height: 100vh; 
-    padding: 4rem 6rem; 
+    padding: 4rem 6rem;
 }
-.form-header h1 { font-family: 'Playfair Display'; font-size: 2.8rem; margin-bottom: 0.5rem; }
-.form-header p{ font-size:1.3rem; color:black; margin-top: 5px; font-weight: 500; }
+
+.form-header h1 { 
+    font-family: 'Playfair Display'; 
+    font-size: 2.8rem; 
+    margin-bottom: 0.5rem; }
+.form-header p{ 
+    font-size:1.3rem; 
+    color:black; 
+    margin-top: 5px; 
+    font-weight: 500; }
 .wide-card {
-    background: white; padding: 3.5rem; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.04);
-     margin-top: 2rem; min-height: 550px; }
+    background: white; 
+    padding: 3.5rem; 
+    border-radius: 24px; 
+    box-shadow: 0 15px 40px rgba(0,0,0,0.04);
+    margin-top: 2rem; 
+    min-height: 550px; }
 /* .wide-card (Line 494) ke thik niche ye naya block paste karein */
 .step-view h2, .step-title {
     font-size: 1.8rem !important; /* Isse size badi ho jayegi */
@@ -730,13 +858,35 @@ footer {
 .slider-group input { width: 100%; accent-color: #FF6B6B; }
 
 
-.checkbox-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee; }
-.check-grid { display: flex; gap: 2rem; margin-top: 1.5rem; }
-.check-item { display: flex; align-items: center; gap: 10px; font-weight: 500; cursor: pointer; }
+.checkbox-section { 
+    margin-top: 3rem; 
+    padding-top: 2rem; 
+    border-top: 1px solid #eee; }
+.check-grid { 
+    display: flex; 
+    gap: 2rem; 
+    margin-top: 1.5rem; }
+.check-item { 
+    display: flex; 
+    align-items: 
+    center; gap: 10px; 
+    font-weight: 500; 
+    cursor: pointer; }
 
 /* Buttons */
-.footer-btns { margin-top: 4rem; display: flex; justify-content: space-between; }
-.btn-main { background: #121212; color: white; padding: 1.2rem 3.5rem; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.footer-btns {
+     margin-top: 4rem; 
+     display: flex; 
+     justify-content: space-between; }
+.btn-main { 
+    background: #121212; 
+    color: white; 
+    padding: 1.2rem 3.5rem; 
+    border: none; 
+    border-radius: 12px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    transition: 0.3s; }
 /* Line 516 ke paas ye paste karein */
 .btn-predict {
     background: linear-gradient(135deg, #FF6B6B, #FF4757) !important;
@@ -748,8 +898,18 @@ footer {
     cursor: pointer;
     box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
 }
-.btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); color:white;}
-.btn-back { background: none; border: none; color: #666; font-weight: 600; cursor: pointer; text-decoration: underline; }
+.btn-main:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
+    color:white;}
+.btn-back { 
+    background: none; 
+    border: none; 
+    color: #666; 
+    font-weight: 600; 
+    cursor: pointer; 
+    text-decoration: underline; 
+}
 .btn-main:disabled, .btn-predict-gradient:disabled {
     background: #cccccc !important;
     cursor: not-allowed !important;
@@ -815,7 +975,9 @@ footer {
     margin: 5px;
 }
 
-.pill:hover { border-color: #FF758C; }
+.pill:hover { 
+    border-color: #FF758C; 
+}
 
 .pill.selected {
     background: #FF758C; /* Aapka Pink Code */
@@ -824,4 +986,414 @@ footer {
     box-shadow: 0 4px 10px rgba(255, 117, 140, 0.3);
 }
 .animate-in { animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+/* =========================================
+   DASHBOARD NAVBAR (SkillLink Reference Style)
+   ========================================= */
+.dash-top-navbar {
+    background-color: var(--cream) !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 3rem;
+    height: 75px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+}
+
+.dash-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #000000;
+    cursor: pointer;
+    letter-spacing: -0.5px;
+}
+
+.dash-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem; /* Space between Explore and Profile */
+}
+
+.dash-explore {
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    font-size: 1.05rem;
+    transition: color 0.3s;
+}
+.dash-explore:hover {
+    color: var(--coral);
+}
+
+/* Profile Area */
+.profile-dropdown-container {
+    position: relative;
+}
+
+.profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+}
+
+.avatar-circle {
+    width: 42px;
+    height: 42px;
+    background-color: #7B8B9E; /* Muted slate blue from reference */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.user-icon {
+    width: 22px;
+    height: 22px;
+}
+
+.caret {
+    color: #666;
+    transition: transform 0.3s ease;
+}
+.caret.open {
+    transform: rotate(180deg);
+}
+
+/* Dropdown Card */
+.dropdown-menu {
+    position: absolute;
+    top: 130%;
+    right: 0;
+    background: #FFFFFF;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.04);
+    width: 250px;
+    padding: 0.5rem 0;
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.2s ease;
+}
+
+.dropdown-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+.dropdown-header strong {
+    font-size: 1.05rem;
+    color: #333;
+}
+.dropdown-email {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 0.2rem;
+}
+
+.dropdown-divider {
+    border: none;
+    border-top: 1px solid #f0f0f0;
+    margin: 0.5rem 0;
+}
+
+.dropdown-item {
+    padding: 0.8rem 1.5rem;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 0.95rem;
+    color: #444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background 0.2s;
+}
+
+/* .item-icon {
+    font-size: 1.1rem;
+    opacity: 0.7;
+} */
+
+.logout-item {
+    color: var(--coral) !important;
+    font-weight: 600;
+}
+.logout-item .item-icon {
+    opacity: 1;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 107, 107, 0.08); /* Halka pink background */
+    color: var(--coral); /* Text pink ho jayega */
+}
+
+/* Icons ko bhi pink karne ke liye ye add karein */
+.dropdown-item:hover .item-icon {
+    color: var(--coral);
+}
+
+/* Click karne par aane wali default black border ko hatane ke liye */
+.dropdown-item:focus, .profile-trigger:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* =========================================
+   MY PROFILE PAGE (EXACT REFERENCE MATCH)
+   ========================================= */
+.profile-main-container {
+    padding-top: 105px; /* <--- Upar ki padding kam ki taaki scroll na ho */
+    max-width: 500px; 
+    width: 90%; 
+    margin: 0 auto;
+    padding-bottom: 20px; /* <--- Niche ki padding bhi kam ki */
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; 
+}
+
+/* Base Card with Soft Shadow */
+.profile-card-ref {
+    background: #FFFFFF;
+    border-radius: 24px; 
+    padding: 2.2rem 2.8rem;
+    
+    /* ADDED BOX SHADOW HERE for depth */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06), 0 4px 10px rgba(0,0,0,0.03); 
+    border: 1px solid rgba(0,0,0,0.02); 
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.profile-card-ref.col-layout {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem 2.8rem;
+}
+
+/* Card 1: Header Info */
+.ref-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+}
+
+/* Silhouette Avatar from sketch */
+.ref-avatar {
+    width: 95px;
+    height: 95px;
+    background-color: #5C6E8A; 
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+}
+.ref-avatar svg {
+    width: 80px;
+    height: 80px;
+    margin-bottom: -8px; 
+}
+
+.ref-info h2 {
+    font-size: 1.8rem;
+    color: #101828; 
+    margin-bottom: 0.3rem;
+    font-weight: 700;
+    font-family: sans-serif; 
+}
+.ref-info p {
+    color: #667085;
+    font-size: 1rem;
+}
+.ref-black-pill {
+    width: 32px;
+    height: 7px;
+    background-color: #101828;
+    border-radius: 10px;
+    margin-top: 0.8rem;
+}
+
+/* Exact Minimalist Pencil Button Edit Mode */
+.ref-edit-btn {
+    background: #F8F9FA; /* Very light subtle background */
+    border: 1px solid #E4E7EC; /* Slight border like in reference */
+    width: 48px;
+    height: 48px;
+    border-radius: 14px; /* Squircle shape matching reference exactly */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.ref-edit-btn:hover {
+    background: #E4E7EC;
+    border-color: #D0D5DD;
+}
+.ref-edit-btn:hover svg {
+    stroke: var(--coral); 
+    transform: scale(1.05); 
+}
+
+/* Card 2: Action Rows */
+.ref-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 0;
+    cursor: pointer;
+}
+.ref-row.no-hover { cursor: default; }
+
+.ref-row-left {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+/* Squircle Icon Boxes reference */
+.ref-icon-box {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.blue-box { background: #F0F4FF; color: #4A72FF; }
+.green-box { background: #EAF7ED; color: #28A745; }
+
+.ref-row-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #101828;
+}
+.ref-arrow {
+    color: #98A2B3;
+    font-size: 1.8rem;
+    font-weight: 400;
+}
+.ref-divider {
+    border: none;
+    border-top: 1px solid #EAECF0;
+    margin: 0;
+}
+
+.ref-status-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.ref-badge {
+    color: #039855; 
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.ref-joined-text {
+    text-align: center;
+    color: #98A2B3;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    margin-top: 1.5rem;
+}
+
+/* Edit Mode Layout Fixes */
+.edit-mode-avatar {
+    margin: 0 auto 1.2rem; /* Reduced margin to compress height */
+    position: relative;
+    overflow: visible; 
+}
+.edit-mode-avatar svg {
+    border-radius: 50%;
+    background-color: #5C6E8A;
+    width: 100%; height: 100%;
+}
+.upload-badge {
+    position: absolute; bottom: 0; right: 0;
+    background: #101828; color: white; width: 30px; height: 30px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; border: 2px solid white; z-index: 10;
+}
+
+/* Reduced height for Edit Card */
+/* Reduced height and width specifically for Edit Card */
+.compact-edit-card { 
+    padding: 1.8rem 2.5rem; /* Andar ka space thoda aur compact kiya */
+    max-width: 500px !important; /* <--- YAHAN WIDTH KAM KI HAI */
+    margin: 0 auto; /* Isse aapka chota card ekdum screen ke center mein aayega */
+}
+
+.edit-title { font-size: 1.6rem; font-family: 'Playfair Display', serif; margin-bottom: 0.2rem; }
+.edit-subtitle { color: #777; font-size: 0.9rem; margin-bottom: 1.5rem; } /* Reduced margin */
+
+/* Edit Form Fields */
+.edit-form .input-group { margin-bottom: 1.2rem; text-align: left; } /* Reduced margin */
+.edit-form label { font-size: 0.75rem; font-weight: bold; color: #555; letter-spacing: 1px; display: block; margin-bottom: 0.4rem; }
+.input-wrapper { display: flex; align-items: center; background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 0 10px; }
+.input-wrapper input { flex: 1; border: none; background: transparent; padding: 10px 10px; font-size: 1rem; color: #333; outline: none; } /* Reduced padding inside inputs */
+.input-icon { color: #888; }
+.input-wrapper.disabled { background: #f0f0f0; cursor: not-allowed; }
+.input-wrapper.disabled input { color: #888; cursor: not-allowed; }
+.help-text { display: block; font-size: 0.75rem; color: #999; margin-top: 0.4rem; font-style: italic; }
+
+/* Back Button */
+/* Back Button */
+.back-text-btn { 
+    background: none; 
+    border: none; 
+    color: #666; 
+    cursor: pointer; 
+    font-weight: 500; 
+    margin: 0 auto 0.5rem auto; /* Button ko center align karne ke liye */
+    max-width: 420px; /* Card ki width se match kar diya */
+    display: block;
+    text-align: left; 
+    width: 100%; 
+    transition: color 0.2s; 
+}
+.back-text-btn:hover { 
+    color: var(--coral); 
+}
+
+/* Click karne par aane wali default black border/outline ko hatane ke liye */
+.back-text-btn:focus, 
+.back-text-btn:active,
+.ref-edit-btn:focus, 
+.ref-edit-btn:active,
+.upload-badge:focus,
+.upload-badge:active {
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent; /* Mobile par tap color hatane ke liye */
+}
+
+/* Cloud icon ko clickable feel dene ke liye */
+.upload-badge {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.upload-badge:hover {
+    transform: scale(1.1);
+}
+.animate-in { 
+    animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1); 
+}
+
 @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }

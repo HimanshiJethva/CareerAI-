@@ -1,11 +1,13 @@
 import { supabase } from './supabaseClient'; // Path check kar lena apne folder ke hisaab se
 import { useState ,useEffect} from "react"
 import "./App.css"
-
+import { Toaster } from 'react-hot-toast'; // <--- PEHLA BADLAV: Import karein
 import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
 import SignupPage from "./pages/SignupPage"
 import DashboardPage from "./pages/DashboardPage"
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   const [loading,setLoading] = useState(false)
@@ -68,20 +70,35 @@ function App() {
   useEffect(()=>{
     document.title = "CareerAI | Career Prediction System";
   },  []);
+ return (
+    <>
+      {/* Ye line sabse upar honi chahiye */}
+      <Toaster position="top-center" reverseOrder={false} /> 
 
-  if(view==="login"){
-    return <LoginPage setView={setView}/>
-  }
+      {view === "login" && <LoginPage setView={setView}/>}
+      {view === "signup" && <SignupPage setView={setView}/>}
+      {view === "dashboard" && <DashboardPage setView={setView}/>}
+      {view === "landing" && <LandingPage setView={setView}/>}
+      {view === "forgotpassword" && <ForgotPasswordPage setView={setView}/>}
+      {view === "profile" && <ProfilePage setView={setView}/>}
+    </>
+      
+    // return <LandingPage setView={setView}/>
+  )
+  // if(view==="login"){
+  //   return <LoginPage setView={setView}/>
+  // }
 
-  if(view==="signup"){
-    return <SignupPage setView={setView}/>
-  }
+  // if(view==="signup"){
+  //   return <SignupPage setView={setView}/>
+  // }
 
-  if(view==="dashboard"){
-    return <DashboardPage setView={setView}/>
-  }
+  // if(view==="dashboard"){
+  //   return <DashboardPage setView={setView}/>
+  // }
 
-  return <LandingPage setView={setView}/>
+   
+  // return <LandingPage setView={setView}/>
 }
 
 export default App
