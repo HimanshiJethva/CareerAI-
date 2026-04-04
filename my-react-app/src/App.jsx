@@ -8,12 +8,14 @@ import SignupPage from "./pages/SignupPage"
 import DashboardPage from "./pages/DashboardPage"
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ProfilePage from './pages/ProfilePage';
+// import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   const [loading,setLoading] = useState(false)
   const [view, setView] = useState(() => {
   return localStorage.getItem("view") || "landing"
-})
+}) 
+// const [view, setView] = useState("admin");
   // const[view, setView] = useState("landing");
 
   useEffect(()=> {
@@ -81,6 +83,7 @@ function App() {
       {view === "landing" && <LandingPage setView={setView}/>}
       {view === "forgotpassword" && <ForgotPasswordPage setView={setView}/>}
       {view === "profile" && <ProfilePage setView={setView}/>}
+      {/* {view === "admin" && <AdminDashboard setView={setView}/>} */}
     </>
       
     // return <LandingPage setView={setView}/>
