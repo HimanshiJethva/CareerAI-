@@ -8,7 +8,7 @@ import SignupPage from "./pages/SignupPage"
 import DashboardPage from "./pages/DashboardPage"
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ProfilePage from './pages/ProfilePage';
-
+import AdminDashboard from './pages/AdminDash/AdminDashboard';
 function App() {
   const [loading,setLoading] = useState(false)
   const [view, setView] = useState(() => {
@@ -26,8 +26,14 @@ function App() {
     const initApp = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        setView('dashboard');
+      // Check karo localStorage mein role kya hai
+      const role = localStorage.getItem('userRole');
+      if (role === 'admin') {
+        setView('admindashboard');
       } else {
+        setView('dashboard');
+      }
+    } else {
         const savedView = localStorage.getItem("view");
         setView(savedView === 'dashboard' ? 'landing' : (savedView || 'landing'));
       }
@@ -51,21 +57,28 @@ function App() {
   }, []);
 
   useEffect(() => {
-  const checkSession = async () => {
-    // Supabase se current session mangwayein
-    const { data: { session } } = await supabase.auth.getSession();
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        // 👇 YAHAN BADLAV HAI: LocalStorage se role uthao
+        const savedRole = localStorage.getItem("userRole");
+        
+        if (savedRole === 'admin') {
+          setView('admindashboard');
+        } else {
+          setView('dashboard');
+        }
+      } else {
+        // Agar session nahi hai aur purana view dashboard tha, toh landing bhej do
+        if (localStorage.getItem("view") === 'dashboard' || localStorage.getItem("view") === 'admindashboard') {
+          setView('landing');
+        }
+      }
+    };
     
-    if (session) {
-      // Agar user login hai, toh use dashboard par hi rakho
-      setView('dashboard');
-    } else if (localStorage.getItem("view") === 'dashboard') {
-      // Agar login nahi hai par view dashboard tha, toh wapas landing bhej do
-      setView('landing');
-    }
-  };
-  
-  checkSession();
-}, []); // Ye sirf ek baar chalega jab app load hogi
+    checkSession();
+  }, []);
 
   useEffect(()=>{
     document.title = "CareerAI | Career Prediction System";
@@ -78,6 +91,7 @@ function App() {
       {view === "login" && <LoginPage setView={setView}/>}
       {view === "signup" && <SignupPage setView={setView}/>}
       {view === "dashboard" && <DashboardPage setView={setView}/>}
+      {view === "admindashboard" && <AdminDashboard setView={setView}/>}
       {view === "landing" && <LandingPage setView={setView}/>}
       {view === "forgotpassword" && <ForgotPasswordPage setView={setView}/>}
       {view === "profile" && <ProfilePage setView={setView}/>}

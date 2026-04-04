@@ -11,31 +11,47 @@ function LoginPage({ setView }) {
     const [loading,setLoading] = useState(false)
 
      const handleLogin = async (e) => {
-      e.preventDefault()
+    e.preventDefault();
+    if(!validate()) return;
+    setLoading(true);
 
-      if(!validate()) return
+    // 1. Pehle normal login karte hain
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
-      setLoading(true)
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
-      setLoading(false)
-
-      if(error){
-          if(error.message.includes("Email not confirmed"))
-          {
-              alert("Email not Verified! Please check your inbox..");
-          }
-          else{
-               setErrors({ api: error.message })
-          }
-        return
-      }
-      alert("Login successfull🎉");
-      setView("dashboard");
+    if(authError){
+      setLoading(false);
+      toast.error(authError.message || "Login Failed. Please check your details.");
+      return;
     }
+
+    // 2. Login successful! Ab is user ka Role check karte hain
+    try {
+      // LoginPage.jsx ke andar handleLogin mein toast.success ke baad:
+
+const { data: userData } = await supabase
+  .from('users')
+  .select('role')
+  .eq('email', email)
+  .single();
+
+if (userData && userData.role && userData.role.toLowerCase() === 'admin') {
+  localStorage.setItem('userRole', 'admin');
+  setView('admindashboard');
+} else {
+  localStorage.setItem('userRole', 'student');
+  setView('dashboard');
+}
+
+    } catch (err) {
+      setLoading(false);
+      // Agar role nahi milta, toh normal dashboard par bhej do
+      localStorage.setItem('userRole', 'student');
+      setView('dashboard');
+    }
+  };
 
     const validate = () => {
         let newErrors = {}
