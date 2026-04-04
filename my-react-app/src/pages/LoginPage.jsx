@@ -24,21 +24,17 @@ function LoginPage({ setView }) {
       setLoading(false)
 
       if(error){
-        toast.error(error.message || "Login Failed. Please check your details.");
-        // setErrors({ api: error.message })
+          if(error.message.includes("Email not confirmed"))
+          {
+              alert("Email not Verified! Please check your inbox..");
+          }
+          else{
+               setErrors({ api: error.message })
+          }
         return
       }
-      // setErrors({api:"Login sccessfull🎉"})
-
-      // setTimedout(() => {
-      //   setView("dashboard")
-      // },1000)
-      // alert("Login successfull🎉")
-      toast.success("Login successfully! 🎉");
-      setView("dashboard")
-      // setTimedout(() => {
-      //    setView("dashboard")
-      //  },800)
+      alert("Login successfull🎉");
+      setView("dashboard");
     }
 
     const validate = () => {
@@ -104,6 +100,15 @@ function LoginPage({ setView }) {
             >
               {loading ? "Logging you in..." : "Login"}
             </button>
+              {/*NEW: Forgot Password Link*/}
+            <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+              <span 
+                className="forgot-password-link" 
+                onClick={() => setView('forgotpassword')}
+              >
+                Forgot your password?
+              </span>
+            </div>
 
           </form>
           {/* CHANGES END HERE */}

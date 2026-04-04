@@ -30,7 +30,8 @@ function LandingPage({setView})
             <div className="hero-content">
             <div className="hero-text">
                 <h1>Predict Your <span className="accent">Perfect Career</span> With AI</h1>
-                <p>Harness the power of machine learning to discover career paths that truly align with your unique skills, experience, and aspirations.</p>
+                <p>Don't guess your future. Let our advanced AI analyze your 
+                        Marks, Personality, and Interests to give you a scientific roadmap.</p>
                 <div className="hero-buttons">
                 <button className="btn-primary" onClick={()=>setView("login")}>Start Free Prediction</button>
                 </div>

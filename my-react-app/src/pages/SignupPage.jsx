@@ -13,43 +13,49 @@ function SignupPage({ setView }) {
     const [errors, setErrors] = useState({}) 
 
     const handleSignup = async (e) => {
-      if (e) e.preventDefault();
+      e.preventDefault();
+      if(!validate()) return;
+      setLoading(true);
 
-      if (!validate()) return
-      
-      setLoading(true)
-
-      // Supabase Auth Signup
+      // STEP 1: Supabase Auth mein user banana
       const { data, error } = await supabase.auth.signUp({
         email,
         password
-      })
+      });
 
-      if (error) {
-        setLoading(false)
-        toast.error(error.message);
-        return
+      if(error){
+        setErrors({ api: error.message });
+        setLoading(false);
+        return;
       }
 
-      if (data.user) {
-        await supabase.from("users").insert([
-          {
-            id: data.user.id,
-            name: name,
-            email: email
-          }
-        ])
+      // STEP 2: Manual Insert (Aapka manga hua tarika)
+      // Hum 'users' table mein data tabhi dalenge jab user successfully auth ho jaye
+      if (data?.user) {
+        const { error: dbError } = await supabase
+          .from("users")
+          .upsert([
+            {
+              id: data.user.id, // Auth ki unique ID
+              name: name,
+              email: email,
+              avatar_url: "" 
+            }
+          ]);
+
+        if (dbError) {
+          setErrors({ api: "Database Error: " + dbError.message });
+        } else {
+          alert("Signup Success! Please check your inbox to verify.");
+          setView('login');
+        }
       }
-
-      setLoading(false)
-      toast.success("Signup successful! Welcome 🎉");
-
-      setTimeout(() => {
-        setView("login");
-      }, 1000);
-    }
-
-    // Validation logic (Updated with Password Match Check)
+      
+      setLoading(false);
+    };
+    
+    
+   
     const validate = () => {
         let newErrors = {}
         if (!name) newErrors.name = "Name is required"
@@ -79,64 +85,24 @@ function SignupPage({ setView }) {
 
     return (
       <div className="auth-container">
+       
         <div className="auth-card">
-          <span className="back-btn" onClick={() => setView('landing')}>← Back</span>
           
-          <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1.5rem'}}>
-            Create Account
-          </h2>
-
-          <form onSubmit={handleSignup}>
-            
-            <input 
+          <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
+          {errors.api && <p style={{color:"red"}}>{errors.api}</p>}
+          <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>Create Account</h2>
+          <input 
               type="text" 
               placeholder="Full Name" 
               value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              className="auth-input" 
-            />
-            {errors.name && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.name}</p>}
-
-            <input 
-              type="email" 
-              placeholder="Email Address" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              className="auth-input" 
-            />
-            {errors.email && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.email}</p>}
-
-            {/* Password Input */}
-            <input 
-              type="password" 
-              placeholder="Password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              className="auth-input" 
-            />
-            {errors.password && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.password}</p>}
-
-            {/* <--- 3. NAYA Confirm Password Input Field ---> */}
-            <input 
-              type="password" 
-              placeholder="Confirm Password" 
-              value={confirmPassword} 
-              onChange={(e) => setConfirmPassword(e.target.value)} 
-              className="auth-input" 
-            />
-            {errors.confirmPassword && <p style={{color:"red", fontSize: '0.8rem', marginBottom: '0.5rem'}}>{errors.confirmPassword}</p>}
-
-            <button 
-              type="submit" 
-              className="btn-primary" 
-              style={{width: '100%', marginTop: '1rem'}} 
-              disabled={loading}
-            >
-              {loading ? "Please wait.." : "Signup"}
-            </button>
-
-          </form>
-
+              onChange={(e)=>setName(e.target.value)} 
+              className="auth-input" />
+          {errors.name && <p style={{color:"red"}}>{errors.name}</p>}
+          <input type="email" placeholder="Email Address" value={email} onChange={(e)=>setEmail(e.target.value)} className="auth-input" />
+          {errors.email && <p style={{color:"red"}}>{errors.email}</p>}
+          <input type="password" placeholder="Password" value={password} onChange={(e)=>setPassword(e.target.value)} className="auth-input" />
+          {errors.password && <p style={{color:"red"}}>{errors.password}</p>}
+          <button  onClick={handleSignup} className="btn-primary" style={{width: '100%'}} disabled={loading}>{loading ? "Please wait.." : "Signup"}</button>
           <p style={{marginTop: '1.5rem'}}>
             Already have an account? 
             <span className="auth-link" style={{cursor: 'pointer', color: 'var(--coral)'}} onClick={() => setView('login')}> 
