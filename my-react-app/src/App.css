@@ -3,8 +3,8 @@
 :root {
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: light; /* Black background hatane ke liye */
-  background-color: #FFF8F0; /* Aapka design color */
+  color-scheme: light; 
+  background-color: #FFF8F0; 
 }
 
 html, body, #root {
@@ -65,12 +65,13 @@ nav {
 
 .logo {
     font-family: 'Playfair Display', serif;
-    font-size: 3.5rem;
+    font-size: 2rem;
     font-weight: 900;
     color: var(--charcoal); 
     text-decoration: none;
     position: relative;
     transition: 0.3s;
+    margin-left: 30px;
 }
 .logo:hover{
     color:var(--charcoal);
@@ -417,7 +418,7 @@ footer {
 /* Brand Name (CareerAI) */
 .footer-brand h3 {
     font-family: 'Playfair Display', serif;
-    font-size: 2.5rem; /* 2rem se badhakar 2.5rem kiya */
+    font-size: 2rem; /* 2rem se badhakar 2.5rem kiya */
     font-weight: 900;
     margin-bottom: 1.5rem;
 }
@@ -433,7 +434,7 @@ footer {
 /* Headings (Product, Company, Legal) */
 .footer-section h4 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.8rem; /* 1.2rem se badhakar 1.5rem kiya */
+    font-size: 1.5rem; /* 1.2rem se badhakar 1.5rem kiya */
     color: var(--coral);
     margin-bottom: 1.8rem;
     font-weight: 700;
@@ -546,7 +547,7 @@ footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--cream); /* Landing page jaisa background */
+    background-color: var(--cream); 
     padding: 20px;
 }
 

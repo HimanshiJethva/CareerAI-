@@ -23,16 +23,17 @@ function LoginPage({ setView }) {
       setLoading(false)
 
       if(error){
-        setErrors({ api: error.message })
+          if(error.message.includes("Email not confirmed"))
+          {
+              alert("Email not Verified! Please check your inbox..");
+          }
+          else{
+               setErrors({ api: error.message })
+          }
         return
       }
-      // setErrors({api:"Login sccessfull🎉"})
-
-      // setTimedout(() => {
-      //   setView("dashboard")
-      // },1000)
-      alert("Login successfull🎉")
-      setView("dashboard")
+      alert("Login successfull🎉");
+      setView("dashboard");
     }
 
     const validate = () => {

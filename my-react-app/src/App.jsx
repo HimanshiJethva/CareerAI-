@@ -8,7 +8,7 @@ import SignupPage from "./pages/SignupPage"
 import DashboardPage from "./pages/DashboardPage"
 
 function App() {
-
+  const [loading,setLoading] = useState(false)
   const [view, setView] = useState(() => {
   return localStorage.getItem("view") || "landing"
 })
@@ -17,6 +17,36 @@ function App() {
   useEffect(()=> {
     localStorage.setItem("view",view);
   },[view]);//refresh thi landing na jay ena mate
+
+
+
+    useEffect(() => {
+    const initApp = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setView('dashboard');
+      } else {
+        const savedView = localStorage.getItem("view");
+        setView(savedView === 'dashboard' ? 'landing' : (savedView || 'landing'));
+      }
+      setLoading(false);
+    };
+
+    initApp();
+
+    // Ye listener email verification link click hote hi dashboard khol dega
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        setView('dashboard');
+      }
+      if (event === 'SIGNED_OUT') {
+        setView('landing');
+        localStorage.removeItem("view");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
   const checkSession = async () => {
@@ -36,7 +66,7 @@ function App() {
 }, []); // Ye sirf ek baar chalega jab app load hogi
 
   useEffect(()=>{
-    document.title = "AI Powered Career Prediction";
+    document.title = "CareerAI | Career Prediction System";
   },  []);
 
   if(view==="login"){

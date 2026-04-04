@@ -12,55 +12,49 @@ function SignupPage({ setView }) {
     const [errors, setErrors] = useState({}) //error object
 
     const handleSignup = async (e) => {
-      e.preventDefault()
+      e.preventDefault();
+      if(!validate()) return;
+      setLoading(true);
 
-      if(!validate()) return
-        setLoading(true)
-
+      // STEP 1: Supabase Auth mein user banana
       const { data, error } = await supabase.auth.signUp({
         email,
         password
-      })
+      });
 
-      setLoading(false)
       if(error){
-        setErrors({ api: error.message })
-        return
+        setErrors({ api: error.message });
+        setLoading(false);
+        return;
       }
-      await supabase.from("users").insert([
-        {
-          id: data.user.id,
-          name: name,
-          email: email
+
+      // STEP 2: Manual Insert (Aapka manga hua tarika)
+      // Hum 'users' table mein data tabhi dalenge jab user successfully auth ho jaye
+      if (data?.user) {
+        const { error: dbError } = await supabase
+          .from("users")
+          .upsert([
+            {
+              id: data.user.id, // Auth ki unique ID
+              name: name,
+              email: email,
+              avatar_url: "" 
+            }
+          ]);
+
+        if (dbError) {
+          setErrors({ api: "Database Error: " + dbError.message });
+        } else {
+          alert("Signup Success! Please check your inbox to verify.");
+          setView('login');
         }
-      ])
-
-      alert("Signup success")
-
+      }
       
-    }
-      // const { data, error } = await supabase.auth.signUp({
-      //   email: email,
-      //   password: password,
-      // })
-
-      // if(error){
-      //   alert(error.message)
-      //   return
-      // }
-
-      // DB me extra data save
-      // await supabase.from("users").insert([
-      //   {
-      //     id: data.user.id,
-      //     name: name,
-      //     email: email
-      //   }
-      // ])
-
-      //alert("Signup successful")
-   // }
-    //validation
+      setLoading(false);
+    };
+    
+    
+   
     const validate = () => {
         let newErrors = {}
 
@@ -90,11 +84,18 @@ function SignupPage({ setView }) {
 
     return (
       <div className="auth-container">
+       
         <div className="auth-card">
+          
           <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
           {errors.api && <p style={{color:"red"}}>{errors.api}</p>}
           <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>Create Account</h2>
-          <input type="text" placeholder="Full Name" value={name} onChange={(e)=>setName(e.target.value)} className="auth-input" />
+          <input 
+              type="text" 
+              placeholder="Full Name" 
+              value={name} 
+              onChange={(e)=>setName(e.target.value)} 
+              className="auth-input" />
           {errors.name && <p style={{color:"red"}}>{errors.name}</p>}
           <input type="email" placeholder="Email Address" value={email} onChange={(e)=>setEmail(e.target.value)} className="auth-input" />
           {errors.email && <p style={{color:"red"}}>{errors.email}</p>}
