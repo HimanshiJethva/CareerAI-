@@ -16,7 +16,7 @@ function App() {
 }) 
 // const [view, setView] = useState("admin");
   // const[view, setView] = useState("landing");
-
+useEffect(()=>{   <Toaster position="top-center" reverseOrder={false} /> },[]);
   useEffect(()=> {
     localStorage.setItem("view",view);
   },[view]);//refresh thi landing na jay ena mate
@@ -80,9 +80,9 @@ function App() {
     
     checkSession();
   }, []);
-
+  useEffect(()=>{   <Toaster position="top-center" reverseOrder={false} /> },[]);
   useEffect(()=>{
-          <Toaster position="top-center" reverseOrder={false} /> 
+       
     document.title = "CareerAI | Career Prediction System";
   },  []);
  return (
