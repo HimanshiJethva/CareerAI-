@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient'; // Path check kar lena apne folder ke hisaab se
-import { useState ,useEffect} from "react"
-import "./App.css"
+import { useState ,useEffect} from "react";
+import "./App.css";
 import { Toaster } from 'react-hot-toast'; // <--- PEHLA BADLAV: Import karein
 import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
@@ -13,9 +13,10 @@ function App() {
   const [loading,setLoading] = useState(false)
   const [view, setView] = useState(() => {
   return localStorage.getItem("view") || "landing"
-})
+}) 
+// const [view, setView] = useState("admin");
   // const[view, setView] = useState("landing");
-
+useEffect(()=>{   <Toaster position="top-center" reverseOrder={false} /> },[]);
   useEffect(()=> {
     localStorage.setItem("view",view);
   },[view]);//refresh thi landing na jay ena mate
@@ -93,14 +94,15 @@ useEffect(() => {
       }
     };
   }, []);
-
+  useEffect(()=>{   <Toaster position="top-center" reverseOrder={false} /> },[]);
   useEffect(()=>{
+       
     document.title = "CareerAI | Career Prediction System";
   },  []);
  return (
     <>
       {/* Ye line sabse upar honi chahiye */}
-      <Toaster position="top-center" reverseOrder={false} /> 
+
 
       {view === "login" && <LoginPage setView={setView}/>}
       {view === "signup" && <SignupPage setView={setView}/>}
@@ -109,6 +111,7 @@ useEffect(() => {
       {view === "landing" && <LandingPage setView={setView}/>}
       {view === "forgotpassword" && <ForgotPasswordPage setView={setView}/>}
       {view === "profile" && <ProfilePage setView={setView}/>}
+      {/* {view === "admin" && <AdminDashboard setView={setView}/>} */}
     </>
       
     // return <LandingPage setView={setView}/>

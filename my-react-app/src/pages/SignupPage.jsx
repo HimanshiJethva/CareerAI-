@@ -8,15 +8,17 @@ function SignupPage({ setView }) {
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const [confirmPassword, setConfirmPassword] = useState("") // <--- 1. Nayi State add ki
+    // const [confirmPassword, setConfirmPassword] = useState("") // <--- 1. Nayi State add ki
     const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState({}) 
 
     const handleSignup = async (e) => {
       e.preventDefault();
-      if(!validate()) return;
-      setLoading(true);
+      const isInvaild = validate();
 
+      if(!isInvaild) return;
+      setLoading(true);
+      setErrors({});
       // STEP 1: Supabase Auth mein user banana
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -72,12 +74,12 @@ function SignupPage({ setView }) {
           newErrors.password = "Min 6 characters"
         }
 
-        // <--- 2. Confirm Password Match Logic YAHAN HAI --->
-        if (!confirmPassword) {
-            newErrors.confirmPassword = "Confirm your password"
-        } else if (password !== confirmPassword) {
-            newErrors.confirmPassword = "Passwords do not match!"
-        }
+        // // <--- 2. Confirm Password Match Logic YAHAN HAI --->
+        // if (!confirmPassword) {
+        //     newErrors.confirmPassword = "Confirm your password"
+        // } else if (password !== confirmPassword) {
+        //     newErrors.confirmPassword = "Passwords do not match!"
+        // }
 
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
