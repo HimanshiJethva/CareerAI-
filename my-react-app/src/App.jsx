@@ -1,6 +1,6 @@
 import { supabase } from './supabaseClient'; // Path check kar lena apne folder ke hisaab se
-import { useState ,useEffect} from "react"
-import "./App.css"
+import { useState ,useEffect} from "react";
+import "./App.css";
 import { Toaster } from 'react-hot-toast'; // <--- PEHLA BADLAV: Import karein
 import LandingPage from "./pages/LandingPage"
 import LoginPage from "./pages/LoginPage"
@@ -68,12 +68,13 @@ function App() {
 }, []); // Ye sirf ek baar chalega jab app load hogi
 
   useEffect(()=>{
+          <Toaster position="top-center" reverseOrder={false} /> 
     document.title = "CareerAI | Career Prediction System";
   },  []);
  return (
     <>
       {/* Ye line sabse upar honi chahiye */}
-      <Toaster position="top-center" reverseOrder={false} /> 
+
 
       {view === "login" && <LoginPage setView={setView}/>}
       {view === "signup" && <SignupPage setView={setView}/>}
