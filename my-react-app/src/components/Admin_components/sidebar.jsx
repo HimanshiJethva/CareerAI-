@@ -2,23 +2,25 @@ import React from 'react';
 import './Sidebar.css';
 import { 
   LayoutDashboard, Users, GraduationCap, 
-  BarChart3, Settings, LogOut, Eye 
+  BarChart3, Settings, LogOut, Eye, 
+  BrainCircuit
 } from 'lucide-react';
 
 const Sidebar = ({ activeTab, setActiveTab, setView }) => {
   
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { id: 'students', label: 'Students', icon: <Users size={20} /> },
-    { id: 'predictions', label: 'Predictions', icon: <GraduationCap size={20} /> },
-    { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={20} />, badge: 'beta' },
-    { id: 'models', label: 'Models', icon: <Settings size={20} /> },
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={30} /> },
+    { id: 'students', label: 'Students', icon: <Users size={30} /> },
+    { id: 'predictions', label: 'Predictions', icon: <GraduationCap size={30} /> },
+    { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={30} />, badge: 'beta' },
+    { id: 'models', label: 'Models', icon: <Settings size={30} /> },
   ];
 
   return (
     <aside className="admin-sidebar">
       <div className="sidebar-header">
-        <div className="logo-box">🧠</div>
+        <div className="logo-box">
+          <BrainCircuit size={24} color="#ff8e9e"/></div>
         <span className="logo-text">CareerAI</span>
       </div>
 
@@ -44,7 +46,7 @@ const Sidebar = ({ activeTab, setActiveTab, setView }) => {
         </div>
         
         <div className="logout-btn" onClick={() => { localStorage.clear(); setView('landing'); }}>
-          <LogOut size={18} /> <span>Sign Out</span>
+          <LogOut size={18} /> <span> Sign Out </span>
         </div>
       </div>
     </aside>
