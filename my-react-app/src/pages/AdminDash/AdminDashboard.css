@@ -9,11 +9,11 @@
 /* Sidebar Styling */
 .sidebar {
   width: 260px;
-  background-color: #2D3748; /* Dark Blue/Grey */
-  color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 0;
+  height: 100vh;
+  position: sticky; /* fixed ki jagah sticky use karein layout ke andar */
+  top: 0;
+  background-color: #2D3748;
+  flex-shrink: 0; /* 👈 YE SABSE ZAROORI HAI: Isse sidebar wapas aa jayega */
 }
 
 .sidebar-logo {
@@ -234,4 +234,71 @@
   border-radius: 50% 50% 0 0;
   width: 120px;
   margin: 20px auto;
+}
+
+.admin-layout {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #fcfaf5;
+}
+
+.main-wrapper {
+  flex-grow: 1; /* Bachi hui saari jagah ye lega */
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Overflow se bachane ke liye */
+}
+
+/* --- Page Header & Buttons --- */
+.dashboard-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.page-title {
+  font-size: 1.6rem;
+  margin: 0;
+  color: #1a202c;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-export {
+  background: white;
+  border: 1px solid #2f855a; /* Green Border */
+  color: #2f855a; /* Green Text */
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s;
+}
+
+.btn-export:hover {
+  background: #f0fff4; /* Light green on hover */
+}
+
+.btn-add {
+  background: #ff857d; /* Coral Pink */
+  border: none;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.btn-add:hover {
+  background: #ff6b61;
 }
