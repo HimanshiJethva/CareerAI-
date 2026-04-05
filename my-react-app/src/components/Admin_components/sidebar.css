@@ -1,0 +1,111 @@
+.admin-sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: #ff8e9e; /* Exact Coral Pink */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 0;
+  position: sticky;
+  top: 0;
+  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.05);
+  font-family: 'Poppins', sans-serif;
+}
+
+.sidebar-header {
+  padding: 0 30px 40px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-box {
+  background: white;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 20px;
+}
+
+.logo-text {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-nav {
+  flex: 1;
+}
+
+.nav-item {
+  padding: 15px 30px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.nav-item:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* --- ACTIVE TAB STYLE (Wahi light theme jo aapne manga) --- */
+.nav-item.active {
+  background-color: #f9f7f2; /* Light dashboard bg color */
+  color: #ff8e9e; /* Text becomes coral */
+  border-radius: 30px 0 0 30px; /* Rounded only on left side */
+  margin-left: 20px;
+  opacity: 1;
+  font-weight: 600;
+  box-shadow: -4px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.beta-badge {
+  background: white;
+  color: #ff8e9e;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.sidebar-footer {
+  padding: 20px 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.footer-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  opacity: 0.6;
+  letter-spacing: 1px;
+}
+
+.footer-item, .logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 0;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.logout-btn {
+  margin-top: 10px;
+  color: white;
+  font-weight: 600;
+}
+
+.footer-item:hover, .logout-btn:hover {
+  opacity: 0.7;
+}

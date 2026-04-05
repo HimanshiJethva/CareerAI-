@@ -339,10 +339,6 @@ function DashboardPage({ setView }) {
                     </div>
                   ))}
                </div>
-               {/* <div className="footer-btns" style={{marginTop: '2rem'}}>
-                  <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
-              
-               </div> */}
                <div className="footer-btns" style={{marginTop: '2rem'}}>
                   {/* <button className="btn-main" onClick={() => setStep(1)}>Test Again</button> */}
                   <span className="btn-back" onClick={() => setStep(4)}>Back</span>
