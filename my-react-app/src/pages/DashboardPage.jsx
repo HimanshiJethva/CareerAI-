@@ -130,6 +130,7 @@ function DashboardPage({ setView }) {
      { n: 5, t: "AI Results", s: "Prediction" } // <-- YE LINE ADD KARIYE
    ];
 
+   
    return (
      <div className="dashboard-wrapper">
        

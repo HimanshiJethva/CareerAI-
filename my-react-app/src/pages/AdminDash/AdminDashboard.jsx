@@ -41,6 +41,6 @@ function AdminDashboard({ setView }) {
       </div>
     </div>
   );
-}
+};
 
 export default AdminDashboard;

@@ -111,6 +111,7 @@ useEffect(() => {
       {view === "landing" && <LandingPage setView={setView}/>}
       {view === "forgotpassword" && <ForgotPasswordPage setView={setView}/>}
       {view === "profile" && <ProfilePage setView={setView}/>}
+      {view === "DashboardPage" && <DashboardPage setView={setView}/>}
       {/* {view === "admin" && <AdminDashboard setView={setView}/>} */}
     </>
       

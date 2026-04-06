@@ -1,50 +1,191 @@
+// import React from 'react';
+// import './Sidebar.css';
+// import { supabase } from '../../supabaseClient';
+// import { 
+//   LayoutDashboard, Users, GraduationCap, 
+//   LogOut, Eye, BrainCircuit, User, Settings 
+// } from 'lucide-react';
+
+
+// // 1. Pehle ye function banaiye (Return se upar)
+// const handleLogout = async () => {
+//   const { error } = await supabase.auth.signOut(); // Yeh real logout hai
+  
+//   if (!error) {
+//     localStorage.clear(); // Safety ke liye clear kar sakte hain
+//     setView('landing');   // Wapas landing page par bhej do
+//   } else {
+//     alert("Logout failed: " + error.message);
+//   }
+// };
+
+// const Sidebar = ({ activeTab, setActiveTab, setView }) => {
+  
+//   return (
+//     <aside className="admin-sidebar">
+//       {/* Brand Logo Section */}
+//       <div className="sidebar-header">
+//         <div className="logo-box">
+//           <BrainCircuit size={25} color="#ff8e9e"/>
+//         </div>
+//         <div className="logo-text">
+//           <span className="skill">Career</span> <span className="link">AI</span>
+//         </div>
+//       </div>
+
+//       <nav className="sidebar-nav">
+//         {/* MAIN MENU SECTION */}
+//         <div className="nav-section">
+//           <div 
+//             className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+//             onClick={() => setActiveTab('dashboard')}
+//           >
+//             <LayoutDashboard size={25} /> <span className="nav-label">Dashboard</span>
+//           </div>
+          
+//           <div 
+//             className={`nav-item ${activeTab === 'students' ? 'active' : ''}`}
+//             onClick={() => setActiveTab('students')}
+//           >
+//             <Users size={25} /> <span className="nav-label">Students</span>
+//           </div>
+          
+//           <div 
+//             className={`nav-item ${activeTab === 'predictions' ? 'active' : ''}`}
+//             onClick={() => setActiveTab('predictions')}
+//           >
+//             <GraduationCap size={27} /> <span className="nav-label">Predictions</span>
+//           </div>
+//         </div>
+
+//         {/* ACCOUNT SECTION (Reference image ki tarah) */}
+//         <div className="nav-section">
+//           <div className="section-title">ACCOUNT</div>
+          
+//           <div className={`nav-item secondary ${activeTab === 'My Profile' ? 'active' : ''}`}
+//           onClick={()=> setActiveTab('My Profile')}>
+//             <User size={28} /> <span className="nav-label">My Profile</span>
+//           </div>
+          
+//           <div className={`nav-item secondary ${activeTab === 'Settings' ? 'active' : ''}`}
+//           onClick={()=> setActiveTab('Settings')}>
+//             <Settings size={28} /> <span className="nav-label">Settings</span>
+//           </div>
+
+//           <div className="nav-item secondary" onClick={() => setView('landing')}>
+//             <Eye size={28} /> <span className="nav-label">Live Preview</span>
+//           </div>
+//         </div>
+//       </nav>
+
+//       {/* Logout at bottom */}
+//       <div className="sidebar-footer">
+//          {/* 2. Button par ise call kijiye */}
+//         <div className="logout-btn" onClick={handleLogout}>
+//           <LogOut size={25} /> <span>Logout</span>
+//         </div>
+//       </div>
+//     </aside>
+//   );
+// };
+
+// export default Sidebar;
 import React from 'react';
 import './Sidebar.css';
+import { supabase } from '../../supabaseClient';
 import { 
   LayoutDashboard, Users, GraduationCap, 
-  BarChart3, Settings, LogOut, Eye 
+  LogOut, Eye, BrainCircuit, User, Settings, Monitor
 } from 'lucide-react';
 
 const Sidebar = ({ activeTab, setActiveTab, setView }) => {
-  
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { id: 'students', label: 'Students', icon: <Users size={20} /> },
-    { id: 'predictions', label: 'Predictions', icon: <GraduationCap size={20} /> },
-    { id: 'analytics', label: 'Analytics', icon: <BarChart3 size={20} />, badge: 'beta' },
-    { id: 'models', label: 'Models', icon: <Settings size={20} /> },
-  ];
+
+  // Logout Function: Component ke andar hona chahiye taaki setView chale
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      localStorage.clear(); 
+      setView('landing');   
+    } catch (error) {
+      console.error("Logout Error:", error.message);
+      // Force logout if supabase fails
+      localStorage.clear();
+      setView('landing');
+    }
+  };
 
   return (
     <aside className="admin-sidebar">
+      {/* Brand Logo Section */}
       <div className="sidebar-header">
-        <div className="logo-box">🧠</div>
-        <span className="logo-text">CareerAI</span>
+        <div className="logo-box">
+          <BrainCircuit size={28} color="#ff8e9e"/>
+        </div>
+        <div className="logo-text">
+          <span className="skill">Career</span> <span className="link">AI</span>
+        </div>
       </div>
 
       <nav className="sidebar-nav">
-        {menuItems.map((item) => (
+        {/* MAIN MENU SECTION */}
+        <div className="nav-section">
           <div 
-            key={item.id}
-            className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(item.id)}
+            className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
           >
-            <span className="nav-icon">{item.icon}</span>
-            <span className="nav-label">{item.label}</span>
-            {item.badge && <span className="beta-badge">{item.badge}</span>}
+            <LayoutDashboard size={28} /> <span className="nav-label">Dashboard</span>
           </div>
-        ))}
+          
+          <div 
+            className={`nav-item ${activeTab === 'students' ? 'active' : ''}`}
+            onClick={() => setActiveTab('students')}
+          >
+            <Users size={28} /> <span className="nav-label">Students</span>
+          </div>
+          
+          <div 
+            className={`nav-item ${activeTab === 'predictions' ? 'active' : ''}`}
+            onClick={() => setActiveTab('predictions')}
+          >
+            <GraduationCap size={30} /> <span className="nav-label">Predictions</span>
+          </div>
+        </div>
+
+        {/* ACCOUNT SECTION */}
+        <div className="nav-section">
+          <div className="section-title">ACCOUNT</div>
+          
+          <div className={`nav-item ${activeTab === 'My Profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('My Profile')}>
+            <User size={28} /> <span className="nav-label">My Profile</span>
+          </div>
+          
+          <div className={`nav-item ${activeTab === 'Settings' ? 'active' : ''}`}
+            onClick={() => setActiveTab('Settings')}>
+            <Settings size={28} /> <span className="nav-label">Settings</span>
+          </div>
+        </div>
+
+        {/* LIVE PREVIEWS SECTION */}
+        <div className="nav-section">
+          <div className="section-title">PREVIEWS</div>
+          
+          <div className="nav-item secondary" onClick={() => setView('landing')}>
+            <Eye size={28} /> <span className="nav-label">Landing Page</span>
+          </div>
+
+          <div className="nav-item secondary" onClick={() => setView('DashboardPage')}>
+            <Monitor size={28} /> <span className="nav-label">Student View</span>
+          </div>
+        </div>
       </nav>
 
+      {/* Logout at bottom */}
       <div className="sidebar-footer">
-        <div className="footer-label">Quick Actions</div>
-        
-        <div className="footer-item" onClick={() => setView('landing')}>
-          <Eye size={18} /> <span>Live Preview</span>
-        </div>
-        
-        <div className="logout-btn" onClick={() => { localStorage.clear(); setView('landing'); }}>
-          <LogOut size={18} /> <span>Sign Out</span>
+        <div className="logout-btn" onClick={handleLogout}>
+          <LogOut size={28} /> <span>Logout</span>
         </div>
       </div>
     </aside>
