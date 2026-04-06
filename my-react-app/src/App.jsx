@@ -57,28 +57,42 @@ useEffect(()=>{   <Toaster position="top-center" reverseOrder={false} /> },[]);
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
+useEffect(() => {
+    // Ek common function jo role check karke sahi rasta dikhayega
+    const handleUserRouting = (session) => {
       if (session) {
-        // 👇 YAHAN BADLAV HAI: LocalStorage se role uthao
         const savedRole = localStorage.getItem("userRole");
-        
+        // Role check karo aur wahi page dikhao
         if (savedRole === 'admin') {
           setView('admindashboard');
         } else {
           setView('dashboard');
         }
-      } else {
-        // Agar session nahi hai aur purana view dashboard tha, toh landing bhej do
-        if (localStorage.getItem("view") === 'dashboard' || localStorage.getItem("view") === 'admindashboard') {
-          setView('landing');
-        }
       }
     };
-    
-    checkSession();
+
+    // 1. Pehli baar app load hone par check karein
+    const checkInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      handleUserRouting(session);
+    };
+    checkInitialSession();
+
+    // 2. JAB AAP TAB SWITCH KARKE WAPAS AAYEIN (Magic Code ✨)
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      // Ye listener tab switch hone par chalne wale refresh ko pakad lega
+      // aur wapas sahi role wala dashboard set kar dega!
+      if (session) {
+         handleUserRouting(session);
+      }
+    });
+
+    // Cleanup function taaki memory leak na ho
+    return () => {
+      if (authListener && authListener.subscription) {
+        authListener.subscription.unsubscribe();
+      }
+    };
   }, []);
   useEffect(()=>{   <Toaster position="top-center" reverseOrder={false} /> },[]);
   useEffect(()=>{

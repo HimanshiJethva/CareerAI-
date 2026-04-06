@@ -1,0 +1,224 @@
+.dashboard-body {
+  padding: 10px;
+}
+
+/* --- Layout Structure --- */
+.dashboard-top-layout {
+  display: flex;
+  gap: 30px;
+  align-items: stretch; 
+}
+
+.stats-column {
+  flex: 1;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.insights-column {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  min-width: 800px; /* IMPORTANT: Ensures charts have enough space */
+}
+
+/* --- Headers Alignment --- */
+.section-header {
+  display: flex;
+  align-items: center;
+  min-height: 45px;
+  margin-bottom: 15px;
+}
+
+.right-header {
+  justify-content: space-between;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* --- Buttons --- */
+.header-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-export {
+  background: white;
+  border: 1px solid #2f855a;
+  color: #2f855a;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-add {
+  background: #ff857d; 
+  border: none;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+/* --- Left Column: Cards --- */
+.stats-grid-vertical {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 15px;
+  flex: 1;
+}
+
+.stat-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  position: relative;
+  border: 1px solid #f0f0f0;
+  transition: all 0.3s ease; 
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(255, 133, 125, 0.15);
+  border-color: #ff857d;
+}
+
+.stat-card p {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  padding-right: 45px; 
+  line-height: 1.4;    
+}
+
+.stat-card h2 {
+  font-size: 1.8rem;
+  margin: 10px 0 0 0;
+  color: #1a202c;
+}
+
+.card-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #fff5f5;
+  padding: 8px;
+  border-radius: 8px;
+  color: #ff857d;
+}
+
+/* Teesre card ko poori khali jagah mein fill karne ke liye */
+.stats-grid-vertical .stat-card:last-child {
+  grid-column: span 2; 
+}
+
+/* --- Right Column: Insights Box --- */
+.insights-white-box {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  border: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  min-height: 300px;
+}
+
+.insights-row-inner {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+}
+
+.chart-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.pie-container, .area-container {
+  flex: 1;
+  min-width: 0;
+}
+
+.chart-title {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.chart-divider {
+  width: 1px;
+  background-color: #f0f0f0;
+  height: 200px;
+  align-self: center;
+}
+
+/* Custom CSS Donut Chart (Stable Solution) */
+.custom-donut-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 30px;
+  margin-top: 20px;
+  height: 180px;
+}
+
+.custom-donut-chart {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  /* Conic gradient is perfect for pie charts! Value = cumulative percentages */
+  background: conic-gradient(
+    #ff857d 0% 30%, 
+    #1a365d 30% 55%, 
+    #6b46c1 55% 70%, 
+    #38b2ac 70% 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.donut-hole {
+  width: 90px;
+  height: 90px;
+  background-color: white; /* Creates the donut shape */
+  border-radius: 50%;
+}
+
+.custom-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-text {
+  font-size: 0.85rem;
+  color: #333;
+}
