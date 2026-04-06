@@ -44,7 +44,7 @@ function LandingPage({setView})
 
         {/* FEATURES SECTION */}
         <section id="features" className="features">
-             <div className="section-header" style={{ textAlign: 'center', marginBottom: '3rem' }}>
+             <div  style={{ textAlign: 'center', marginBottom: '3rem' }}>
             {/* Eyebrow Text */}
             <p style={{ color: 'var(--coral)', fontWeight: 'bold', letterSpacing: '2px', textTransform: 'uppercase' }}>
               WHY CHOOSE US
@@ -94,7 +94,7 @@ function LandingPage({setView})
         </section> */}
         {/* PROCESS SECTION */}
     <section className="process" id="how-it-works">
-    <div className="section-header" style={{textAlign: 'center', marginBottom: '4rem'}}>
+    <div  style={{textAlign: 'center', marginBottom: '4rem'}}>
         <p style={{color: 'var(--coral)', fontWeight: 'bold', letterSpacing: '2px'}}>SIMPLE PROCESS</p>
         <h2 style={{fontFamily: 'Playfair Display', fontSize: '3.5rem', marginTop: '1rem'}}>Four Steps to Your Dream Career</h2>
         <p style={{fontFamily: 'Fraunces', fontSize: '1.3rem', color: 'rgba(26,26,26,0.6)'}}>A streamlined journey from curiosity to clarity in just minutes</p>
