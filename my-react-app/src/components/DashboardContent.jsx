@@ -6,7 +6,7 @@ import { Eye, Trash2 } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import './DashboardContent.css';
 
-const DashboardContent = () => {
+const DashboardContent = ({ activeTab }) => {
   const [dashboardStats, setDashboardStats] = useState({
     totalStudents: 0,
     totalPredictions: 0,
@@ -80,7 +80,9 @@ const DashboardContent = () => {
         {/* Left: Stats Cards */}
         <div className="stats-column">
           <div className="section-header">
-            <h3 className="section-title">Top Statistics Cards</h3>
+            <h3 className="section-title">
+              {activeTab === 'students' ? 'Student Statistics' : 'Top Statistics Cards'}
+            </h3>
           </div>
           <div className="stats-grid-vertical">
             <div className="stat-card">
@@ -170,7 +172,7 @@ const DashboardContent = () => {
                 <th>Stream</th>
                 <th>Registered Date</th>
                 <th>AI Suggested Career</th>
-                <th>Action</th>
+                {/* <th>Action</th> */}
               </tr>
             </thead>
             <tbody style={{ fontSize: '14px', color: '#2D3748' }}>
@@ -181,14 +183,14 @@ const DashboardContent = () => {
                   <td>{student.stream || 'N/A'}</td>
                   <td>{new Date(student.created_at).toLocaleDateString()}</td>
                   <td style={{ color: '#A0AEC0', fontStyle: 'italic' }}>Pending AI...</td>
-                  <td style={{ display: 'flex', gap: '10px', alignItems: 'center', paddingTop: '10px' }}>
+                  {/* <td style={{ display: 'flex', gap: '10px', alignItems: 'center', paddingTop: '10px' }}>
                     <button style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                       <Eye size={18} strokeWidth={2} color="#4A5568" />
                     </button>
                     <button style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                       <Trash2 size={18} strokeWidth={2} color="#e53e3e" />
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>

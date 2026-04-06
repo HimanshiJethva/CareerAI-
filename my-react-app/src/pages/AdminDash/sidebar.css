@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .admin-sidebar {
-  width: 300px;
+  width: 260px;
   height: 100vh;
   background-color: #ff8e9e; /* Pink Background */
   color: white;
@@ -113,6 +113,7 @@
   transition: 0.3s;
   border:none;
   font-size: 20px;
+  color:black;
 }
 
 .logout-btn:hover {
