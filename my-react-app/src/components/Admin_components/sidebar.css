@@ -1,117 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 .admin-sidebar {
-  width: 260px;
+  width: 300px;
   height: 100vh;
-  background-color: #ff8e9e; /* Pink background */
-  color: black;
+  background-color: #ff8e9e; /* Pink Background */
+  color: white;
   display: flex;
-  flex-direction: column; /* Items ek ke niche ek aayenge */
+  flex-direction: column;
   padding: 25px 0;
   position: fixed;
   left: 0;
   top: 0;
-  box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+  font-family: 'Inter', sans-serif;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.05);
 }
 
+/* Logo Section like SkillLink */
 .sidebar-header {
-  padding: 0 30px 40px;
+  padding: 10px 25px 40px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .logo-box {
   background: white;
-  width: 35px;
-  height: 35px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-size: 20px;
+  border-radius: 10px;
 }
 
 .logo-text {
-  font-size: 2rem;
+  font-size: 32px !important;
   font-weight: 800;
-  letter-spacing: 0.5px;
 }
 
+.logo-text .skill { 
+  color: black; 
+}
+.logo-text .link { 
+  color: black; 
+  opacity: 0.8; }
+
+/* Navigation Logic */
 .sidebar-nav {
   display: flex;
-  flex-direction: column; /* Sabse zaroori line */
-  gap: 10px;
-  padding:0 15px;
-  margin-top: 30px;
+  flex-direction: column;
+  gap: 20px; /* Spacing between sections */
+  padding: 0 15px;
+  flex: 0;
+}
+
+.section-title {
+  font-size: 14px; /* Thoda sa chota (15 se 14) zyada professional lagta hai */
+  font-weight: 800;
+  color: black;
+  letter-spacing: 1.2px;
+  margin-top: 5px; 
+  margin-bottom: 10px;
+  padding-left: 15px;
+  opacity: 0.7; /* Isse heading aur items mein difference dikhega */
+}
+
+.nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .nav-item {
-  padding: 12px 20px;
+  padding: 12px 15px;
   display: flex;
   align-items: center;
   gap: 15px;
   cursor: pointer;
-  transition: 0.3s;
+  border-radius: 10px;
+  transition: all 0.2s ease;
   font-weight: 500;
+  font-size: 20px;
+  color: black;
 }
+
 .nav-item:hover {
-  opacity: 1;
   background: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
-
-/* --- ACTIVE TAB STYLE (Wahi light theme jo aapne manga) --- */
+/* Reference image style active tab */
 .nav-item.active {
-  background-color: #f9f7f2;
-  color: #ff8e9e;
-  border-radius: 30px 0 0 30px;
-  margin-left: 15px;
-}
-
-.beta-badge {
-  background: white;
-  color: #ff8e9e;
-  font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.2); 
+  color: white;
   font-weight: 700;
-  margin-left: auto;
 }
 
+/* Footer Section */
 .sidebar-footer {
-  padding: 20px 30px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.footer-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  margin-bottom: 15px;
-  opacity: 0.6;
-  letter-spacing: 1px;
-}
-
-.footer-item, .logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 10px 0;
-  cursor: pointer;
-  font-weight: 500;
-  transition: 0.2s;
+  padding: 20px 25px;
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logout-btn {
-  margin-top: 10px;
-  color: black;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
   font-weight: 600;
+  opacity: 0.9;
+  transition: 0.3s;
   border:none;
+  font-size: 20px;
 }
 
-.footer-item:hover, .logout-btn:hover {
-  opacity: 0.7;
+.logout-btn:hover {
+  opacity: 1;
+  transform: translateX(5px);
 }
-
-
-
-
-
