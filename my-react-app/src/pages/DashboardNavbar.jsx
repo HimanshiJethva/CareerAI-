@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient"; // Path check kar lena apne folder ke hisaab se
+import { useNavigate } from "react-router-dom";
 
-function DashboardNavbar({ setView }) {
+function DashboardNavbar() {
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState(""); // Nayi state naam save karne ke liye
@@ -38,7 +40,7 @@ function DashboardNavbar({ setView }) {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     localStorage.clear();
-    setView('landing');
+    navigate('/');
   };
 
   // Naam ya email ka pehla akshar nikalne ka function
@@ -52,7 +54,7 @@ function DashboardNavbar({ setView }) {
     <nav className="dash-top-navbar">
       {/* Left: Logo */}
       <div className="dash-nav-left">
-        <span className="dash-logo" onClick={() => setView('landing')}>
+        <span className="dash-logo" onClick={() => navigate('/')}>
           Career<span style={{fontWeight: 'normal'}}>AI</span>
         </span>
       </div>
@@ -85,14 +87,14 @@ function DashboardNavbar({ setView }) {
               
               <button className="dropdown-item" onClick={() => {
                   setIsDropdownOpen(false); 
-                  setView('profile');
+                  navigate('/profile');
               }}>
                  <span className="item-icon">👤</span> My Profile
               </button>
               
               <button className="dropdown-item" onClick={() => {
                   setIsDropdownOpen(false);
-                  setView('dashboard');
+                  navigate('/dashboard');
               }}>
                  <span className="item-icon">📊</span> My Predictions
               </button>

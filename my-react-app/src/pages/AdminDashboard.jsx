@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import Sidebar from '../../components/Admin_components/Sidebar'; // Path sahi hai na? Check kar lena
+import { useNavigate } from 'react-router-dom';
 // import './AdminDashboard.css'; // Dashboard ka apna CSS
 
-const AdminDashboard = ({ setView }) => {
+const AdminDashboard = () => {
+  const navigate = useNavigate();
   // 1. Current active tab track karne ke liye state
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -13,7 +15,7 @@ const AdminDashboard = ({ setView }) => {
       <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        setView={setView} 
+        navigate={navigate} 
       />
 
       {/* 3. Right Side Content Area */}

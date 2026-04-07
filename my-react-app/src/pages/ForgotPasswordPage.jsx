@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
+import { useNavigate } from "react-router-dom";
 
-function ForgotPasswordPage({ setView }) {
+function ForgotPasswordPage() {
   // States
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -93,7 +95,7 @@ function ForgotPasswordPage({ setView }) {
               fontSize: '1rem',
               transition: 'color 0.3s ease'
             }}
-            onClick={() => setView('login')}
+            onClick={() =>navigate('/login')}
             onMouseEnter={(e) => e.target.style.color = 'var(--coral)'}
             onMouseLeave={(e) => e.target.style.color = 'var(--charcoal)'}
           >

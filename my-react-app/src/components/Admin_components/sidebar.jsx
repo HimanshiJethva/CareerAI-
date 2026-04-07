@@ -4,8 +4,8 @@ import {
   LayoutDashboard, Users, GraduationCap, 
   BarChart3, Settings, LogOut, Eye 
 } from 'lucide-react';
-
-const Sidebar = ({ activeTab, setActiveTab, setView }) => {
+import { useNavigate } from 'react-router-dom';
+const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
   
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
@@ -39,11 +39,11 @@ const Sidebar = ({ activeTab, setActiveTab, setView }) => {
       <div className="sidebar-footer">
         <div className="footer-label">Quick Actions</div>
         
-        <div className="footer-item" onClick={() => setView('landing')}>
+        <div className="footer-item" onClick={() => navigate('/')}>
           <Eye size={18} /> <span>Live Preview</span>
         </div>
         
-        <div className="logout-btn" onClick={() => { localStorage.clear(); setView('landing'); }}>
+        <div className="logout-btn" onClick={() => { localStorage.clear(); navigate('/'); }}>
           <LogOut size={18} /> <span>Sign Out</span>
         </div>
       </div>

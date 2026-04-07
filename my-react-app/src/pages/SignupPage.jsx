@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { supabase } from "../supabaseClient"
 import toast from 'react-hot-toast';
+import { useNavigate } from "react-router-dom";
 
-function SignupPage({ setView }) {
+function SignupPage() {
 
     // States
+    const navigate = useNavigate();
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -49,7 +51,7 @@ function SignupPage({ setView }) {
           setErrors({ api: "Database Error: " + dbError.message });
         } else {
           alert("Signup Success! Please check your inbox to verify.");
-          setView('login');
+          navigate('/login');
         }
       }
       
@@ -90,7 +92,7 @@ function SignupPage({ setView }) {
        
         <div className="auth-card">
           
-          <button className="back-btn" onClick={() => setView('landing')}>← Back</button>
+          <button className="back-btn" onClick={() => navigate('/')}>← Back</button>
           {errors.api && <p style={{color:"red"}}>{errors.api}</p>}
           <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>Create Account</h2>
           <input 
@@ -107,7 +109,7 @@ function SignupPage({ setView }) {
           <button  onClick={handleSignup} className="btn-primary" style={{width: '100%'}} disabled={loading}>{loading ? "Please wait.." : "Signup"}</button>
           <p style={{marginTop: '1.5rem'}}>
             Already have an account? 
-            <span className="auth-link" style={{cursor: 'pointer', color: 'var(--coral)'}} onClick={() => setView('login')}> 
+            <span className="auth-link" style={{cursor: 'pointer', color: 'var(--coral)'}} onClick={() => navigate('/login')}> 
               Login
             </span>
           </p>

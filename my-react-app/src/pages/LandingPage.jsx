@@ -8,8 +8,11 @@ import ProcessStep from "../components/ProcessStep"
 import SliderGroup from "../components/SliderGroup"
 import TestimonialCard from "../components/TestimonialCard"
 import hero_students from "../assets/hero_students.png"
-function LandingPage({setView})
+import { useNavigate } from "react-router-dom"
+
+function LandingPage()
 {
+    const navigate = useNavigate();
     return (
         <div className="app-container">
         {/* HEADER */}
@@ -20,7 +23,7 @@ function LandingPage({setView})
                 <li><a href="#features">Features</a></li>
                 <li><a href="#how-it-works">How It Works</a></li>
                 <li><a href="#testimonials">Stories</a></li>
-                <li><button className="nav-cta" onClick={()=>setView('login')}>Get Started</button></li>
+                <li><button className="nav-cta" onClick={()=>navigate('/login')}>Get Started</button></li>
             </ul>
             </nav>
         </header>
@@ -33,7 +36,7 @@ function LandingPage({setView})
                 <p>Don't guess your future. Let our advanced AI analyze your 
                         Marks, Personality, and Interests to give you a scientific roadmap.</p>
                 <div className="hero-buttons">
-                <button className="btn-primary" onClick={()=>setView("login")}>Start Free Prediction</button>
+                <button className="btn-primary" onClick={()=>navigate('/login')}>Start Free Prediction</button>
                 </div>
             </div>
              <div className="hero-visual">
@@ -151,7 +154,7 @@ function LandingPage({setView})
         <div style={{maxWidth: '900px', margin: '0 auto'}}>
             <h2 style={{fontFamily: 'Playfair Display', fontSize: '4rem', marginBottom: '1.5rem'}} >Your Dream Career Awaits</h2>
             <p style={{fontSize: '1.4rem', opacity: '0.95'}}>Join 50,000+ professionals who discovered their perfect path. Start today—free, forever.</p>
-            <button className="cta-button" onClick={()=>setView("login")} >Get Your Free Prediction</button>
+            <button className="cta-button" onClick={()=>navigate('/login')} >Get Your Free Prediction</button>
         </div>
     </section>
         {/* FOOTER */}

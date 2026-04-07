@@ -165,10 +165,12 @@
 import {useState} from "react"
 import {supabase} from "../supabaseClient"
 import toast from "react-hot-toast"
+import { useNavigate } from "react-router-dom";
 
-function LoginPage({ setView }) {
+function LoginPage() {
     
     //states
+    const navigate = useNavigate();
     const [email,setEmail] = useState("")
     const [password,setPassword] = useState("")
     const [errors, setErrors] = useState({}) //error object
@@ -203,17 +205,17 @@ const { data: userData } = await supabase
 
 if (userData && userData.role && userData.role.toLowerCase() === 'admin') {
   localStorage.setItem('userRole', 'admin');
-  setView('admindashboard');
+  navigate('/admindashboard');
 } else {
   localStorage.setItem('userRole', 'student');
-  setView('dashboard');
+  navigate('/dashboard');
 }
 
     } catch (err) {
       setLoading(false);
       // Agar role nahi milta, toh normal dashboard par bhej do
       localStorage.setItem('userRole', 'student');
-      setView('dashboard');
+      navigate('/dashboard');
     }
   };
 
@@ -242,7 +244,7 @@ if (userData && userData.role && userData.role.toLowerCase() === 'admin') {
    return (
       <div className="auth-container">
         <div className="auth-card">
-          <span className="back-btn" onClick={() => setView('landing')}>← Back</span>
+          <span className="back-btn" onClick={() => navigate('/')}>← Back</span>
           
           <h2 style={{fontFamily: 'Playfair Display', fontSize: '2.5rem', marginBottom: '1rem'}}>
             Welcome Back
@@ -284,7 +286,7 @@ if (userData && userData.role && userData.role.toLowerCase() === 'admin') {
             <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
               <span 
                 className="forgot-password-link" 
-                onClick={() => setView('forgotpassword')}
+                onClick={() => navigate('/forgotpassword')}
               >
                 Forgot your password?
               </span>
@@ -295,7 +297,7 @@ if (userData && userData.role && userData.role.toLowerCase() === 'admin') {
 
           <p style={{marginTop: '1.5rem'}}>
             Don't have an account? 
-            <span className="auth-link" style={{cursor: 'pointer', color: 'var(--coral)'}} onClick={() => setView('signup')}> 
+            <span className="auth-link" style={{cursor: 'pointer', color: 'var(--coral)'}} onClick={() => navigate('/signup')}> 
               Sign Up
             </span>
           </p>

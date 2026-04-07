@@ -10,8 +10,11 @@ import TestimonialCard from "../components/TestimonialCard"
 import {useState, useEffect} from "react"
 import axios from "axios"
 import DashboardNavbar from "./DashboardNavbar"
+import { useNavigate } from "react-router-dom"
 
-function DashboardPage({ setView }) {
+function DashboardPage({setView}) {
+    const navigate =  useNavigate();
+
    //const [step, setStep] = useState(1);
    // 1. Step ko storage se uthayein taaki refresh par Step 1 na ho jaye
    const [step, setStep] = useState(() => {
@@ -137,7 +140,7 @@ function DashboardPage({ setView }) {
        <DashboardNavbar setView={setView} />
 
        {/* 2. SIDEBAR - Top exactly 75px (Navbar height) aur bacha hua height 100vh - 75px */}
-       <aside className="dash-sidebar" style={{ top: '75px', height: 'calc(100vh - 75px)' }}>
+       <aside className="dash-sidebar" style={{ top: '70px', height: 'calc(100vh - 60px)' }}>
          
          {/* NEW: margin-top add kiya taaki "Stream Selection" text kate nahi */}
          <div className="stepper-vertical" style={{ marginTop: '2.5rem' }}>
@@ -156,7 +159,7 @@ function DashboardPage({ setView }) {
            <p>Logged in </p>
            <button className="logout-btn" onClick={() => {
              localStorage.clear(); 
-             setView('landing');
+             navigate('landing');
            }}>Logout</button>
          </div>
        </aside>
@@ -174,7 +177,7 @@ function DashboardPage({ setView }) {
            {/* STEP 1: STREAM */}
            {step === 1 && (
              <div className="step-view">
-               <h2>Select Your Educational Stream</h2>
+               {/* <h2>Select Your Educational Stream</h2> */}
                
                {/* ... (Aapka bacha hua Step 1 ka code waisa hi rahega) ... */}
                <div className="stream-grid">
@@ -340,7 +343,7 @@ function DashboardPage({ setView }) {
                   ))}
                </div>
                <div className="footer-btns" style={{marginTop: '2rem'}}>
-                  {/* <button className="btn-main" onClick={() => setStep(1)}>Test Again</button> */}
+                  
                   <span className="btn-back" onClick={() => setStep(4)}>Back</span>
                   <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
                </div>
@@ -353,3 +356,138 @@ function DashboardPage({ setView }) {
 }
 
 export default DashboardPage
+
+
+
+// {/* STEP 5: RESULT VIEW */}
+// {step === 5 && predictions && (
+//   <div className="step-view result-view animate-in">
+    
+//     {/* Header */}
+//     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+//       <div style={{
+//         display: 'inline-block',
+//         background: 'linear-gradient(135deg, #fff5f5, #ffe0e0)',
+//         border: '1px solid #ffb3b3',
+//         borderRadius: '20px',
+//         padding: '6px 16px',
+//         fontSize: '0.85rem',
+//         color: '#e05555',
+//         marginBottom: '0.8rem'
+//       }}>
+//         🤖 AI Analysis Complete
+//       </div>
+//       <h2 style={{ fontSize: '1.8rem', marginBottom: '0.3rem' }}>Your Career Predictions</h2>
+//       <p style={{ color: '#888', fontSize: '0.95rem' }}>
+//         Based on your academic profile, personality & interests
+//       </p>
+//     </div>
+
+//     {/* Career Cards */}
+//     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+//       {predictions.Top_Predictions.map((res, index) => {
+//         const medals = ['🥇', '🥈', '🥉'];
+//         const colors = ['#f59e0b', '#94a3b8', '#cd7f32'];
+//         const bgColors = ['#fffbeb', '#f8fafc', '#fdf6ec'];
+//         const barColors = ['#f59e0b', '#64748b', '#cd7f32'];
+//         const medal = medals[index] || '🎯';
+//         const barColor = barColors[index] || '#ff6b6b';
+//         const bgColor = bgColors[index] || '#fff5f5';
+
+//         return (
+//           <div key={index} style={{
+//             background: bgColor,
+//             border: `1px solid ${index === 0 ? '#fde68a' : '#e2e8f0'}`,
+//             borderRadius: '16px',
+//             padding: '1.5rem',
+//             boxShadow: index === 0 ? '0 4px 20px rgba(245,158,11,0.15)' : '0 2px 8px rgba(0,0,0,0.05)',
+//             transition: 'transform 0.2s',
+//           }}
+//           onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-3px)'}
+//           onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+//           >
+//             {/* Top row: medal + career name + percentage */}
+//             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.8rem' }}>
+//               <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+//                 <span style={{ fontSize: '1.8rem' }}>{medal}</span>
+//                 <div>
+//                   <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: '700', color: '#1a1a2e' }}>
+//                     {res.career}
+//                   </h3>
+//                   {index === 0 && (
+//                     <span style={{
+//                       fontSize: '0.72rem',
+//                       background: '#fde68a',
+//                       color: '#92400e',
+//                       padding: '2px 8px',
+//                       borderRadius: '10px',
+//                       fontWeight: '600'
+//                     }}>
+//                       ⭐ Best Match
+//                     </span>
+//                   )}
+//                 </div>
+//               </div>
+//               {/* Percentage badge */}
+//               <div style={{
+//                 background: barColor,
+//                 color: 'white',
+//                 borderRadius: '12px',
+//                 padding: '4px 14px',
+//                 fontWeight: '700',
+//                 fontSize: '1rem',
+//                 minWidth: '60px',
+//                 textAlign: 'center'
+//               }}>
+//                 {res.confidence}%
+//               </div>
+//             </div>
+
+//             {/* Progress Bar */}
+//             <div style={{ marginBottom: '0.8rem' }}>
+//               <div style={{
+//                 background: '#e2e8f0',
+//                 borderRadius: '10px',
+//                 height: '10px',
+//                 overflow: 'hidden'
+//               }}>
+//                 <div style={{
+//                   width: `${res.confidence}%`,
+//                   background: `linear-gradient(90deg, ${barColor}, ${barColor}cc)`,
+//                   height: '100%',
+//                   borderRadius: '10px',
+//                   transition: 'width 1s ease',
+//                 }} />
+//               </div>
+//               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: '#94a3b8', marginTop: '3px' }}>
+//                 <span>0%</span>
+//                 <span>50%</span>
+//                 <span>100%</span>
+//               </div>
+//             </div>
+
+//             {/* Reason */}
+//             <p style={{ margin: 0, color: '#555', fontSize: '0.9rem', lineHeight: '1.5' }}>
+//               💡 {res.reason}
+//             </p>
+//           </div>
+//         );
+//       })}
+//     </div>
+
+//     {/* Footer buttons */}
+//     <div className="footer-btns" style={{ marginTop: '2rem' }}>
+//       <span className="btn-back" onClick={() => setStep(4)}>Back</span>
+//       <button className="btn-main" onClick={() => {
+//         setPredictions(null);
+//         localStorage.removeItem("careerPredictions");
+//         localStorage.removeItem("careerFormData");
+//         localStorage.setItem("formStep", 1);
+//         setStep(1);
+//       }}>
+//         🔄 Test Again
+//       </button>
+//     </div>
+
+//   </div>
+// )}
