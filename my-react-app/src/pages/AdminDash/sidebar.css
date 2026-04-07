@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 .admin-sidebar {
-  width: 300px;
+  width: 260px;
   height: 100vh;
   background-color: #ff8e9e; /* Pink Background */
   color: white;
@@ -49,8 +49,8 @@
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 20px; /* Spacing between sections */
-  padding: 0 15px;
+  gap: 5px; /* Spacing between sections */
+  padding: 0 12px;
   flex: 0;
 }
 
@@ -80,7 +80,7 @@
   border-radius: 10px;
   transition: all 0.2s ease;
   font-weight: 500;
-  font-size: 20px;
+  font-size: 18px;
   color: black;
 }
 
@@ -113,6 +113,7 @@
   transition: 0.3s;
   border:none;
   font-size: 20px;
+  color:black;
 }
 
 .logout-btn:hover {

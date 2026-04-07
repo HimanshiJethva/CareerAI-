@@ -10,6 +10,7 @@ import TestimonialCard from "../components/TestimonialCard"
 import {useState, useEffect} from "react"
 import axios from "axios"
 import DashboardNavbar from "./DashboardNavbar"
+import {supabase} from '../supabaseClient'
 
 function DashboardPage({ setView }) {
    //const [step, setStep] = useState(1);
@@ -53,37 +54,119 @@ function DashboardPage({ setView }) {
     }
    }, [step, formData, predictions]);
 
-  // STEP 2: Prediction Function yahan likhein (Line 30-60 ke aas pass)
- const handlePredict = async () => {
+const handlePredict = async () => {
     setIsLoading(true);
     try {
-        // 1. Data ko clean karna: Har khali string ko 0 banao
+        // 1. Data ko clean karna
         const cleanedData = {};
         Object.keys(formData).forEach(key => {
             const value = formData[key];
-            
             if (typeof value === 'boolean') {
-                cleanedData[key] = value ? 1 : 0; // Booleans to 1/0
+                cleanedData[key] = value ? 1 : 0;
             } else if (value === '' || value === null) {
-                cleanedData[key] = 0; // Khali marks ko 0 banao
+                cleanedData[key] = 0;
             } else if (!isNaN(value) && key !== 'Stream') {
-                cleanedData[key] = parseFloat(value); // Strings to Numbers
+                cleanedData[key] = parseFloat(value);
             } else {
-                cleanedData[key] = value; // Stream selection as it is
+                cleanedData[key] = value;
             }
         });
 
-        console.log("Sending Cleaned Data:", cleanedData);
+        // 2. SUPABASE MEIN INPUT STORE KARNA AUR ID NIKAALNA
+        const { data: { user } } = await supabase.auth.getUser();
+        let currentInputId = null; // Isme hum nayi input ID store karenge
 
+        if (user) {
+            // Humne .select('id').single() add kiya hai taaki insert hote hi ID mil jaye
+            const { data: inputRow, error: dbError } = await supabase
+                .from('user_inputs')
+                .insert([{
+                    user_id: user.id,
+                    stream: cleanedData.Stream,
+                    physics: cleanedData.Physics,
+                    chemistry: cleanedData.Chemistry,
+                    biology: cleanedData.Biology,
+                    english: cleanedData.English,
+                    computerscience: cleanedData.ComputerScience,
+                    mathematics: cleanedData.Mathematics,
+                    accountancy: cleanedData.Accountancy,
+                    businessstudies: cleanedData.BusinessStudies,
+                    economics: cleanedData.Economics,
+                    history: cleanedData.History,
+                    geography: cleanedData.Geography,
+                    politicalscience: cleanedData.PoliticalScience,
+                    sociology: cleanedData.Sociology,
+                    oppenness: cleanedData.Oppenness,
+                    conscientiousness: cleanedData.Conscientiousness,
+                    extraversion: cleanedData.Extraversion,
+                    agreeableness: cleanedData.Agreeableness,
+                    neuroticism: cleanedData.Neuroticism,
+                    interest_tech: cleanedData.Interest_Tech,
+                    interest_entrepreneurship: cleanedData.Interest_Entrepreneurship,
+                    interest_leadership: cleanedData.Interest_Leadership,
+                    interest_innovation: cleanedData.Interest_Innovation,
+                    interest_criticalthinking: cleanedData.Interest_CriticalThinking,
+                    interest_research: cleanedData.Interest_Research,
+                    interest_computerskill: cleanedData.Interest_ComputerSkill,
+                    interest_hardwareskill: cleanedData.Interest_HardwareSkill,
+                    interest_food: cleanedData.Interest_Food,
+                    interest_creativity: cleanedData.Interest_Creativity,
+                    positivethinking: cleanedData.PositiveThinking,
+                    participated_hackathon: cleanedData.Participated_Hackathon,
+                    participated_olympiad: cleanedData.Participated_Olympiad,
+                    participated_kabaddi: cleanedData.Participated_Kabaddi,
+                    participated_khokho: cleanedData.Participated_KhoKho,
+                    participated_cricket: cleanedData.Participated_Cricket
+                }])
+                .select('id') 
+                .single();
+
+            if (dbError) {
+                console.error("User Input Save Error:", dbError.message);
+            } else {
+                currentInputId = inputRow.id; // Nayi ID mil gayi
+                console.log("Input saved with ID:", currentInputId);
+            }
+        }
+
+        // 3. AI Prediction call
         const response = await axios.post("http://127.0.0.1:8000/predict", cleanedData);
         
-        if (response.data) {
+        if (response.data && response.data.Top_Predictions) {
+            const aiResults = response.data.Top_Predictions;
+
+            if (user) {
+                // 4. PREDICTIONS TABLE MEIN DATA INSERT (input_id ke saath)
+                const { error: predError } = await supabase
+                    .from('predictions')
+                    .insert([{
+                        user_id: user.id,
+                        input_id: currentInputId, // 👈 Ab yahan sahi ID jayegi
+                        career_1: aiResults[0]?.career,
+                        confidence_1: aiResults[0]?.confidence,
+                        explanation_1: aiResults[0]?.reason,
+                        career_2: aiResults[1]?.career,
+                        confidence_2: aiResults[1]?.confidence,
+                        explanation_2: aiResults[1]?.reason,
+                        career_3: aiResults[2]?.career,
+                        confidence_3: aiResults[2]?.confidence,
+                        explanation_3: aiResults[2]?.reason
+                    }]);
+
+                if (predError) {
+                    console.error("Prediction Save Error:", predError.message);
+                } else {
+                    console.log("Predictions saved successfully with linked input!");
+                }
+            }
+
             setPredictions(response.data);
             setStep(5);
         }
+
     } catch (error) {
         console.error("Error:", error);
-        alert("Server Error! Check if uvicorn terminal shows any value errors.");
+        alert("Something went wrong!");
     } finally {
         setIsLoading(false);
     }
@@ -297,7 +380,7 @@ function DashboardPage({ setView }) {
                    <h3 className="section-heading">Participation & Sports:</h3>
                    <div className="pills-grid">
                      {[
-                       'Hackathon', 'Olympiad', 'Kabaddi', 'KhoKho', 'Cricket'
+                      'Hackathon', 'Olympiad', 'Kabaddi', 'KhoKho', 'Cricket'
                      ].map(item => (
                        <PillItem 
                          key={item} 
