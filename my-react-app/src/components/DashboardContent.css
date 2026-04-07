@@ -172,7 +172,9 @@
   justify-content: flex-start;
   gap: 30px;
   margin-top: 20px;
-  height: 180px;
+  height: 200px; /* Thodi height badha di */
+  width: 100%;    /* 👈 Ye add kijiye */
+  min-width: 400px; /* 👈 Legend aur chart dono ke liye jagah banegi */
 }
 
 .custom-donut-chart {
@@ -221,4 +223,10 @@
 .legend-text {
   font-size: 0.85rem;
   color: #333;
+}
+
+/* DashboardContent.css mein */
+.student-list-container {
+    max-height: 500px; /* Aap apne hisaab se height set karein */
+    overflow-y: auto;  /* Scrollbar tabhi aayega jab data zyada ho */
 }
