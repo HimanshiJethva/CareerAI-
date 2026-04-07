@@ -1,0 +1,127 @@
+/* Sidebar ko jagah dene ke liye main layout fix */
+.custom-admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #FFFDF7;
+  padding: 0 30px;
+  height: 70px;
+  border-bottom: 1px solid #ff857d;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  box-sizing: border-box;
+  
+  /* 👇 Purane saare negative margins hata dijiye agar hain toh 👇 */
+  margin: 0; 
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-search {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #ff857d;
+  border-radius: 20px;
+  padding: 5px 15px;
+  width: 200px;
+}
+
+.header-search input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.avatar-circle {
+  width: 38px;
+  height: 38px;
+  background-color: #ff857d; /* Coral Pink */
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+/* --- Dropdown Styling (Image_b9cae5.png jaisa) --- */
+.header-profile-container {
+  position: relative;
+}
+
+.profile-dropdown-menu {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  width: 240px;
+  z-index: 2000;
+  border: 1px solid #f0f0f0;
+  padding: 15px 0;
+}
+
+.dropdown-header {
+  padding: 0 20px 10px 20px;
+}
+
+.dropdown-user-role {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #333;
+  margin: 0;
+}
+
+.dropdown-user-email {
+  font-size: 0.85rem;
+  color: #888;
+  margin: 2px 0 0 0;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #f0f0f0;
+  margin: 10px 0;
+}
+
+.dropdown-items {
+  padding: 0 10px;
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 12px 15px;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  color: #555;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.active-pink {
+  background-color: #fff5f5; /* Light Pink BG */
+  color: #ff857d !important; /* Coral Pink Text */
+}
+
+.dropdown-item:hover {
+  background-color: #f9f9f9;
+}
+
+.logout-btn {
+  color: #ff857d;
+  font-weight: 600;
+}

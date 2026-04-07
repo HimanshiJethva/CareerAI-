@@ -10,13 +10,14 @@ import TestimonialCard from "../components/TestimonialCard"
 import {useState, useEffect} from "react"
 import axios from "axios"
 import DashboardNavbar from "./DashboardNavbar"
-import { useNavigate } from "react-router-dom"
+import {supabase} from '../supabaseClient'
+import { Navigate, useNavigate } from "react-router"
 
-function DashboardPage({setView}) {
-    const navigate =  useNavigate();
-
+const DashboardPage = () => {
+    const navigate = useNavigate();
    //const [step, setStep] = useState(1);
    // 1. Step ko storage se uthayein taaki refresh par Step 1 na ho jaye
+   const [feedback, setFeedback] = useState({ rating: 5, comment: '' });
    const [step, setStep] = useState(() => {
      return parseInt(localStorage.getItem("formStep")) || 1;
    });
@@ -56,37 +57,119 @@ function DashboardPage({setView}) {
     }
    }, [step, formData, predictions]);
 
-  // STEP 2: Prediction Function yahan likhein (Line 30-60 ke aas pass)
- const handlePredict = async () => {
+const handlePredict = async () => {
     setIsLoading(true);
     try {
-        // 1. Data ko clean karna: Har khali string ko 0 banao
+        // 1. Data ko clean karna
         const cleanedData = {};
         Object.keys(formData).forEach(key => {
             const value = formData[key];
-            
             if (typeof value === 'boolean') {
-                cleanedData[key] = value ? 1 : 0; // Booleans to 1/0
+                cleanedData[key] = value ? 1 : 0;
             } else if (value === '' || value === null) {
-                cleanedData[key] = 0; // Khali marks ko 0 banao
+                cleanedData[key] = 0;
             } else if (!isNaN(value) && key !== 'Stream') {
-                cleanedData[key] = parseFloat(value); // Strings to Numbers
+                cleanedData[key] = parseFloat(value);
             } else {
-                cleanedData[key] = value; // Stream selection as it is
+                cleanedData[key] = value;
             }
         });
 
-        console.log("Sending Cleaned Data:", cleanedData);
+        // 2. SUPABASE MEIN INPUT STORE KARNA AUR ID NIKAALNA
+        const { data: { user } } = await supabase.auth.getUser();
+        let currentInputId = null; // Isme hum nayi input ID store karenge
 
+        if (user) {
+            // Humne .select('id').single() add kiya hai taaki insert hote hi ID mil jaye
+            const { data: inputRow, error: dbError } = await supabase
+                .from('user_inputs')
+                .insert([{
+                    user_id: user.id,
+                    stream: cleanedData.Stream,
+                    physics: cleanedData.Physics,
+                    chemistry: cleanedData.Chemistry,
+                    biology: cleanedData.Biology,
+                    english: cleanedData.English,
+                    computerscience: cleanedData.ComputerScience,
+                    mathematics: cleanedData.Mathematics,
+                    accountancy: cleanedData.Accountancy,
+                    businessstudies: cleanedData.BusinessStudies,
+                    economics: cleanedData.Economics,
+                    history: cleanedData.History,
+                    geography: cleanedData.Geography,
+                    politicalscience: cleanedData.PoliticalScience,
+                    sociology: cleanedData.Sociology,
+                    oppenness: cleanedData.Oppenness,
+                    conscientiousness: cleanedData.Conscientiousness,
+                    extraversion: cleanedData.Extraversion,
+                    agreeableness: cleanedData.Agreeableness,
+                    neuroticism: cleanedData.Neuroticism,
+                    interest_tech: cleanedData.Interest_Tech,
+                    interest_entrepreneurship: cleanedData.Interest_Entrepreneurship,
+                    interest_leadership: cleanedData.Interest_Leadership,
+                    interest_innovation: cleanedData.Interest_Innovation,
+                    interest_criticalthinking: cleanedData.Interest_CriticalThinking,
+                    interest_research: cleanedData.Interest_Research,
+                    interest_computerskill: cleanedData.Interest_ComputerSkill,
+                    interest_hardwareskill: cleanedData.Interest_HardwareSkill,
+                    interest_food: cleanedData.Interest_Food,
+                    interest_creativity: cleanedData.Interest_Creativity,
+                    positivethinking: cleanedData.PositiveThinking,
+                    participated_hackathon: cleanedData.Participated_Hackathon,
+                    participated_olympiad: cleanedData.Participated_Olympiad,
+                    participated_kabaddi: cleanedData.Participated_Kabaddi,
+                    participated_khokho: cleanedData.Participated_KhoKho,
+                    participated_cricket: cleanedData.Participated_Cricket
+                }])
+                .select('id') 
+                .single();
+
+            if (dbError) {
+                console.error("User Input Save Error:", dbError.message);
+            } else {
+                currentInputId = inputRow.id; // Nayi ID mil gayi
+                console.log("Input saved with ID:", currentInputId);
+            }
+        }
+
+        // 3. AI Prediction call
         const response = await axios.post("http://127.0.0.1:8000/predict", cleanedData);
         
-        if (response.data) {
+        if (response.data && response.data.Top_Predictions) {
+            const aiResults = response.data.Top_Predictions;
+
+            if (user) {
+                // 4. PREDICTIONS TABLE MEIN DATA INSERT (input_id ke saath)
+                const { error: predError } = await supabase
+                    .from('predictions')
+                    .insert([{
+                        user_id: user.id,
+                        input_id: currentInputId, // 👈 Ab yahan sahi ID jayegi
+                        career_1: aiResults[0]?.career,
+                        confidence_1: aiResults[0]?.confidence,
+                        explanation_1: aiResults[0]?.reason,
+                        career_2: aiResults[1]?.career,
+                        confidence_2: aiResults[1]?.confidence,
+                        explanation_2: aiResults[1]?.reason,
+                        career_3: aiResults[2]?.career,
+                        confidence_3: aiResults[2]?.confidence,
+                        explanation_3: aiResults[2]?.reason
+                    }]);
+
+                if (predError) {
+                    console.error("Prediction Save Error:", predError.message);
+                } else {
+                    console.log("Predictions saved successfully with linked input!");
+                }
+            }
+
             setPredictions(response.data);
             setStep(5);
         }
+
     } catch (error) {
         console.error("Error:", error);
-        alert("Server Error! Check if uvicorn terminal shows any value errors.");
+        alert("Something went wrong!");
     } finally {
         setIsLoading(false);
     }
@@ -133,6 +216,34 @@ function DashboardPage({setView}) {
      { n: 5, t: "AI Results", s: "Prediction" } // <-- YE LINE ADD KARIYE
    ];
 
+  // 👇 2. YAHAN SUBMIT FUNCTION DAALEIN (handlePredict ke upar ya niche kahi bhi)
+const submitFeedback = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        alert("Please login first");
+        return;
+    }
+
+    const { error } = await supabase
+        .from('feedbacks') 
+        .insert([{ 
+            user_id: user.id, 
+            rating: parseInt(feedback.rating), 
+            comment: feedback.comment 
+        }]);
+
+    if (!error) {
+        alert("Feedback submitted! Thank you.");
+        // Clear data and go to first step
+        localStorage.removeItem("careerPredictions");
+        setStep(1); 
+    } else {
+        console.error("Feedback Error:", error.message);
+        alert("Error saving feedback: " + error.message);
+    }
+   };
+
+   
    return (
      <div className="dashboard-wrapper">
        
@@ -331,24 +442,82 @@ function DashboardPage({setView}) {
            )}
 
    {/* STEP 5: RESULT VIEW (AI Results dikhane ke liye) */}
-          {step === 5 && predictions && (
-            <div className="step-view result-view animate-in">
-               <h2>AI Recommended Careers</h2>
-               <div className="prediction-grid">
-                  {predictions.Top_Predictions.map((res, index) => (
-                    <div key={index} className="prediction-box">
-                       <h3>{res.career} ({res.confidence}%)</h3>
-                       <p>{res.reason}</p>
-                    </div>
-                  ))}
-               </div>
-               <div className="footer-btns" style={{marginTop: '2rem'}}>
-                  
-                  <span className="btn-back" onClick={() => setStep(4)}>Back</span>
-                  <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
-               </div>
-            </div>
-          )}
+          {/* STEP 5: RESULT VIEW (AI Results dikhane ke liye) */}
+{step === 5 && predictions && (
+  <div className="step-view result-view animate-in">
+      <h2>AI Recommended Careers</h2>
+      <div className="prediction-grid">
+         {predictions.Top_Predictions.map((res, index) => (
+           <div key={index} className="prediction-box">
+               <h3>{res.career} ({res.confidence}%)</h3>
+               <p>{res.reason}</p>
+           </div>
+         ))}
+      </div>
+
+
+
+      <div className="footer-btns" style={{marginTop: '2rem'}}>
+          <span className="btn-back" onClick={() => setStep(4)}>Back</span>
+          <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
+      </div>
+
+               {/* 👇 NAYA: Feedback Section yahan add kiya hai 👇 */}
+      <div className="feedback-section" style={{ 
+          marginTop: '2.5rem', 
+          padding: '1.5rem', 
+          background: '#fff5f5', // Light pinkish background match karne ke liye
+          borderRadius: '15px', 
+          border: '1px solid #feb2b2' 
+      }}>
+          <h4 style={{ marginBottom: '10px', color: '#c53030' }}>How accurate was this prediction?</h4>
+          
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+              <select 
+                value={feedback.rating}
+                onChange={(e) => setFeedback({...feedback, rating: e.target.value})} 
+                style={{ padding: '10px', borderRadius: '8px', border: '1px solid #fc8181' }}
+              >
+                  <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                  <option value="4">⭐⭐⭐⭐ (Good)</option>
+                  <option value="3">⭐⭐⭐ (Average)</option>
+                  <option value="2">⭐⭐ (Poor)</option>
+                  <option value="1">⭐ (Bad)</option>
+              </select>
+          </div>
+
+          <textarea 
+              placeholder="Tell us what you think..." 
+              value={feedback.comment}
+              onChange={(e) => setFeedback({...feedback, comment: e.target.value})}
+              style={{ 
+                  width: '100%', 
+                  minHeight: '80px', 
+                  padding: '12px', 
+                  borderRadius: '10px', 
+                  border: '1px solid #fc8181',
+                  outline: 'none' 
+              }}
+          />
+
+          <button 
+  style={{ 
+    marginTop: '15px', 
+    width: 'auto',          // 👈 '200px' se hata kar 'auto' kar diya
+    padding: '8px 20px',    // 👈 Padding kam kari taaki button sleek lage
+    fontSize: '14px',       // 👈 Font thoda chota kiya
+    height: 'auto',         // 👈 Height ko auto rakha
+    minWidth: '140px',       // 👈 Ek minimum decent width di hai
+    background: '#fc8181'
+  }} 
+  onClick={submitFeedback}
+>
+  Submit Feedback
+</button>
+      </div>
+
+  </div>
+)}
         </div>
       </main>
     </div>
