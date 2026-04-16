@@ -15,6 +15,7 @@ import {supabase} from '../supabaseClient'
 function DashboardPage({ setView }) {
    //const [step, setStep] = useState(1);
    // 1. Step ko storage se uthayein taaki refresh par Step 1 na ho jaye
+   const [feedback, setFeedback] = useState({ rating: 5, comment: '' });
    const [step, setStep] = useState(() => {
      return parseInt(localStorage.getItem("formStep")) || 1;
    });
@@ -212,6 +213,33 @@ const handlePredict = async () => {
      { n: 4, t: "Interests & Skills", s: "Final Assessment" },
      { n: 5, t: "AI Results", s: "Prediction" } // <-- YE LINE ADD KARIYE
    ];
+
+  // 👇 2. YAHAN SUBMIT FUNCTION DAALEIN (handlePredict ke upar ya niche kahi bhi)
+const submitFeedback = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        alert("Please login first");
+        return;
+    }
+
+    const { error } = await supabase
+        .from('feedbacks') 
+        .insert([{ 
+            user_id: user.id, 
+            rating: parseInt(feedback.rating), 
+            comment: feedback.comment 
+        }]);
+
+    if (!error) {
+        alert("Feedback submitted! Thank you.");
+        // Clear data and go to first step
+        localStorage.removeItem("careerPredictions");
+        setStep(1); 
+    } else {
+        console.error("Feedback Error:", error.message);
+        alert("Error saving feedback: " + error.message);
+    }
+   };
 
    
    return (
@@ -412,24 +440,82 @@ const handlePredict = async () => {
            )}
 
    {/* STEP 5: RESULT VIEW (AI Results dikhane ke liye) */}
-          {step === 5 && predictions && (
-            <div className="step-view result-view animate-in">
-               <h2>AI Recommended Careers</h2>
-               <div className="prediction-grid">
-                  {predictions.Top_Predictions.map((res, index) => (
-                    <div key={index} className="prediction-box">
-                       <h3>{res.career} ({res.confidence}%)</h3>
-                       <p>{res.reason}</p>
-                    </div>
-                  ))}
-               </div>
-               <div className="footer-btns" style={{marginTop: '2rem'}}>
-                  {/* <button className="btn-main" onClick={() => setStep(1)}>Test Again</button> */}
-                  <span className="btn-back" onClick={() => setStep(4)}>Back</span>
-                  <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
-               </div>
-            </div>
-          )}
+          {/* STEP 5: RESULT VIEW (AI Results dikhane ke liye) */}
+{step === 5 && predictions && (
+  <div className="step-view result-view animate-in">
+      <h2>AI Recommended Careers</h2>
+      <div className="prediction-grid">
+         {predictions.Top_Predictions.map((res, index) => (
+           <div key={index} className="prediction-box">
+               <h3>{res.career} ({res.confidence}%)</h3>
+               <p>{res.reason}</p>
+           </div>
+         ))}
+      </div>
+
+
+
+      <div className="footer-btns" style={{marginTop: '2rem'}}>
+          <span className="btn-back" onClick={() => setStep(4)}>Back</span>
+          <button className="btn-main" onClick={() => setStep(1)}>Test Again</button>
+      </div>
+
+               {/* 👇 NAYA: Feedback Section yahan add kiya hai 👇 */}
+      <div className="feedback-section" style={{ 
+          marginTop: '2.5rem', 
+          padding: '1.5rem', 
+          background: '#fff5f5', // Light pinkish background match karne ke liye
+          borderRadius: '15px', 
+          border: '1px solid #feb2b2' 
+      }}>
+          <h4 style={{ marginBottom: '10px', color: '#c53030' }}>How accurate was this prediction?</h4>
+          
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+              <select 
+                value={feedback.rating}
+                onChange={(e) => setFeedback({...feedback, rating: e.target.value})} 
+                style={{ padding: '10px', borderRadius: '8px', border: '1px solid #fc8181' }}
+              >
+                  <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
+                  <option value="4">⭐⭐⭐⭐ (Good)</option>
+                  <option value="3">⭐⭐⭐ (Average)</option>
+                  <option value="2">⭐⭐ (Poor)</option>
+                  <option value="1">⭐ (Bad)</option>
+              </select>
+          </div>
+
+          <textarea 
+              placeholder="Tell us what you think..." 
+              value={feedback.comment}
+              onChange={(e) => setFeedback({...feedback, comment: e.target.value})}
+              style={{ 
+                  width: '100%', 
+                  minHeight: '80px', 
+                  padding: '12px', 
+                  borderRadius: '10px', 
+                  border: '1px solid #fc8181',
+                  outline: 'none' 
+              }}
+          />
+
+          <button 
+  style={{ 
+    marginTop: '15px', 
+    width: 'auto',          // 👈 '200px' se hata kar 'auto' kar diya
+    padding: '8px 20px',    // 👈 Padding kam kari taaki button sleek lage
+    fontSize: '14px',       // 👈 Font thoda chota kiya
+    height: 'auto',         // 👈 Height ko auto rakha
+    minWidth: '140px',       // 👈 Ek minimum decent width di hai
+    background: '#fc8181'
+  }} 
+  onClick={submitFeedback}
+>
+  Submit Feedback
+</button>
+      </div>
+
+  </div>
+)}
         </div>
       </main>
     </div>

@@ -69,6 +69,7 @@ function AdminDashboard({ setView }) {
     <div className="admin-layout">
       {/* 1. Sidebar (Fixed) */}
       <aside className="sidebar">
+        {/* sidebar links... */}
        <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 

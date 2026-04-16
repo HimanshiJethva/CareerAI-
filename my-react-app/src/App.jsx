@@ -9,6 +9,7 @@ import DashboardPage from "./pages/DashboardPage"
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDash/AdminDashboard';
+
 function App() {
   const [loading,setLoading] = useState(false)
   const [view, setView] = useState(() => {

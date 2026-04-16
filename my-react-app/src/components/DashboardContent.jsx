@@ -372,7 +372,7 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
                         <button onClick={() => alert("Viewing: " + student.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#38b2ac' }}>
                           <Eye size={20} />
                         </button>
-                         <button  style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'blue' }}>
+                         <button  style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'green' }}>
                           <Edit2 size={20} />
                         </button>
                         <button onClick={() => handleDelete(student.id)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#e53e3e' }}>
