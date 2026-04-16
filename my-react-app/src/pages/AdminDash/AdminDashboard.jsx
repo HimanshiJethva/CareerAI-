@@ -1,6 +1,6 @@
 // import React, { useState } from 'react';
 // import AdminHeader from '../../components/AdminHeader';
-// import './AdminDashboard.css'; // CSS wahi same rahegi
+// import './AdminDashboard.css'; 
 // import DashboardContent from '../../components/DashboardContent';
 // import Sidebar from './sidebar';
 // import ProfilePage from '../ProfilePage';
@@ -8,11 +8,11 @@
 
 // function AdminDashboard({ setView }) {
 //   const [activeTab, setActiveTab] = useState('dashboard');
+//   const [searchTerm, setSearchTerm] = useState("");
 //   return (
 //     <div className="admin-layout">
 //       {/* 1. Sidebar (Fixed) */}
 //       <aside className="sidebar">
-//         {/* sidebar links... */}
 //        <Sidebar 
 //         activeTab={activeTab} 
 //         setActiveTab={setActiveTab} 
@@ -25,32 +25,28 @@
 //         {/* Fixed Header */}
 //         <AdminHeader setView={setView} />
 
-//         {/* 👇 Content area ke ANDAR DashboardContent ko rakhein 👇 */}
+//         {/* Content area */}
 //         <main className="content-body">
-//            {/* <h1 className="page-title">Career AI - Command Center</h1> */}
-//            {/* 👇 NAYA: Header and Buttons Yahan Rahenge 👇 */}
 //            <div className="dashboard-page-header">
-//             {/* <DashboardContent /> */}
-//             {/* Dashboard Tab */}
-//         {activeTab === 'dashboard' && <DashboardContent />}
+            
+//             {/* Dashboard Tab: Pura content dikhayega */}
+//             {activeTab === 'dashboard' && <DashboardContent activeTab={activeTab} />}
 
-//         {/* 👇 Profile Tab Fix 👇 */}
-//         {activeTab === 'My Profile' && <ProfilePage/>}
+//             {/* Students Tab: Wahi component load hoga par sirf Table aur User Count dikhayega */}
+//             {activeTab === 'students' && <DashboardContent activeTab={activeTab} />}
 
-//         {/* Students Tab */}
-//         {activeTab === 'students' && (
-//           <section><h1>Student Management Coming Soon...</h1></section>
-//         )}
+//             {/* Profile Tab */}
+//             {activeTab === 'My Profile' && <ProfilePage/>}
 
-//         {activeTab === 'predictions' && (
-//           <section><h1>prediction Management Coming Soon...</h1></section>
-//         )}
+//             {/* Predictions Tab: Isme bhi hum DashboardContent use kar sakte hain agar future mein filters lagane hon */}
+//             {activeTab === 'predictions' && <DashboardContent activeTab={activeTab}/>}
+
+//             {/* Settings Tab (Agar aapne Sidebar mein add kiya hai) */}
+//             {activeTab === 'Settings' && (
+//                <section><h1>Settings Page Coming Soon...</h1></section>
+//             )}
                
 //            </div>
-//            {/* Yahan par aapka saara cards aur charts load hoga */}
-           
-           
-//            {/* Baaki tables wagera yahan aayenge */}
 //         </main>
 //       </div>
 //     </div>
@@ -63,11 +59,11 @@ import AdminHeader from '../../components/AdminHeader';
 import './AdminDashboard.css'; 
 import DashboardContent from '../../components/DashboardContent';
 import Sidebar from './sidebar';
-import AdminProfile from '../AdminProfile';
-
+import ProfilePage from '../ProfilePage';
 
 function AdminDashboard({ setView }) {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [searchTerm, setSearchTerm] = useState(""); // State yahan hai
 
   return (
     <div className="admin-layout">
@@ -89,19 +85,39 @@ function AdminDashboard({ setView }) {
         <main className="content-body">
            <div className="dashboard-page-header">
             
-            {/* Dashboard Tab: Pura content dikhayega */}
-            {activeTab === 'dashboard' && <DashboardContent activeTab={activeTab} />}
+            {/* --- MAINE YAHAN PROPS ADD KAR DIYE HAIN --- */}
 
-            {/* Students Tab: Wahi component load hoga par sirf Table aur User Count dikhayega */}
-            {activeTab === 'students' && <DashboardContent activeTab={activeTab} />}
+            {/* Dashboard Tab */}
+            {activeTab === 'dashboard' && (
+              <DashboardContent 
+                activeTab={activeTab} 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm} 
+              />
+            )}
+
+            {/* Students Tab */}
+            {activeTab === 'students' && (
+              <DashboardContent 
+                activeTab={activeTab} 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm} 
+              />
+            )}
+
+            {/* Predictions Tab */}
+            {activeTab === 'predictions' && (
+              <DashboardContent 
+                activeTab={activeTab} 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm} 
+              />
+            )}
 
             {/* Profile Tab */}
-            {activeTab === 'My Profile' && <AdminProfile/>}
+            {activeTab === 'My Profile' && <ProfilePage setView={setView} />}
 
-            {/* Predictions Tab: Isme bhi hum DashboardContent use kar sakte hain agar future mein filters lagane hon */}
-            {activeTab === 'predictions' && <DashboardContent activeTab={activeTab}/>}
-
-            {/* Settings Tab (Agar aapne Sidebar mein add kiya hai) */}
+            {/* Settings Tab */}
             {activeTab === 'Settings' && (
                <section><h1>Settings Page Coming Soon...</h1></section>
             )}

@@ -117,19 +117,5 @@ useEffect(() => {
       
     // return <LandingPage setView={setView}/>
   )
-  // if(view==="login"){
-  //   return <LoginPage setView={setView}/>
-  // }
-
-  // if(view==="signup"){
-  //   return <SignupPage setView={setView}/>
-  // }
-
-  // if(view==="dashboard"){
-  //   return <DashboardPage setView={setView}/>
-  // }
-
-   
-  // return <LandingPage setView={setView}/>
 }
 export default App
