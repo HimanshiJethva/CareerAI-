@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient"; // Path check kar lena apne folder ke hisaab se
-import { useNavigate } from "react-router-dom";
+import { supabase } from "../../../backend/supabaseClient"; // Path check kar lena apne folder ke hisaab se
+import { useNavigate } from 'react-router-dom';
 
 function DashboardNavbar() {
   const navigate = useNavigate();

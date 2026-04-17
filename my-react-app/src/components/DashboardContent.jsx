@@ -4,7 +4,7 @@ import {
   Pie, PieChart, Cell, ResponsiveContainer
 } from 'recharts';
 import { Eye, Trash2 } from 'lucide-react'; 
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../../backend/supabaseClient';
 import './DashboardContent.css';
 
 const DashboardContent = ({ activeTab }) => {

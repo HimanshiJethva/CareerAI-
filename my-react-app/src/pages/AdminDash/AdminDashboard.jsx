@@ -48,11 +48,13 @@ import './AdminDashboard.css'; // CSS wahi same rahegi
 import DashboardContent from '../../components/DashboardContent';
 import Sidebar from './sidebar';
 import ProfilePage from '../ProfilePage';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 
 
 
-function AdminDashboard({ setView }) {
+function AdminDashboard() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   return (
     <div className="admin-layout">
@@ -62,14 +64,14 @@ function AdminDashboard({ setView }) {
        <Sidebar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
-        setView={setView} 
+        navigate={navigate} 
       />
       </aside>
 
       {/* 2. Main Wrapper */}
       <div className="main-wrapper">
         {/* Fixed Header */}
-        <AdminHeader setView={setView} />
+        <AdminHeader navigate={navigate} />
 
         {/* 👇 Content area ke ANDAR DashboardContent ko rakhein 👇 */}
         <main className="content-body">

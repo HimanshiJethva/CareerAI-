@@ -1,6 +1,6 @@
 import React from 'react';
 import './Sidebar.css';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '../../../../backend/supabaseClient';
 import { 
   LayoutDashboard, Users, GraduationCap, 
   LogOut, Eye, BrainCircuit, User, Settings, Monitor

@@ -1,5 +1,5 @@
 import { BrowserRouter,Routes, Route, Navigate,useNavigate} from 'react-router-dom';
-import { supabase } from './supabaseClient';
+import { supabase } from '../../backend/supabaseClient';
 import { useState, useEffect } from "react";
 import "./App.css";
 import { Toaster } from 'react-hot-toast';
@@ -10,105 +10,20 @@ import DashboardPage from "./pages/DashboardPage";
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDash/AdminDashboard';
-<<<<<<< HEAD
-=======
-
-function App() {
-  const [loading,setLoading] = useState(false)
-  const [view, setView] = useState(() => {
-  return localStorage.getItem("view") || "landing"
-}) 
-// const [view, setView] = useState("admin");
-  // const[view, setView] = useState("landing");
-useEffect(()=>{   <Toaster position="top-center" reverseOrder={false} /> },[]);
-  useEffect(()=> {
-    localStorage.setItem("view",view);
-  },[view]);//refresh thi landing na jay ena mate
->>>>>>> b4e1e5cf22cd610671ca9c89d12a44feec7832d2
 
 
 // ── Protected Route: only for logged-in users ──────────────────────────────
 function PrivateRoute({ children }) {
   const [status, setStatus] = useState('checking'); // 'checking' | 'auth' | 'unauth'
 
-<<<<<<< HEAD
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setStatus(session ? 'auth' : 'unauth');
     });
-=======
-useEffect(() => {
-    // Ek common function jo role check karke sahi rasta dikhayega
-    const handleUserRouting = (session) => {
-      if (session) {
-        const savedRole = localStorage.getItem("userRole");
-        // Role check karo aur wahi page dikhao
-        if (savedRole === 'admin') {
-          setView('admindashboard');
-        } else {
-          setView('dashboard');
-        }
-      }
-    };
-
-    // 1. Pehli baar app load hone par check karein
-    const checkInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      handleUserRouting(session);
-    };
-    checkInitialSession();
-
-    // 2. JAB AAP TAB SWITCH KARKE WAPAS AAYEIN (Magic Code ✨)
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      // Ye listener tab switch hone par chalne wale refresh ko pakad lega
-      // aur wapas sahi role wala dashboard set kar dega!
-      if (session) {
-         handleUserRouting(session);
-      }
-    });
-
-    // Cleanup function taaki memory leak na ho
-    return () => {
-      if (authListener && authListener.subscription) {
-        authListener.subscription.unsubscribe();
-      }
-    };
->>>>>>> b4e1e5cf22cd610671ca9c89d12a44feec7832d2
   }, []);
 
-<<<<<<< HEAD
   if (status === 'checking') return null; // or a spinner
   return status === 'auth' ? children : <Navigate to="/login" replace />;
-=======
-
-      {view === "login" && <LoginPage setView={setView}/>}
-      {view === "signup" && <SignupPage setView={setView}/>}
-      {view === "dashboard" && <DashboardPage setView={setView}/>}
-      {view === "admindashboard" && <AdminDashboard setView={setView}/>}
-      {view === "landing" && <LandingPage setView={setView}/>}
-      {view === "forgotpassword" && <ForgotPasswordPage setView={setView}/>}
-      {view === "profile" && <ProfilePage setView={setView}/>}
-      {view === "DashboardPage" && <DashboardPage setView={setView}/>}
-      {/* {view === "admin" && <AdminDashboard setView={setView}/>} */}
-    </>
-      
-    // return <LandingPage setView={setView}/>
-  )
-  // if(view==="login"){
-  //   return <LoginPage setView={setView}/>
-  // }
-
-  // if(view==="signup"){
-  //   return <SignupPage setView={setView}/>
-  // }
-
-  // if(view==="dashboard"){
-  //   return <DashboardPage setView={setView}/>
-  // }
-
-   
-  // return <LandingPage setView={setView}/>
->>>>>>> b4e1e5cf22cd610671ca9c89d12a44feec7832d2
 }
 
 // ── Admin Route: only for admin role ───────────────────────────────────────
@@ -148,7 +63,7 @@ function AuthListener() {
       });
 
       // Store unsubscribe for cleanup
-      return () => subscription.unsubscribe();
+    return () => subscription.unsubscribe();
     }, 100);
 
     return () => clearTimeout(timeout);

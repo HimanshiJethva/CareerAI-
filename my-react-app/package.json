@@ -15,11 +15,8 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hot-toast": "^2.6.0",
-<<<<<<< HEAD
-    "react-router-dom": "^6.26.2"
-=======
+    "react-router-dom": "^6.26.2",
     "recharts": "^3.8.1"
->>>>>>> b4e1e5cf22cd610671ca9c89d12a44feec7832d2
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

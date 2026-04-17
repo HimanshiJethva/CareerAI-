@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient";
+import { supabase } from "../../../backend/supabaseClient";
 import DashboardNavbar from "./DashboardNavbar";
 import { useNavigate } from "react-router-dom";
 
@@ -63,7 +63,7 @@ function ProfilePage() {
       // 1. Auth update
       await supabase.auth.updateUser({ data: { full_name: fullName } });
       
-      // 2. Aapki 'users' table me update
+    // 2. Aapki 'users' table me update
       const { error } = await supabase
         .from('users') // YAHAN BHI 'users' KAR DIYA HAI
         .update({ name: fullName }) 

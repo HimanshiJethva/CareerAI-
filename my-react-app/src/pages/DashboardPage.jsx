@@ -10,7 +10,7 @@ import TestimonialCard from "../components/TestimonialCard"
 import {useState, useEffect} from "react"
 import axios from "axios"
 import DashboardNavbar from "./DashboardNavbar"
-import {supabase} from '../supabaseClient'
+import {supabase} from '../../../backend/supabaseClient'
 import { Navigate, useNavigate } from "react-router"
 
 const DashboardPage = () => {
@@ -248,7 +248,7 @@ const submitFeedback = async () => {
      <div className="dashboard-wrapper">
        
        {/* 1. NAYA NAVBAR */}
-       <DashboardNavbar setView={setView} />
+       <DashboardNavbar navigate={navigate} />
 
        {/* 2. SIDEBAR - Top exactly 75px (Navbar height) aur bacha hua height 100vh - 75px */}
        <aside className="dash-sidebar" style={{ top: '70px', height: 'calc(100vh - 60px)' }}>

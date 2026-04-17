@@ -163,7 +163,7 @@
 
 
 import {useState} from "react"
-import {supabase} from "../supabaseClient"
+import {supabase} from "../../../backend/supabaseClient"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router-dom";
 
