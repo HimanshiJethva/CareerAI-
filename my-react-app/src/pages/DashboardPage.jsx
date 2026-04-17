@@ -12,6 +12,7 @@ import axios from "axios"
 import DashboardNavbar from "./DashboardNavbar"
 import {supabase} from '../../../backend/supabaseClient'
 import { Navigate, useNavigate } from "react-router"
+import toast from "react-hot-toast"
 
 const DashboardPage = () => {
     const navigate = useNavigate();
@@ -270,7 +271,8 @@ const submitFeedback = async () => {
            <p>Logged in </p>
            <button className="logout-btn" onClick={() => {
              localStorage.clear(); 
-             navigate('/');
+             navigate('/login');
+              toast.success("Logout successful!");
            }}>Logout</button>
          </div>
        </aside>

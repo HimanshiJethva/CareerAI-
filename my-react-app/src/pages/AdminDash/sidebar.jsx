@@ -5,6 +5,7 @@ import {
   LayoutDashboard, Users, GraduationCap, 
   LogOut, Eye, BrainCircuit, User, Settings, Monitor
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 
 const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
@@ -15,13 +16,16 @@ const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      localStorage.clear(); 
-      navigate('/');   
+      localStorage.clear();  
+      navigate('/login');
+      toast.success("Logout successful!");  
     } catch (error) {
       console.error("Logout Error:", error.message);
       // Force logout if supabase fails
       localStorage.clear();
-      navigate('/');
+       navigate('/login');
+      
+      
     }
   };
 
