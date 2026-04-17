@@ -6,7 +6,8 @@ import {
   LogOut, Eye, BrainCircuit, User, Settings, Monitor
 } from 'lucide-react';
 
-const Sidebar = ({ activeTab, setActiveTab, setView }) => {
+
+const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
 
   // Logout Function: Component ke andar hona chahiye taaki setView chale
   const handleLogout = async () => {
@@ -15,12 +16,12 @@ const Sidebar = ({ activeTab, setActiveTab, setView }) => {
       if (error) throw error;
       
       localStorage.clear(); 
-      setView('landing');   
+      navigate('/');   
     } catch (error) {
       console.error("Logout Error:", error.message);
       // Force logout if supabase fails
       localStorage.clear();
-      setView('landing');
+      navigate('/');
     }
   };
 
@@ -43,21 +44,21 @@ const Sidebar = ({ activeTab, setActiveTab, setView }) => {
             className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
             onClick={() => setActiveTab('dashboard')}
           >
-            <LayoutDashboard size={28} /> <span className="nav-label">Dashboard</span>
+            <LayoutDashboard size={23} /> <span className="nav-label">Dashboard</span>
           </div>
           
           <div 
             className={`nav-item ${activeTab === 'students' ? 'active' : ''}`}
             onClick={() => setActiveTab('students')}
           >
-            <Users size={28} /> <span className="nav-label">Students</span>
+            <Users size={23} /> <span className="nav-label">Students</span>
           </div>
           
           <div 
             className={`nav-item ${activeTab === 'predictions' ? 'active' : ''}`}
             onClick={() => setActiveTab('predictions')}
           >
-            <GraduationCap size={30} /> <span className="nav-label">Predictions</span>
+            <GraduationCap size={23} /> <span className="nav-label">Predictions</span>
           </div>
         </div>
 
@@ -66,13 +67,13 @@ const Sidebar = ({ activeTab, setActiveTab, setView }) => {
           <div className="section-title">ACCOUNT</div>
           
           <div className={`nav-item ${activeTab === 'My Profile' ? 'active' : ''}`}
-            onClick={() => setView('profile')}>
-            <User size={28} /> <span className="nav-label">My Profile</span>
+            onClick={() => navigate('/profile')}>
+            <User size={23} /> <span className="nav-label">My Profile</span>
           </div>
           
           <div className={`nav-item ${activeTab === 'Settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('Settings')}>
-            <Settings size={28} /> <span className="nav-label">Settings</span>
+            <Settings size={23} /> <span className="nav-label">Settings</span>
           </div>
         </div>
 
@@ -80,12 +81,12 @@ const Sidebar = ({ activeTab, setActiveTab, setView }) => {
         <div className="nav-section">
           <div className="section-title">PREVIEWS</div>
           
-          <div className="nav-item secondary" onClick={() => setView('landing')}>
-            <Eye size={28} /> <span className="nav-label">Landing Page</span>
+          <div className="nav-item secondary" onClick={() => navigate('/')}>
+            <Eye size={22} /> <span className="nav-label">Landing Page</span>
           </div>
 
-          <div className="nav-item secondary" onClick={() => setView('DashboardPage')}>
-            <Monitor size={28} /> <span className="nav-label">Student View</span>
+          <div className="nav-item secondary" onClick={() => navigate('/DashboardPage')}>
+            <Monitor size={22} /> <span className="nav-label">Student View</span>
           </div>
         </div>
       </nav>
@@ -93,7 +94,7 @@ const Sidebar = ({ activeTab, setActiveTab, setView }) => {
       {/* Logout at bottom */}
       <div className="sidebar-footer">
         <div className="logout-btn" onClick={handleLogout}>
-          <LogOut size={28} /> <span>Logout</span>
+          <LogOut size={25} /> <span>Logout</span>
         </div>
       </div>
     </aside>

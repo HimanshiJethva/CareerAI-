@@ -136,15 +136,15 @@ function LandingPage()
         <div className="testimonials-grid">
           <TestimonialCard 
               text="This tool completely changed my career trajectory. I was stuck between multiple paths, but the AI predictions gave me the clarity I needed. Now I'm thriving as an ML Engineer at Google." 
-              initials="PS" name="Priya Sharma" role="ML Engineer, Google" 
+              initials="PS" name="Priya Sharma" 
           />
           <TestimonialCard 
               text="The personalized skill roadmap was incredible. It showed me exactly what to learn, and within 6 months I landed my dream role as a Data Scientist. Absolutely life-changing!" 
-              initials="AK" name="Amit Kumar" role="Data Scientist, Amazon" 
+              initials="AK" name="Amit Kumar" 
           />
           <TestimonialCard 
               text="I was amazed by how accurate the predictions were. The visual analytics made everything crystal clear. This is genuinely the best career guidance tool I've ever used." 
-              initials="SK" name="Sneha Kapoor" role="Developer, Microsoft" 
+              initials="SK" name="Sneha Kapoor" 
           />
       </div>
     </section>
@@ -186,4 +186,3 @@ function LandingPage()
 }
 
 export default LandingPage
-

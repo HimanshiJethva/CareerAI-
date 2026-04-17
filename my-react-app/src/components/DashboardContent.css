@@ -1,5 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 .dashboard-body {
   padding: 10px;
+  font-family: 'Inter', sans-serif;
 }
 
 /* --- Layout Structure --- */
@@ -7,6 +10,7 @@
   display: flex;
   gap: 30px;
   align-items: stretch; 
+  transition: all 0.4s ease-in-out; /* Smooth transition for switching tabs */
 }
 
 .stats-column {
@@ -14,13 +18,14 @@
   max-width: 500px;
   display: flex;
   flex-direction: column;
+  transition: max-width 0.4s ease;
 }
 
 .insights-column {
   flex: 2;
   display: flex;
   flex-direction: column;
-  min-width: 800px; /* IMPORTANT: Ensures charts have enough space */
+  min-width: 800px; 
 }
 
 /* --- Headers Alignment --- */
@@ -29,6 +34,7 @@
   align-items: center;
   min-height: 45px;
   margin-bottom: 15px;
+  width: 100%;
 }
 
 .right-header {
@@ -36,7 +42,7 @@
 }
 
 .section-title {
-  font-size: 1.1rem;
+  font-size: 3rem;
   color: #333;
   margin: 0;
   font-weight: 600;
@@ -50,12 +56,22 @@
 
 .btn-export {
   background: white;
-  border: 1px solid #2f855a;
-  color: #2f855a;
-  padding: 8px 15px;
-  border-radius: 6px;
+  border: 1.5px solid #38b2ac; /* Pink theme ke saath teal match karta hai */
+  color: #38b2ac;
+  padding: 8px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-export:hover {
+  background: #38b2ac;
+  color: white;
+  box-shadow: 0 4px 12px rgba(56, 178, 172, 0.2);
 }
 
 .btn-add {
@@ -85,6 +101,7 @@
   position: relative;
   border: 1px solid #f0f0f0;
   transition: all 0.3s ease; 
+  min-height: 120px;
 }
 
 .stat-card:hover {
@@ -117,7 +134,6 @@
   color: #ff857d;
 }
 
-/* Teesre card ko poori khali jagah mein fill karne ke liye */
 .stats-grid-vertical .stat-card:last-child {
   grid-column: span 2; 
 }
@@ -141,92 +157,85 @@
   gap: 10px;
 }
 
-.chart-container {
+/* --- Table Styles & Actions --- */
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.student-table th {
+  padding: 15px 12px;
+  background-color: #f8fafc;
+  border-bottom: 2px solid #edf2f7;
+  text-align: left;
+}
+
+.student-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f9f9f9;
+  vertical-align: middle;
+}
+
+/* Action Buttons Center Alignment */
+.student-table td div {
   display: flex;
-  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
 }
 
-.pie-container, .area-container {
-  flex: 1;
-  min-width: 0;
+.student-table td button {
+  transition: all 0.2s ease;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.chart-title {
-  font-size: 1rem;
-  color: #333;
-  margin-bottom: 20px;
-  font-weight: 600;
+.student-table td button:hover {
+  transform: scale(1.15);
+  background-color: #f1f5f9;
 }
 
-.chart-divider {
-  width: 1px;
-  background-color: #f0f0f0;
-  height: 200px;
-  align-self: center;
-}
+/* --- Donut & Area Charts --- */
+.chart-container { display: flex; flex-direction: column; }
+.pie-container, .area-container { flex: 1; min-width: 0; }
+.chart-title { font-size: 1rem; color: #333; margin-bottom: 20px; font-weight: 600; }
+.chart-divider { width: 1px; background-color: #f0f0f0; height: 200px; align-self: center; }
 
-/* Custom CSS Donut Chart (Stable Solution) */
 .custom-donut-wrapper {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 30px;
   margin-top: 20px;
-  height: 200px; /* Thodi height badha di */
-  width: 100%;    /* 👈 Ye add kijiye */
-  min-width: 400px; /* 👈 Legend aur chart dono ke liye jagah banegi */
+  height: 200px;
+  width: 100%;
+  min-width: 400px;
 }
 
 .custom-donut-chart {
-  width: 160px;
-  height: 160px;
+  width: 160px; 
+  height: 160px; 
   border-radius: 50%;
-  /* Conic gradient is perfect for pie charts! Value = cumulative percentages */
-  background: conic-gradient(
-    #ff857d 0% 30%, 
-    #1a365d 30% 55%, 
-    #6b46c1 55% 70%, 
-    #38b2ac 70% 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: conic-gradient(#ff857d 0% 30%, #1a365d 30% 55%, #6b46c1 55% 70%, #38b2ac 70% 100%);
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
   position: relative;
 }
 
-.donut-hole {
-  width: 90px;
-  height: 90px;
-  background-color: white; /* Creates the donut shape */
-  border-radius: 50%;
-}
+.donut-hole { width: 90px; height: 90px; background-color: white; border-radius: 50%; }
+.custom-legend { display: flex; flex-direction: column; gap: 12px; }
+.legend-item { display: flex; align-items: center; gap: 10px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.legend-text { font-size: 0.85rem; color: #333; }
 
-.custom-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.legend-text {
-  font-size: 0.85rem;
-  color: #333;
-}
-
-/* DashboardContent.css mein */
-.student-list-container {
-    max-height: 500px; /* Aap apne hisaab se height set karein */
-    overflow-y: auto;  /* Scrollbar tabhi aayega jab data zyada ho */
+.student-list-container{
+  max-height: 500px;
+  overflow-y: auto;
+  min-height: 300px;
+  padding: 20px;
+  height: auto;
 }

@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../backend/supabaseClient';
 import './AdminHeader.css';
+import { useNavigate } from 'react-router-dom';
 
-function AdminHeader({ setView }) {
+function AdminHeader() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userData, setUserData] = useState({
     name: 'User', // Initial fallback
     email: ''
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -44,7 +46,7 @@ function AdminHeader({ setView }) {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     localStorage.clear();
-    setView('landing'); 
+    navigate('/'); 
   };
 
   return (

@@ -270,7 +270,7 @@ const submitFeedback = async () => {
            <p>Logged in </p>
            <button className="logout-btn" onClick={() => {
              localStorage.clear(); 
-             navigate('landing');
+             navigate('/');
            }}>Logout</button>
          </div>
        </aside>
@@ -410,7 +410,7 @@ const submitFeedback = async () => {
                    <h3 className="section-heading">Participation & Sports:</h3>
                    <div className="pills-grid">
                      {[
-                       'Hackathon', 'Olympiad', 'Kabaddi', 'KhoKho', 'Cricket'
+                      'Hackathon', 'Olympiad', 'Kabaddi', 'KhoKho', 'Cricket'
                      ].map(item => (
                        <PillItem 
                          key={item} 

@@ -1,4 +1,4 @@
-import { BrowserRouter,Routes, Route, Navigate,useNavigate} from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { supabase } from '../../backend/supabaseClient';
 import { useState, useEffect } from "react";
 import "./App.css";
@@ -14,7 +14,7 @@ import AdminDashboard from './pages/AdminDash/AdminDashboard';
 
 // ── Protected Route: only for logged-in users ──────────────────────────────
 function PrivateRoute({ children }) {
-  const [status, setStatus] = useState('checking'); // 'checking' | 'auth' | 'unauth'
+  const [status, setStatus] = useState('checking');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -22,11 +22,12 @@ function PrivateRoute({ children }) {
     });
   }, []);
 
-  if (status === 'checking') return null; // or a spinner
+  if (status === 'checking') return null;
   return status === 'auth' ? children : <Navigate to="/login" replace />;
 }
 
-// ── Admin Route: only for admin role ───────────────────────────────────────
+
+// ── Admin Route ─────────────────────────────────────────────────────────────
 function AdminRoute({ children }) {
   const [status, setStatus] = useState('checking');
 
@@ -40,37 +41,86 @@ function AdminRoute({ children }) {
 
   if (status === 'checking') return null;
   if (status === 'unauth') return <Navigate to="/login" replace />;
-  if (status === 'forbidden') return <Navigate to="/dashboard" replace />;
+  if (status === 'forbidden') return <Navigate to="/dashboard" replace />; // ✅ fixed: was '/admin'
   return children;
 }
 
-// ── Auth Listener wrapper ───────────────────────────────────────────────────
+
+// ── Auth Listener ───────────────────────────────────────────────────────────
 function AuthListener() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Small delay to ensure router is fully mounted
-    const timeout = setTimeout(() => {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          const role = localStorage.getItem('userRole');
-          navigate(role === 'admin' ? '/admin' : '/dashboard', { replace: true });
-        }
-        if (event === 'SIGNED_OUT') {
-          localStorage.removeItem('userRole');
-          navigate('/', { replace: true });
-        }
-      });
+    let isBoot = true;
 
-      // Store unsubscribe for cleanup
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (isBoot) {
+        // First two events on load are INITIAL_SESSION + SIGNED_IN (session restore)
+        // Both are NOT real logins — skip them
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN') {
+          if (event === 'SIGNED_IN') isBoot = false; // boot phase over after this
+          return;
+        }
+        isBoot = false;
+      }
+
+      // Only real fresh logins reach here
+      if (event === 'SIGNED_IN' && session) {
+        const role = localStorage.getItem('userRole');
+        navigate(role === 'admin' ? '/admin' : '/dashboard', { replace: true });
+        return;
+      }
+
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('userRole');
+        navigate('/', { replace: true });
+      }
+    });
+
     return () => subscription.unsubscribe();
-    }, 100);
-
-    return () => clearTimeout(timeout);
   }, [navigate]);
 
   return null;
 }
+// function AuthListener() {
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     let initialEventHandled = false; // ✅ guard against first event
+
+//     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+
+//       // ✅ INITIAL_SESSION fires on page load/refresh — let AdminRoute/PrivateRoute handle it
+//       if (event === 'INITIAL_SESSION') {
+//         initialEventHandled = true;
+//         return;
+//       }
+
+//       // ✅ Some Supabase versions fire SIGNED_IN right after INITIAL_SESSION on refresh
+//       // We skip it if INITIAL_SESSION was already handled (page refresh case)
+//       if (event === 'SIGNED_IN' && session) {
+//         if (!initialEventHandled) {
+//           initialEventHandled = true;
+//           return;
+//         }
+//         // This is a real fresh login — navigate to correct route
+//         const role = localStorage.getItem('userRole');
+//         navigate(role === 'admin' ? '/admin' : '/dashboard', { replace: true });
+//         return;
+//       }
+
+//       if (event === 'SIGNED_OUT') {
+//         localStorage.removeItem('userRole');
+//         navigate('/', { replace: true });
+//       }
+//     });
+
+//     return () => subscription.unsubscribe();
+//   }, [navigate]);
+
+//   return null;
+// }
+
 
 // ── App ─────────────────────────────────────────────────────────────────────
 function App() {
@@ -79,14 +129,14 @@ function App() {
   }, []);
 
   return (
-   <BrowserRouter>
+    <BrowserRouter>
       <Toaster />
       <AuthListener />
       <Routes>
         {/* Public routes */}
-        <Route path="/"               element={<LandingPage />} />
-        <Route path="/login"          element={<LoginPage />} />
-        <Route path="/signup"         element={<SignupPage />} />
+        <Route path="/"                element={<LandingPage />} />
+        <Route path="/login"           element={<LoginPage />} />
+        <Route path="/signup"          element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
         {/* Protected routes */}
@@ -102,128 +152,131 @@ function App() {
           <AdminRoute><AdminDashboard /></AdminRoute>
         } />
 
-        {/* Fallback: unknown URLs → landing */}
+        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      </BrowserRouter>
-    
+    </BrowserRouter>
   );
 }
 
 export default App;
-
-
-
-// import { supabase } from './supabaseClient'; // Path check kar lena apne folder ke hisaab se
-// import { useState ,useEffect} from "react";
+// import { BrowserRouter,Routes, Route, Navigate,useNavigate} from 'react-router-dom';
+// import { supabase } from '../../backend/supabaseClient';
+// import { useState, useEffect } from "react";
 // import "./App.css";
-// import { Toaster } from 'react-hot-toast'; // <--- PEHLA BADLAV: Import karein
-// import LandingPage from "./pages/LandingPage"
-// import LoginPage from "./pages/LoginPage"
-// import SignupPage from "./pages/SignupPage"
-// import DashboardPage from "./pages/DashboardPage"
+// import { Toaster } from 'react-hot-toast';
+// import LandingPage from "./pages/LandingPage";
+// import LoginPage from "./pages/LoginPage";
+// import SignupPage from "./pages/SignupPage";
+// import DashboardPage from "./pages/DashboardPage";
 // import ForgotPasswordPage from './pages/ForgotPasswordPage';
 // import ProfilePage from './pages/ProfilePage';
 // import AdminDashboard from './pages/AdminDash/AdminDashboard';
-// import toast from 'react-hot-toast/headless';
-// function App() {
-//   const [loading,setLoading] = useState(false)
-//   const [view, setView] = useState(() => {
-//   return localStorage.getItem("view") || "landing"
-// }) 
-// // const [view, setView] = useState("admin");
-//   // const[view, setView] = useState("landing");
 
 
+// // ── Protected Route: only for logged-in users ──────────────────────────────
+// function PrivateRoute({ children }) {
+//   const [status, setStatus] = useState('checking'); // 'checking' | 'auth' | 'unauth'
 
-//   useEffect(()=> {
-//     localStorage.setItem("view",view);
-//   },[view]);//refresh thi landing na jay ena mate
+//   useEffect(() => {
+//     supabase.auth.getSession().then(({ data: { session } }) => {
+//       setStatus(session ? 'auth' : 'unauth');
+//     });
+//   }, []);
 
+//   if (status === 'checking') return null; // or a spinner
+//   return status === 'auth' ? children : <Navigate to="/login" replace />;
+// }
 
+// function AdminRoute({ children }) {
+//   const [status, setStatus] = useState('checking');
 
-//     useEffect(() => {
-//     const initApp = async () => {
-//       const { data: { session } } = await supabase.auth.getSession();
-//       if (session) {
-//       // Check karo localStorage mein role kya hai
+//   useEffect(() => {
+//     supabase.auth.getSession().then(({ data: { session } }) => {
+//       if (!session) { setStatus('unauth'); return; }
 //       const role = localStorage.getItem('userRole');
+//       setStatus(role === 'admin' ? 'auth' : 'forbidden');
+//     });
+//   }, []);
 
-     
-//       if (role === 'admin') {
-//         setView('admindashboard');
-//       } else {
-//         setView('dashboard');
-//       }
-//     } else {
-//         const savedView = localStorage.getItem("view");
-//         setView(savedView === 'dashboard' ? 'landing' : (savedView || 'landing'));
-//       }
-//       setLoading(false);
-//     };
+//   if (status === 'checking') return null;
+//   if (status === 'unauth') return <Navigate to="/login" replace />;
+//   if (status === 'forbidden') return <Navigate to="/admin" replace />;
+//   return children;
+// }
 
-//     initApp();
+// // ── Auth Listener wrapper ───────────────────────────────────────────────────
+// function AuthListener() {
+//   const navigate = useNavigate();
 
-//     // Ye listener email verification link click hote hi dashboard khol dega
-//     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-//       if (event === 'SIGNED_IN' && session) {
-//         setView('dashboard');
-//       }
-//       if (event === 'SIGNED_OUT') {
-//         setView('landing');
-//         localStorage.removeItem("view");
+//   useEffect(() => {
+//     // Get current session first to avoid acting on stale SIGNED_IN events
+//     supabase.auth.getSession().then(({ data: { session } }) => {
+//       if (session) {
+//         const role = localStorage.getItem('userRole');
+//         navigate(role === 'admin' ? '/admin' : '/dashboard', { replace: true });
 //       }
 //     });
 
-//     return () => subscription.unsubscribe();
-//   }, []);
+//     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
 
-//   useEffect(() => {
-//     const checkSession = async () => {
-//       const { data: { session } } = await supabase.auth.getSession();
-      
-//       if (session) {
-//         // 👇 YAHAN BADLAV HAI: LocalStorage se role uthao
-//         const savedRole = localStorage.getItem("userRole");
-        
-//         if (savedRole === 'admin') {
-//           setView('admindashboard');
-//         } else {
-//           setView('dashboard');
-//         }
-//       } else {
-//         // Agar session nahi hai aur purana view dashboard tha, toh landing bhej do
-//         if (localStorage.getItem("view") === 'dashboard' || localStorage.getItem("view") === 'admindashboard') {
-//           setView('landing');
-//         }
+//       if (event === 'INITIAL_SESSION') return;
+//       if (event === 'SIGNED_IN' && session) {
+//         const role = localStorage.getItem('userRole');
+//         navigate(role === 'admin' ? '/admin' : '/dashboard', { replace: true });
 //       }
-//     };
-    
-//     checkSession();
+//       if (event === 'SIGNED_OUT') {
+//         localStorage.removeItem('userRole');
+//         navigate('/', { replace: true });
+//       }
+//     });
+
+//     return () => subscription.unsubscribe(); // ✅ now correctly in outer cleanup
+//   }, [navigate]);
+
+//   return null;
+// }
+
+
+// // ── App ─────────────────────────────────────────────────────────────────────
+// function App() {
+//   useEffect(() => {
+//     document.title = "CareerAI | Career Prediction System";
 //   }, []);
 
-//   useEffect(()=>{
-       
-//     document.title = "CareerAI | Career Prediction System";
-//   },  []);
-//  return (
-//     <>
-//       {/* Ye line sabse upar honi chahiye */}
-   
-   
-    
-//       {view === "login" && <LoginPage setView={setView}/>}
-//       {view === "signup" && <SignupPage setView={setView}/>}
-//       {view === "dashboard" && <DashboardPage setView={setView}/>}
-//       {view === "admindashboard" && <AdminDashboard setView={setView}/>}
-//       {view === "landing" && <LandingPage setView={setView}/>}
-//       {view === "forgotpassword" && <ForgotPasswordPage setView={setView}/>}
-//       {view === "profile" && <ProfilePage setView={setView}/>}
-//       {/* {view === "admin" && <AdminDashboard setView={setView}/>} */}
-//     </>
-      
-//     // return <LandingPage setView={setView}/>
-//   )
+//   return (
+//    <BrowserRouter>
+//       <Toaster />
+//       <AuthListener />
+//       <Routes>
+//         {/* Public routes */}
+//         <Route path="/"               element={<LandingPage />} />
+//         <Route path="/login"          element={<LoginPage />} />
+//         <Route path="/signup"         element={<SignupPage />} />
+//         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
+//         {/* Protected routes */}
+//         <Route path="/dashboard" element={
+//           <PrivateRoute><DashboardPage /></PrivateRoute>
+//         } />
+//         <Route path="/profile" element={
+//           <PrivateRoute><ProfilePage /></PrivateRoute>
+//         } />
+
+//         {/* Admin-only route */}
+//         <Route path="/admin" element={
+//           <AdminRoute><AdminDashboard /></AdminRoute>
+//         } />
+
+//         {/* Fallback: unknown URLs → landing */}
+//         <Route path="*" element={<Navigate to="/" replace />} />
+//       </Routes>
+//       </BrowserRouter>
+    
+//   );
 // }
-// export default App
+
+// export default App;
+
+
+

@@ -1,50 +1,62 @@
-// // export default AdminDashboard;
 // import React, { useState } from 'react';
-// import Sidebar from './sidebar'; // Path sahi hai na? Check kar lena
-// import DashboardOverview from '../../components/Admin_components/DashboardOverview';
+// import AdminHeader from '../../components/AdminHeader';
+// import './AdminDashboard.css'; 
+// import DashboardContent from '../../components/DashboardContent';
+// import Sidebar from './sidebar';
 // import ProfilePage from '../ProfilePage';
-// // import './AdminDashboard.css'; // Dashboard ka apna CSS
 
-// const AdminDashboard = ({ setView }) => {
-//   // 1. Current active tab track karne ke liye state
+
+// function AdminDashboard({ setView }) {
 //   const [activeTab, setActiveTab] = useState('dashboard');
-
+//   const [searchTerm, setSearchTerm] = useState("");
 //   return (
-//     <div className="admin-page-layout" style={{ display: 'flex', minHeight: '100vh' }}>
-      
-//       {/* 2. Sidebar with Props */}
-//       <Sidebar 
+//     <div className="admin-layout">
+//       {/* 1. Sidebar (Fixed) */}
+//       <aside className="sidebar">
+//        <Sidebar 
 //         activeTab={activeTab} 
 //         setActiveTab={setActiveTab} 
 //         setView={setView} 
 //       />
+//       </aside>
 
-//       {/* 3. Right Side Content Area */}
-//       <main className="admin-content" style={{ flex: 1, backgroundColor: '#f9f7f2', padding: '40px', marginLeft: '260px'}}>
-        
-//         {/* Render content based on Active Tab */}
-//         {activeTab === 'dashboard' && <DashboardOverview/>}
+//       {/* 2. Main Wrapper */}
+//       <div className="main-wrapper">
+//         {/* Fixed Header */}
+//         <AdminHeader setView={setView} />
 
-//         {activeTab === 'students' && (
-//           <section>
-//             <h1 style={{ color: '#2C3E50', marginBottom: '20px' }}>Student Management</h1>
-//             {/* Student Table yahan aayega */}
-//           </section>
-//         )}
-//         {activeTab === 'My Profile' && <ProfilePage/>}
+//         {/* Content area */}
+//         <main className="content-body">
+//            <div className="dashboard-page-header">
+            
+//             {/* Dashboard Tab: Pura content dikhayega */}
+//             {activeTab === 'dashboard' && <DashboardContent activeTab={activeTab} />}
 
-//         {/* Isi tarah Analytics, Predictions, aur Models ke liye add karein */}
-        
-//       </main>
+//             {/* Students Tab: Wahi component load hoga par sirf Table aur User Count dikhayega */}
+//             {activeTab === 'students' && <DashboardContent activeTab={activeTab} />}
+
+//             {/* Profile Tab */}
+//             {activeTab === 'My Profile' && <ProfilePage/>}
+
+//             {/* Predictions Tab: Isme bhi hum DashboardContent use kar sakte hain agar future mein filters lagane hon */}
+//             {activeTab === 'predictions' && <DashboardContent activeTab={activeTab}/>}
+
+//             {/* Settings Tab (Agar aapne Sidebar mein add kiya hai) */}
+//             {activeTab === 'Settings' && (
+//                <section><h1>Settings Page Coming Soon...</h1></section>
+//             )}
+               
+//            </div>
+//         </main>
+//       </div>
 //     </div>
 //   );
 // };
 
 // export default AdminDashboard;
-
 import React, { useState } from 'react';
 import AdminHeader from '../../components/AdminHeader';
-import './AdminDashboard.css'; // CSS wahi same rahegi
+import './AdminDashboard.css'; 
 import DashboardContent from '../../components/DashboardContent';
 import Sidebar from './sidebar';
 import ProfilePage from '../ProfilePage';
@@ -56,6 +68,8 @@ import { Navigate, useNavigate } from 'react-router-dom';
 function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [searchTerm, setSearchTerm] = useState(""); // State yahan hai
+
   return (
     <div className="admin-layout">
       {/* 1. Sidebar (Fixed) */}
@@ -73,32 +87,48 @@ function AdminDashboard() {
         {/* Fixed Header */}
         <AdminHeader navigate={navigate} />
 
-        {/* 👇 Content area ke ANDAR DashboardContent ko rakhein 👇 */}
+        {/* Content area */}
         <main className="content-body">
-           {/* <h1 className="page-title">Career AI - Command Center</h1> */}
-           {/* 👇 NAYA: Header and Buttons Yahan Rahenge 👇 */}
            <div className="dashboard-page-header">
-            {/* <DashboardContent /> */}
+            
+            {/* --- MAINE YAHAN PROPS ADD KAR DIYE HAIN --- */}
+
             {/* Dashboard Tab */}
-        {activeTab === 'dashboard' && <DashboardContent />}
+            {activeTab === 'dashboard' && (
+              <DashboardContent 
+                activeTab={activeTab} 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm} 
+              />
+            )}
 
-        {/* 👇 Profile Tab Fix 👇 */}
-        {activeTab === 'My Profile' && <ProfilePage/>}
+            {/* Students Tab */}
+            {activeTab === 'students' && (
+              <DashboardContent 
+                activeTab={activeTab} 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm} 
+              />
+            )}
 
-        {/* Students Tab */}
-        {activeTab === 'students' && (
-          <section><h1>Student Management Coming Soon...</h1></section>
-        )}
+            {/* Predictions Tab */}
+            {activeTab === 'predictions' && (
+              <DashboardContent 
+                activeTab={activeTab} 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm} 
+              />
+            )}
 
-        {activeTab === 'predictions' && (
-          <section><h1>prediction Management Coming Soon...</h1></section>
-        )}
+            {/* Profile Tab */}
+            {activeTab === 'My Profile' && <ProfilePage setView={setView} />}
+
+            {/* Settings Tab */}
+            {activeTab === 'Settings' && (
+               <section><h1>Settings Page Coming Soon...</h1></section>
+            )}
                
            </div>
-           {/* Yahan par aapka saara cards aur charts load hoga */}
-           
-           
-           {/* Baaki tables wagera yahan aayenge */}
         </main>
       </div>
     </div>

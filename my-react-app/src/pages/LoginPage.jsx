@@ -170,54 +170,54 @@ import { useNavigate } from "react-router-dom";
 function LoginPage() {
     
     //states
-    const navigate = useNavigate();
-    const [email,setEmail] = useState("")
-    const [password,setPassword] = useState("")
-    const [errors, setErrors] = useState({}) //error object
-    const [loading,setLoading] = useState(false)
+        const navigate = useNavigate();
+        const [email,setEmail] = useState("")
+        const [password,setPassword] = useState("")
+        const [errors, setErrors] = useState({}) //error object
+        const [loading,setLoading] = useState(false)
 
      const handleLogin = async (e) => {
-    e.preventDefault();
-    if(!validate()) return;
-    setLoading(true);
+          e.preventDefault();
+          if(!validate()) return;
+          setLoading(true);
 
-    // 1. Pehle normal login karte hain
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+          // 1. Pehle normal login karte hain
+          const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
 
-    if(authError){
-      setLoading(false);
-      toast.error(authError.message || "Login Failed. Please check your details.");
-      return;
-    }
+          if(authError){
+            setLoading(false);
+            toast.error(authError.message || "Login Failed. Please check your details.");
+            return;
+          }
 
-    // 2. Login successful! Ab is user ka Role check karte hain
-    try {
-      // LoginPage.jsx ke andar handleLogin mein toast.success ke baad:
+          // 2. Login successful! Ab is user ka Role check karte hain
+          try {
+            // LoginPage.jsx ke andar handleLogin mein toast.success ke baad:
 
-const { data: userData } = await supabase
-  .from('users')
-  .select('role')
-  .eq('email', email)
-  .single();
+              const { data: userData } = await supabase
+                .from('users')
+                .select('role')
+                .eq('email', email)
+                .single();
 
-if (userData && userData.role && userData.role.toLowerCase() === 'admin') {
-  localStorage.setItem('userRole', 'admin');
-  navigate('/admindashboard');
-} else {
-  localStorage.setItem('userRole', 'student');
-  navigate('/dashboard');
-}
+              if (userData && userData.role && userData.role === 'Admin') {
+                localStorage.setItem('userRole', 'admin');
+                navigate('/admindashboard');
+              } else {
+                localStorage.setItem('userRole', 'student');
+                navigate('/dashboard');
+              }
 
-    } catch (err) {
-      setLoading(false);
-      // Agar role nahi milta, toh normal dashboard par bhej do
-      localStorage.setItem('userRole', 'student');
-      navigate('/dashboard');
-    }
-  };
+          } catch (err) {
+            setLoading(false);
+            // Agar role nahi milta, toh normal dashboard par bhej do
+            localStorage.setItem('userRole', 'student');
+            navigate('/dashboard');
+          }
+        };
 
     const validate = () => {
         let newErrors = {}
