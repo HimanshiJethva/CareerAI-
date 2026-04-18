@@ -438,24 +438,37 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
           </div>
 
            {/* Feedback Corner: Sirf Dashboard par dikhega */}
-        {activeTab !== 'students' && (
-          <div className="feedback-corner" style={{ flex: 1, background: 'white', padding: '20px', borderRadius: '15px' }}>
-            <h3 className="section-title">User Satisfaction</h3>
-            {/* Feedback Corner ka gauge code yahan rahega... */}
-            <div className="satisfaction-gauge" style={{ textAlign: 'center', margin: '20px 0' }}>
-               <div style={{ position: 'relative', height: '100px', overflow: 'hidden' }}>
-                  <div style={{ width: '150px', height: '150px', border: '15px solid #EDF2F7', borderTopColor: '#FF8787', borderRadius: '50%', margin: '0 auto' }}></div>
-                  <h2 style={{ marginTop: '-40px' }}>85%</h2>
-               </div>
+        {/* Feedback Corner */}
+              <div className="feedback-corner" style={{ flex: 1, background: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+                <h3 className="section-title">User Satisfaction</h3>
+                <div className="satisfaction-gauge" style={{ textAlign: 'center', margin: '20px 0' }}>
+                  <div style={{ position: 'relative', height: '100px', overflow: 'hidden' }}>
+                      {/* Gauge color adjust karne ke liye borderTopColor ko dynamic bhi kar sakte hain */}
+                      <div style={{ 
+                          width: '150px', height: '150px', 
+                          border: '15px solid #EDF2F7', 
+                          borderTopColor: satisfaction > 70 ? '#48BB78' : '#FF8787', // 70% se upar green, niche red
+                          borderRadius: '50%', margin: '0 auto',
+                          transform: `rotate(${satisfaction * 1.8}deg)`, // Optional: thoda rotate karne ke liye
+                          transition: 'all 1s ease-out'
+                      }}></div>
+                      <h2 style={{ marginTop: '-40px' }}>{satisfaction}%</h2>
+                  </div>
+                </div>
+                
                 <div className="feedback-comments" style={{ fontSize: '13px', color: '#718096' }}>
-             <p>Recent positive comments:</p>
-             <strong style={{ color: '#2D3748' }}>"Extremely helpful!"</strong>
-             <p style={{ marginTop: '10px' }}>Comments:</p>
-             <strong style={{ color: '#2D3748' }}>"Changed my life."</strong>
-           </div>
-            </div>
-          </div>
-        )}
+                  <p>Recent positive comments:</p>
+                  {recentComments.length > 0 ? (
+                    recentComments.map((fb, index) => (
+                      <div key={index} style={{ marginTop: '10px' }}>
+                        <strong style={{ color: '#2D3748' }}>"{fb.comment}"</strong>
+                      </div>
+                    ))
+                  ) : (
+                    <p>No feedbacks yet.</p>
+                  )}
+                </div>
+              </div>
         </div>
       )}
     </div>
