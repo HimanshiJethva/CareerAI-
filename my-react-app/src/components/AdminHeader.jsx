@@ -83,13 +83,13 @@ function AdminHeader() {
               <div className="dropdown-divider"></div>
 
               <div className="dropdown-items">
-                <button className="dropdown-item active-pink">
+                <button className="dropdown-item" onClick={() => { setIsDropdownOpen(false); navigate('/profile'); }}>
                   👤 <span className="item-text">My Profile</span>
                 </button>
-                <button className="dropdown-item">
+                {/* <button className="dropdown-item">
                   📊 <span className="item-text">My Predictions</span>
-                </button>
-                <button className="dropdown-item logout-btn" onClick={handleLogout}>
+                </button> */}
+                <button className="dropdown-item dropdown-logout-btn" onClick={handleLogout}>
                   🚪 <span className="item-text">Logout</span>
                 </button>
               </div>

@@ -1176,11 +1176,14 @@ footer {
 }
 
 /* Click karne par aane wali default black border ko hatane ke liye */
-.dropdown-item:focus, .profile-trigger:focus {
+.dropdown-item:focus,
+.dropdown-item:focus-visible,
+.profile-trigger:focus,
+.profile-trigger:focus-visible {
     outline: none !important;
     box-shadow: none !important;
+    background-color: transparent !important;
 }
-
 /* =========================================
    MY PROFILE PAGE (EXACT REFERENCE MATCH)
    ========================================= */

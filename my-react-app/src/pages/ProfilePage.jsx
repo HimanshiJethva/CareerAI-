@@ -15,6 +15,9 @@ function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState(""); // Confirmation
   // Pehle se 'isEditing' state hai, uske niche ye add karein:
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [userRole, setUserRole] = useState('student'); // Default student
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -25,35 +28,30 @@ function ProfilePage() {
         setEmail(userEmail);
 
         // 1. Pehle Auth metadata check karte hain
-        let fetchedName = session.user.user_metadata?.full_name || session.user.user_metadata?.name;
+// 1. Pehle Auth metadata check karte hain
+let fetchedName = session.user.user_metadata?.full_name || session.user.user_metadata?.name;
 
-        // 2. Agar metadata mein nahi hai, toh seedha aapki 'users' table se fetch karenge
-        if (!fetchedName) {
-          try {
-            // YAHAN MAINE TABLE KA NAAM 'users' KAR DIYA HAI
-            const { data, error } = await supabase
-              .from('users') 
-              .select('name') // Yahan check kar lena ki Supabase me aapke column ka naam 'name' hi hai na
-              .eq('email', userEmail)
-              .single();
+// ✅ ROLE FETCH YAHAN KARO — if(!fetchedName) se BAHAR
+try {
+  const { data, error } = await supabase
+    .from('users') 
+    .select('name, role, avatar_url')
+    .eq('email', userEmail)
+    .single();
 
-            if (error) {
-              console.error("Database fetch error:", error.message);
-            }
+  if (data && data.name) fetchedName = data.name;
+  if (data && data.role) setUserRole(data.role);  // ← ab hamesha chalega
+  if (data && data.avatar_url) setAvatarUrl(data.avatar_url);
 
-            if (data && data.name) {
-              fetchedName = data.name;
-            }
-          } catch (err) {
-            console.error("Try-catch error:", err);
-          }
-        }
+} catch (err) {
+  console.error("Try-catch error:", err);
+}
 
-        // 3. Agar table mein sach mein koi naam save nahi hai, tabhi email wala dikhayega
-        if (!fetchedName) {
-          fetchedName = userEmail.split('@')[0];
-          fetchedName = fetchedName.charAt(0).toUpperCase() + fetchedName.slice(1);
-        }
+// 3. Fallback
+if (!fetchedName) {
+  fetchedName = userEmail.split('@')[0];
+  fetchedName = fetchedName.charAt(0).toUpperCase() + fetchedName.slice(1);
+}
         
         setFullName(fetchedName);
       }
@@ -134,6 +132,41 @@ function ProfilePage() {
   }
 };
 
+const handleAvatarUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  setAvatarUploading(true);
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${email}_${Date.now()}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, file, { upsert: true });
+    if (uploadError) throw uploadError;
+
+    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+    const publicUrl = urlData.publicUrl;
+
+    await supabase.from('users').update({ avatar_url: publicUrl }).eq('email', email);
+    setAvatarUrl(publicUrl);
+    alert('Profile image uploaded! 🎉');
+  } catch (err) {
+    alert('Upload failed: ' + err.message);
+  } finally {
+    setAvatarUploading(false);
+  }
+};
+
+const handleAvatarRemove = async () => {
+  try {
+    await supabase.from('users').update({ avatar_url: '' }).eq('email', email);
+    setAvatarUrl('');
+    alert('Profile image removed!');
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+};
+
   return (
     <div className="dashboard-wrapper" style={{ backgroundColor: 'var(--cream)', minHeight: '100vh' }}>
       <DashboardNavbar navigate={navigate} />
@@ -195,9 +228,31 @@ function ProfilePage() {
 
       <div className="profile-card-ref col-layout edit-card compact-edit-card">
         <center>
-          <div className="ref-avatar edit-mode-avatar">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          </div>
+
+            {/* BAAD MEIN */}
+                  <div className="ref-avatar edit-mode-avatar" style={{width:'95px', height:'95px', borderRadius:'50%', overflow:'hidden', margin:'0 auto 1rem', position:'relative'}}>
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="avatar" style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="currentColor" style={{backgroundColor:'#5C6E8A', width:'100%', height:'100%'}}>
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                      </svg>
+                    )}
+                  </div>
+
+                  {/* Upload & Remove buttons */}
+                  <div style={{display:'flex', gap:'10px', justifyContent:'center', marginBottom:'1rem'}}>
+                    <label style={{background:'#333', color:'white', padding:'8px 16px', borderRadius:'8px', cursor:'pointer', fontSize:'0.85rem'}}>
+                      {avatarUploading ? 'Uploading...' : '📷 Upload Image'}
+                      <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{display:'none'}} />
+                    </label>
+                    {avatarUrl && (
+                      <button onClick={handleAvatarRemove} style={{background:'#ff6b6b', color:'white', padding:'8px 16px', borderRadius:'8px', border:'none', cursor:'pointer', fontSize:'0.85rem'}}>
+                        🗑️ Remove
+                      </button>
+                    )}
+                  </div>
+           
           <h2 className="edit-title">Edit Your Profile</h2>
           <p className="edit-subtitle">Update your display name.</p>
         </center>
@@ -232,9 +287,16 @@ function ProfilePage() {
       {/* CARD 1: HEADER */}
       <div className="profile-card-ref">
         <div className="ref-header-left">
-          <div className="ref-avatar">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-          </div>
+          {/* CARD 1: HEADER — ref-avatar div replace karo */}
+<div className="ref-avatar" style={{overflow:'hidden'}}>
+  {avatarUrl ? (
+    <img src={avatarUrl} alt="avatar" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} />
+  ) : (
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+    </svg>
+  )}
+</div>
           <div className="ref-info">
             <h2>{fullName}</h2>
             <p>✉ {email}</p>
@@ -247,7 +309,9 @@ function ProfilePage() {
 
       {/* CARD 2: ACTION ROWS (Yahan humne naya option dala hai) */}
       <div className="profile-card-ref col-layout">
-        <div className="ref-row" onClick={() => setView('dashboard')}>
+          {userRole?.toLowerCase() !== 'admin' && (
+                <>
+        <div className="ref-row" onClick={() => navigate('/my-predictions')}>
           <div className="ref-row-left">
             <div className="ref-icon-box blue-box">
               <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
@@ -257,7 +321,8 @@ function ProfilePage() {
           <span className="ref-arrow">›</span>
         </div>
 
-        <hr className="ref-divider" />
+        <hr className="ref-divider" /> </>
+          )}
 
         <div className="ref-row" onClick={() => setIsChangingPassword(true)}>
           <div className="ref-row-left">
@@ -282,6 +347,27 @@ function ProfilePage() {
             </div>
           </div>
         </div>
+
+            <hr className="ref-divider" />
+
+                <div className="ref-row" onClick={async () => {
+                  await supabase.auth.signOut();
+                  localStorage.clear();
+                  navigate('/');
+                }}>
+                  <div className="ref-row-left">
+                    <div className="ref-icon-box" style={{ background: '#fff0f0', color: '#e53e3e' }}>
+                      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                      </svg>
+                    </div>
+                    <span className="ref-row-text" style={{ color: '#e53e3e' }}>Logout from Device</span>
+                  </div>
+                  <span className="ref-arrow" style={{ color: '#e53e3e' }}>›</span>
+                </div>
+
       </div>
 
       <p className="ref-joined-text">JOINED CAREERAI IN 2026</p>

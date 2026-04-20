@@ -7,6 +7,8 @@ function DashboardNavbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [userName, setUserName] = useState(""); // Nayi state naam save karne ke liye
+  const [userRole, setUserRole] = useState('student');
+  const [userAvatar, setUserAvatar] = useState('');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -18,6 +20,14 @@ function DashboardNavbar() {
 
         // Naam fetch karne ka wahi solid logic jo humne ProfilePage mein lagaya tha
         let fetchedName = session.user.user_metadata?.full_name || session.user.user_metadata?.name;
+
+        const { data: roleData } = await supabase
+          .from('users')
+          .select('role, avatar_url')
+          .eq('email', email)
+          .single();
+        if (roleData?.role) setUserRole(roleData.role);
+        if (roleData?.avatar_url) setUserAvatar(roleData.avatar_url);
 
         if (!fetchedName) {
           try {
@@ -67,7 +77,11 @@ function DashboardNavbar() {
             
             {/* SVG HATA KAR YAHAN PEHLA AKSHAR DAAL DIYA */}
             <div className="avatar-circle" style={{ backgroundColor: '#7B8B9E', color: 'white', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
-              {getInitial()}
+               {userAvatar ? (
+    <img src={userAvatar} alt="avatar" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} />
+  ) : (
+    getInitial()
+  )}
             </div>
 
             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" className={`caret ${isDropdownOpen ? 'open' : ''}`}>
@@ -92,12 +106,14 @@ function DashboardNavbar() {
                  <span className="item-icon">👤</span> My Profile
               </button>
               
+              {userRole?.toLowerCase() !== 'admin' && (
               <button className="dropdown-item" onClick={() => {
                   setIsDropdownOpen(false);
-                  navigate('/dashboard');
+                  navigate('/my-predictions');
               }}>
                  <span className="item-icon">📊</span> My Predictions
               </button>
+              )}
               
               <button className="dropdown-item logout-item" onClick={handleLogout}>
                  <span className="item-icon">🚪</span> Logout

@@ -7,6 +7,27 @@ import { Edit2, Eye, Trash2 } from 'lucide-react';
 import { supabase } from '../../../backend/supabaseClient';
 import './DashboardContent.css';
 
+// ✅ Helper: Find the exact input for a prediction using input_id foreign key
+const getInputForPrediction = (allInputs, prediction) => {
+  if (!allInputs || allInputs.length === 0 || !prediction) return null;
+  
+  // Direct match via input_id (most accurate)
+  if (prediction.input_id) {
+    const exactMatch = allInputs.find(input => input.id === prediction.input_id);
+    if (exactMatch) return exactMatch;
+  }
+  
+  // Fallback: closest input by timestamp if input_id is NULL
+  const predTime = new Date(prediction.created_at).getTime();
+  const validInputs = allInputs.filter(input => 
+    new Date(input.created_at).getTime() <= predTime
+  );
+  if (validInputs.length === 0) return allInputs[0];
+  return validInputs.reduce((closest, curr) => 
+    new Date(curr.created_at) > new Date(closest.created_at) ? curr : closest
+  );
+};
+
 const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
   const [dashboardStats, setDashboardStats] = useState({
     totalStudents: 0,
@@ -20,15 +41,16 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
   const [lineData, setLineData] = useState([]);
   const [satisfaction, setSatisfaction] = useState(0); 
   const [recentComments, setRecentComments] = useState([]);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [modalData, setModalData] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [activeModalTab, setActiveModalTab] = useState('overview');
+  const [selectedPrediction, setSelectedPrediction] = useState(0);
 
   useEffect(() => {
     const fetchRealData = async () => {
       try {
-        const { count: studentCount } = await supabase.from('users').select('*', { count: 'exact', head: true }); 
-        const { count: predictionCount } = await supabase.from('predictions').select('*', { count: 'exact', head: true });
-          // 2. Fetch Actual Student List
-        // 2. UPDATED: Fetch Actual Student List with Joins
-        const { data: studentsList, error: fetchError } = await supabase
+        const { data: allUsers, error: fetchError } = await supabase
           .from('users')
           .select(`
             *,
@@ -41,19 +63,33 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
           console.error("Supabase Error:", fetchError.message);
         }
 
-        if (studentsList) {
-          // Data ko clean karke simple format mein convert kar rahe hain
-          const formattedStudents = studentsList.map(s => ({
+        if (allUsers) {
+          const filteredStudents = allUsers.filter(user => {
+            if (user.role && user.role === 'admin') return false;
+            if (user.name && user.name.toLowerCase() === 'admin') return false;
+            if (user.email && (
+              user.email.toLowerCase().includes('support') || 
+              user.email.toLowerCase().includes('admin')
+            )) return false;
+            return true;
+          });
+
+          const formattedStudents = filteredStudents.map(s => ({
             ...s,
-            // Agar input table mein data hai toh stream lo, varna 'N/A'
             stream: s.user_inputs?.[0]?.stream || 'N/A',
-            // Agar prediction ho chuki hai toh career lo, varna 'Pending...'
             ai_career: s.predictions?.[0]?.career_1 || 'Pending...'
           }));
           
           setStudents(formattedStudents);
+          setDashboardStats(prev => ({
+            ...prev,
+            totalStudents: formattedStudents.length
+          }));
         }
 
+        const { count: predictionCount } = await supabase
+          .from('predictions')
+          .select('*', { count: 'exact', head: true });
 
         const { data: predData } = await supabase.from('predictions').select('career_1');
         if (predData && predData.length > 0) {
@@ -89,32 +125,64 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
           setLineData(formattedLineData);
         }
 
-        setDashboardStats({
-          totalStudents: studentCount || 0,
+        setDashboardStats(prev => ({
+          ...prev,
           totalPredictions: predictionCount || 0,
           accuracy: 91.9 
-        });
-           // --- 5. DYNAMIC FEEDBACK LOGIC ---
-          const { data: fbData, error: fbError } = await supabase
-            .from('feedbacks')
-            .select('rating, comment')
-            .order('created_at', { ascending: false });
+        }));
+        
+        const { data: fbData } = await supabase
+          .from('feedbacks')
+          .select('rating, comment')
+          .order('created_at', { ascending: false });
 
-          if (fbData && fbData.length > 0) {
-            // Average Rating calculate karo (1 to 5 scale ko 100% mein convert karne ke liye * 20)
-            const totalRating = fbData.reduce((acc, curr) => acc + curr.rating, 0);
-            const avgRating = totalRating / fbData.length;
-            const percentage = Math.round(avgRating * 20); 
-            
-            setSatisfaction(percentage);
-            setRecentComments(fbData.slice(0, 2)); // Sirf 2 taaza comments dikhane ke liye
-          }
+        if (fbData && fbData.length > 0) {
+          const totalRating = fbData.reduce((acc, curr) => acc + curr.rating, 0);
+          const avgRating = totalRating / fbData.length;
+          const percentage = Math.round(avgRating * 20); 
+          setSatisfaction(percentage);
+          setRecentComments(fbData.slice(0, 2));
+        }
       } catch (error) {
         console.error("Data fetch error:", error.message);
       }
     };
     fetchRealData();
   }, []);
+  
+  const handleViewStudent = async (student) => {
+    setSelectedStudent(student);
+    setModalLoading(true);
+    setSelectedPrediction(0); // Reset to first prediction when opening modal
+
+    const { data: allPredictions } = await supabase
+      .from('predictions')
+      .select('*')
+      .eq('user_id', student.id)
+      .order('created_at', { ascending: false });
+
+    // 2705 Fetch ALL inputs -- matched via input_id foreign key (with timestamp fallback)
+    const { data: inputData } = await supabase
+      .from('user_inputs')
+      .select('*')
+      .eq('user_id', student.id)
+      .order('created_at', { ascending: true });
+
+    const inputs = inputData || [];
+    const predictions = allPredictions || [];
+
+    // Check if all predictions share the same input (student filled form once)
+    const uniqueInputIds = [...new Set(predictions.map(p => p.input_id).filter(Boolean))];
+    const allSameInput = uniqueInputIds.length <= 1;
+
+    setModalData({ 
+      predictions,
+      allInputs: inputs,
+      allSameInput,
+      inputs: inputs[inputs.length - 1] || null,
+    });
+    setModalLoading(false);
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
@@ -129,47 +197,156 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
   };
 
   const exportToCSV = () => {
-  if (students.length === 0) {
-    alert("No data available to export!");
-    return;
-  }
+    if (students.length === 0) {
+      alert("No data available to export!");
+      return;
+    }
+    const headers = ["Name", "Email", "Stream", "Registration Date","AI Suggested Career"];
+    const csvRows = students.map(student => {
+      const careerResult = (student.predictions && student.predictions.length > 0) 
+        ? student.predictions[0].career_1 
+        : "Pending...";
+      return [
+        student.name,
+        student.email,
+        student.stream || 'N/A',
+        new Date(student.created_at).toLocaleDateString(),
+        careerResult.replace(/,/g,"") 
+      ];
+    });
+    const csvContent = [
+      headers.join(","), 
+      ...csvRows.map(row => row.join(","))
+    ].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Student_List_${new Date().toLocaleDateString()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
-  // 1. CSV ke Headers define karein
-  const headers = ["Name", "Email", "Stream", "Registration Date","AI Suggested Career"];
+  // ✅ Get the input that corresponds to the currently selected prediction
+  const currentPredictionInput = modalData 
+    ? getInputForPrediction(modalData.allInputs, modalData.predictions[selectedPrediction])
+    : null;
 
-  // 2. Students data ko CSV rows mein convert karein
-  const csvRows = students.map(student => {
-    // Check karein ki predictions array mein data hai ya nahi
-    const careerResult = (student.predictions && student.predictions.length > 0) 
-      ? student.predictions[0].career_1 
-      : "Pending...";
+  // ✅ Reusable component to render input details (used in both tabs)
+  const InputDetailsPanel = ({ inputData, compact = false }) => {
+    if (!inputData) return (
+      <div style={{ textAlign: 'center', padding: '20px', color: '#718096', fontSize: '13px' }}>
+        No input data found for this session.
+      </div>
+    );
 
-    return [
-    student.name,
-    student.email,
-    student.stream || 'N/A',
-    new Date(student.created_at).toLocaleDateString(),
-    careerResult.replace(/,/g,"") 
-   ];
-  });
+    return (
+      <>
+        {/* Academic Marks */}
+        <div style={{ marginBottom: compact ? '15px' : '25px' }}>
+          <h3 style={{ color: '#2D3748', marginBottom: '12px', fontSize: compact ? '0.85rem' : '1rem', fontWeight: '700' }}>📚 Academic Marks</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${compact ? 3 : 4}, 1fr)`, gap: '8px' }}>
+            {[
+              { label: 'Physics', value: inputData.physics },
+              { label: 'Chemistry', value: inputData.chemistry },
+              { label: 'Biology', value: inputData.biology },
+              { label: 'Maths', value: inputData.mathematics },
+              { label: 'English', value: inputData.english },
+              { label: 'Computer Sc.', value: inputData.computerscience },
+              { label: 'Accountancy', value: inputData.accountancy },
+              { label: 'Business St.', value: inputData.businessstudies },
+              { label: 'Economics', value: inputData.economics },
+              { label: 'History', value: inputData.history },
+              { label: 'Geography', value: inputData.geography },
+              { label: 'Pol. Science', value: inputData.politicalscience },
+              { label: 'Sociology', value: inputData.sociology },
+            ].filter(item => item.value > 0).map((item, i) => (
+              <div key={i} style={{
+                background: '#f0fff4', border: '1px solid #c6f6d5',
+                borderRadius: '10px', padding: compact ? '8px' : '12px', textAlign: 'center'
+              }}>
+                <p style={{ margin: 0, fontSize: '11px', color: '#718096' }}>{item.label}</p>
+                <p style={{ margin: '4px 0 0 0', fontWeight: '700', color: '#276749', fontSize: compact ? '1rem' : '1.2rem' }}>{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
 
-  // 3. Headers aur Rows ko join karein
-  const csvContent = [
-    headers.join(","), 
-    ...csvRows.map(row => row.join(","))
-  ].join("\n");
+        {/* Interests */}
+        <div style={{ marginBottom: compact ? '15px' : '25px' }}>
+          <h3 style={{ color: '#2D3748', marginBottom: '12px', fontSize: compact ? '0.85rem' : '1rem', fontWeight: '700' }}>💡 Interests</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {[
+              { label: 'Technology', value: inputData.interest_tech },
+              { label: 'Entrepreneurship', value: inputData.interest_entrepreneurship },
+              { label: 'Leadership', value: inputData.interest_leadership },
+              { label: 'Innovation', value: inputData.interest_innovation },
+              { label: 'Critical Thinking', value: inputData.interest_criticalthinking },
+              { label: 'Research', value: inputData.interest_research },
+              { label: 'Computer Skills', value: inputData.interest_computerskill },
+              { label: 'Hardware Skills', value: inputData.interest_hardwareskill },
+              { label: 'Food', value: inputData.interest_food },
+              { label: 'Creativity', value: inputData.interest_creativity },
+            ].filter(item => item.value === 1).map((item, i) => (
+              <span key={i} style={{
+                background: '#ebf8ff', color: '#2b6cb0',
+                padding: compact ? '4px 10px' : '7px 16px', borderRadius: '20px',
+                fontSize: '12px', fontWeight: '500', border: '1px solid #bee3f8'
+              }}>✓ {item.label}</span>
+            ))}
+          </div>
+        </div>
 
-  // 4. Blob banayein aur download link trigger karein
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", `Student_List_${new Date().toLocaleDateString()}.csv`);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+        {/* Personality Traits */}
+        <div style={{ marginBottom: compact ? '15px' : '25px' }}>
+          <h3 style={{ color: '#2D3748', marginBottom: '12px', fontSize: compact ? '0.85rem' : '1rem', fontWeight: '700' }}>🧠 Personality Traits</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px' }}>
+            {[
+              { label: 'Openness', value: inputData.oppenness },
+              { label: 'Conscientious', value: inputData.conscientiousness },
+              { label: 'Extraversion', value: inputData.extraversion },
+              { label: 'Agreeableness', value: inputData.agreeableness },
+              { label: 'Neuroticism', value: inputData.neuroticism },
+            ].map((item, i) => (
+              <div key={i} style={{
+                background: '#faf5ff', border: '1px solid #e9d8fd',
+                borderRadius: '10px', padding: compact ? '8px' : '12px', textAlign: 'center'
+              }}>
+                <p style={{ margin: 0, fontSize: '11px', color: '#718096' }}>{item.label}</p>
+                <p style={{ margin: '4px 0 0 0', fontWeight: '700', color: '#553c9a', fontSize: compact ? '1rem' : '1.3rem' }}>{item.value}/5</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Activities */}
+        <div>
+          <h3 style={{ color: '#2D3748', marginBottom: '12px', fontSize: compact ? '0.85rem' : '1rem', fontWeight: '700' }}>🏆 Participated Activities</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {[
+              { label: 'Hackathon', value: inputData.participated_hackathon },
+              { label: 'Olympiad', value: inputData.participated_olympiad },
+              { label: 'Kabaddi', value: inputData.participated_kabaddi },
+              { label: 'Kho-Kho', value: inputData.participated_khokho },
+              { label: 'Cricket', value: inputData.participated_cricket },
+            ].filter(item => item.value === 1).map((item, i) => (
+              <span key={i} style={{
+                background: '#fffaf0', color: '#c05621',
+                padding: compact ? '4px 10px' : '7px 16px', borderRadius: '20px',
+                fontSize: '12px', fontWeight: '500', border: '1px solid #fbd38d'
+              }}>🏅 {item.label}</span>
+            ))}
+            {['participated_hackathon','participated_olympiad','participated_kabaddi','participated_khokho','participated_cricket']
+              .every(k => !inputData[k]) && (
+              <p style={{ color: '#718096', fontSize: '13px', margin: 0 }}>No activities participated</p>
+            )}
+          </div>
+        </div>
+      </>
+    );
+  };
 
   return (
     <div className="dashboard-body">
@@ -179,30 +356,27 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
         
         <div className="stats-column" style={{ width: (activeTab === 'students' || activeTab === 'predictions') ? '100%' : 'auto' }}>
           <div className="section-header" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', // Isse title left aur button right mein ho jayega
-          alignItems: 'center',
-          width: '100%',
-          marginBottom: '20px',
-          paddingRight: '20px' // Bilkul edge se chipke na, isliye thoda gap
-      }}>
-          <h3 className="section-title" style={{ margin: 0 }}>
+            display: 'flex', 
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+            marginBottom: '20px',
+            paddingRight: '20px'
+          }}>
+            <h3 className="section-title" style={{ margin: 0 }}>
               {activeTab === 'students' ? 'Student Statistics' : activeTab === 'predictions' ? 'AI Analytics' : 'Top Statistics Cards'}
-          </h3>
-          
-          {activeTab === 'students' && (
+            </h3>
+            {activeTab === 'students' && (
               <button className="btn-export" onClick={exportToCSV} style={{ 
-                  marginLeft: 'auto', // Extra safety for right alignment
-                  padding: '10px 20px'
+                marginLeft: 'auto',
+                padding: '10px 20px'
               }}>
-                  📗 Export CSV List
+                📗 Export CSV List
               </button>
-          )}
-      </div>
+            )}
+          </div>
 
           <div className="stats-grid-vertical" style={{ display: (activeTab === 'students' || activeTab === 'predictions') ? 'block' : 'grid' }}>
-            
-            {/* Total Students Card: Students aur Dashboard par dikhega */}
             {(activeTab === 'dashboard' || activeTab === 'students') && (
               <div className="stat-card" style={{ width: activeTab === 'students' ? '200%' : 'auto', marginBottom: '20px' }}>
                 <p>Total Registered Students</p>
@@ -210,8 +384,6 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
                 <div className="card-icon">👤</div>
               </div>
             )}
-
-            {/* AI Predictions Card: Dashboard aur Predictions par dikhega */}
             {(activeTab === 'dashboard' || activeTab === 'predictions') && (
               <div className="stat-card" style={{ width: activeTab === 'predictions' ? '200%' : 'auto', marginBottom: '20px' }}>
                 <p>AI Predictions Made</p>
@@ -219,8 +391,6 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
                 <div className="card-icon">🧠</div>
               </div>
             )}
-
-            {/* Accuracy Card: Sirf Dashboard par */}
             {activeTab === 'dashboard' && (
               <div className="stat-card">
                 <p>System Accuracy</p>
@@ -231,12 +401,11 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
           </div>
         </div>
 
-        {/* GRAPHS: Dashboard aur Predictions par dikhenge */}
         {(activeTab === 'dashboard' || activeTab === 'predictions') && (
           <div className="insights-column" style={{ width: activeTab === 'predictions' ? '110%' : 'auto', marginTop: activeTab === 'predictions' ? '20px' : '0' }}>
             <div className='section-header right-header'>
-                <h3 className='section-title'>Key Insights</h3>
-              </div>
+              <h3 className='section-title'>Key Insights</h3>
+            </div>
             <div className="insights-white-box">
               <div className="insights-row-inner">
                 <div className="chart-container pie-container">
@@ -266,7 +435,6 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
                 <div className="chart-container area-container">
                   <h4 className="chart-title">Prediction Volume</h4>
                   <AreaChart width={activeTab === 'predictions' ? 500 : 420} height={220} data={lineData}>
-                  {/* margin{{top: 10, right: 45, left: 0, bottom:20}} */}
                     <defs>
                       <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#38b2ac" stopOpacity={0.3}/><stop offset="95%" stopColor="#38b2ac" stopOpacity={0}/>
@@ -289,46 +457,25 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
       {(activeTab === 'dashboard' || activeTab === 'students') && (
         <div className="dashboard-bottom-layout" style={{ display: 'flex', gap: '20px', marginTop: activeTab === 'students' ? '5px' : '30px' }}>
           <div className="student-list-container" style={{ flex: 3, background: 'white', padding: '20px', borderRadius: '15px' }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '20px',
-              flexWrap: 'wrap',
-              gap: '15px'
-            }}>
-            <h3 className="section-title" style={{ margin: 0 }}>
-      {activeTab === 'students' ? 'All Registered Students' : 'Student Registrations list'}
-    </h3>
-
-    {/* Naya Search Bar jo Table ke upar dikhega */}
-    <div className="table-search-box" style={{
-      position: 'relative',
-      display: 'flex',
-      alignItems: 'center',
-      background: '#F7FAFC',
-      border: '1px solid #E2E8F0',
-      borderRadius: '10px',
-      padding: '8px 15px',
-      width: '300px'
-    }}>
-      <span style={{ marginRight: '10px', color: '#A0AEC0' }}>🔍</span>
-      <input 
-        type="text" 
-        placeholder="Search by name or email..." 
-        value={searchTerm} 
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{
-          border: 'none',
-          background: 'transparent',
-          outline: 'none',
-          width: '100%',
-          fontSize: '14px',
-          color: '#2D3748'
-        }}
-      />
-    </div>
-  </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+              <h3 className="section-title" style={{ margin: 0 }}>
+                {activeTab === 'students' ? 'All Registered Students' : 'Student Registrations list'}
+              </h3>
+              <div className="table-search-box" style={{
+                position: 'relative', display: 'flex', alignItems: 'center',
+                background: '#F7FAFC', border: '1px solid #E2E8F0',
+                borderRadius: '10px', padding: '8px 15px', width: '300px'
+              }}>
+                <span style={{ marginRight: '10px', color: '#A0AEC0' }}>🔍</span>
+                <input 
+                  type="text" 
+                  placeholder="Search by name or email..." 
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '14px', color: '#2D3748' }}
+                />
+              </div>
+            </div>
             <table className="student-table" style={{ width: '100%' }}>
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '1px solid #f0f0f0', color: '#718096' }}>
@@ -341,8 +488,7 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
                 </tr>
               </thead>
               <tbody>
-
-               {students
+                {students
                   .filter((student) => {
                     if (!searchTerm) return true;
                     const s = searchTerm.toLowerCase();
@@ -351,127 +497,1292 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
                       student.email?.toLowerCase().includes(s)
                     );
                   })
-                  .slice(0,  showAll ? students.length : 5).map((student, idx) => (
-                  <tr key={idx}>
+                  .slice(0, showAll ? students.length : 5).map((student, idx) => (
+                  <tr key={idx} onClick={() => handleViewStudent(student)} 
+                    style={{ cursor: 'pointer' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff5f5'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
                     <td style={{ padding: '12px' }}>{student.name}</td>
                     <td>{student.email}</td>
-                     {/* 👇 Naya dynamic data 👇 */}
                     <td>{student.stream}</td>  
                     <td>{new Date(student.created_at).toLocaleDateString()}</td>
-                     {/* 👇 Naya dynamic career data 👇 */}
                     <td style={{ 
-                        color: student.ai_career === 'Pending...' ? '#A0AEC0' : '#38b2ac',
-                        fontWeight: student.ai_career === 'Pending...' ? 'normal' : '600' 
+                      color: student.ai_career === 'Pending...' ? '#A0AEC0' : '#38b2ac',
+                      fontWeight: student.ai_career === 'Pending...' ? 'normal' : '600' 
                     }}>
                       {student.ai_career}
                     </td>
                     {activeTab === 'students' && (
-                    <td style={{ textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                        <button onClick={() => alert("Viewing: " + student.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#38b2ac' }}>
-                          <Eye size={20} />
-                        </button>
-                         <button  style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'green' }}>
-                          <Edit2 size={20} />
-                        </button>
-                        <button onClick={() => handleDelete(student.id)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#e53e3e' }}>
-                          <Trash2 size={20} />
-                        </button>
-                      </div>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                          <button onClick={() => alert("Viewing: " + student.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#38b2ac' }}>
+                            <Eye size={20} />
+                          </button>
+                          <button style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'green' }}>
+                            <Edit2 size={20} />
+                          </button>
+                          <button onClick={(e) => { e.stopPropagation(); handleDelete(student.id); }} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#e53e3e' }}>
+                            <Trash2 size={20} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+                {students.filter(s => 
+                  s.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                  s.email?.toLowerCase().includes(searchTerm.toLowerCase())
+                ).length === 0 && searchTerm !== "" && (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#718096' }}>
+                      No student found matching "{searchTerm}"
                     </td>
-                  )}
-                </tr>
-              ))}
-              {/* No results message */}
-              {students.filter(s => 
-                s.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                s.email?.toLowerCase().includes(searchTerm.toLowerCase())
-              ).length === 0 && searchTerm !== "" && (
-                <tr>
-                  <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#718096' }}>
-                    No student found matching "{searchTerm}"
-                  </td>
-                </tr>
-              )}
+                  </tr>
+                )}
               </tbody>
             </table>
             
-             {/* 👇 NAYA: Toggle Button (View All / View Less) 👇 */}
-             
-          {students.length > 5 && (
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              {showAll ? (
-                // Jab saare records dikh rahe hon, tab 'View Less' dikhao
-                <button 
-                  onClick={() => setShowAll(false)}
-                  style={{ 
-                    background: '#FF8787', // Thoda alag color taaki pata chale ye 'Less' ke liye hai
-                    color: 'white', 
-                    border: 'none', 
-                    padding: '10px 20px', 
-                    borderRadius: '8px', 
-                    cursor: 'pointer', 
-                    fontWeight: 'bold' 
-                  }}
-                >
-                  View Less Records
-                </button>
-              ) : (
-                // Jab sirf 5 records dikh rahe hon, tab 'View All' dikhao
-                <button 
-                  onClick={() => setShowAll(true)}
-                  style={{ 
-                    background: '#FF8787', 
-                    color: 'white', 
-                    border: 'none', 
-                    padding: '10px 20px', 
-                    borderRadius: '8px', 
-                    cursor: 'pointer', 
-                    fontWeight: 'bold' 
-                  }}
-                >
-                  View All Records
-                </button>
-              )}
-            </div>
+            {students.length > 5 && (
+              <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                {showAll ? (
+                  <button onClick={() => setShowAll(false)} style={{ background: '#FF8787', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                    View Less Records
+                  </button>
+                ) : (
+                  <button onClick={() => setShowAll(true)} style={{ background: '#FF8787', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+                    View All Records
+                  </button>
+                )}
+              </div>
             )}
           </div>
 
-           {/* Feedback Corner: Sirf Dashboard par dikhega */}
-        {/* Feedback Corner */}
-              <div className="feedback-corner" style={{ flex: 1, background: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-                <h3 className="section-title">User Satisfaction</h3>
-                <div className="satisfaction-gauge" style={{ textAlign: 'center', margin: '20px 0' }}>
-                  <div style={{ position: 'relative', height: '100px', overflow: 'hidden' }}>
-                      {/* Gauge color adjust karne ke liye borderTopColor ko dynamic bhi kar sakte hain */}
-                      <div style={{ 
-                          width: '150px', height: '150px', 
-                          border: '15px solid #EDF2F7', 
-                          borderTopColor: satisfaction > 70 ? '#48BB78' : '#FF8787', // 70% se upar green, niche red
-                          borderRadius: '50%', margin: '0 auto',
-                          transform: `rotate(${satisfaction * 1.8}deg)`, // Optional: thoda rotate karne ke liye
-                          transition: 'all 1s ease-out'
-                      }}></div>
-                      <h2 style={{ marginTop: '-40px' }}>{satisfaction}%</h2>
-                  </div>
-                </div>
-                
-                <div className="feedback-comments" style={{ fontSize: '13px', color: '#718096' }}>
-                  <p>Recent positive comments:</p>
-                  {recentComments.length > 0 ? (
-                    recentComments.map((fb, index) => (
-                      <div key={index} style={{ marginTop: '10px' }}>
-                        <strong style={{ color: '#2D3748' }}>"{fb.comment}"</strong>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No feedbacks yet.</p>
-                  )}
-                </div>
+          <div className="feedback-corner" style={{ flex: 1, background: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+            <h3 className="section-title">User Satisfaction</h3>
+            <div className="satisfaction-gauge" style={{ textAlign: 'center', margin: '20px 0' }}>
+              <div style={{ position: 'relative', height: '100px', overflow: 'hidden' }}>
+                <div style={{ 
+                  width: '150px', height: '150px', 
+                  border: '15px solid #EDF2F7', 
+                  borderTopColor: satisfaction > 70 ? '#48BB78' : '#FF8787',
+                  borderRadius: '50%', margin: '0 auto',
+                  transform: `rotate(${satisfaction * 1.8}deg)`,
+                  transition: 'all 1s ease-out'
+                }}></div>
+                <h2 style={{ marginTop: '-40px' }}>{satisfaction}%</h2>
               </div>
+            </div>
+            <div className="feedback-comments" style={{ fontSize: '13px', color: '#718096' }}>
+              <p>Recent positive comments:</p>
+              {recentComments.length > 0 ? (
+                recentComments.map((fb, index) => (
+                  <div key={index} style={{ marginTop: '10px' }}>
+                    <strong style={{ color: '#2D3748' }}>"{fb.comment}"</strong>
+                  </div>
+                ))
+              ) : (
+                <p>No feedbacks yet.</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
+
+      {/* STUDENT DETAIL MODAL */}
+      {selectedStudent && (
+        <div onClick={() => setSelectedStudent(null)} style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '20px', backdropFilter: 'blur(4px)'
+        }}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+            background: 'white', borderRadius: '24px', width: '100%',
+            maxWidth: '850px', maxHeight: '88vh', overflowY: 'auto',
+            boxShadow: '0 30px 60px rgba(0,0,0,0.4)'
+          }}>
+
+            {/* Header */}
+            <div style={{
+              background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)',
+              padding: '28px 30px', borderRadius: '24px 24px 0 0',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <div style={{
+                  width: '55px', height: '55px', borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.25)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.5rem', fontWeight: '700', color: 'white'
+                }}>
+                  {selectedStudent.name?.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h2 style={{ color: 'white', margin: 0, fontSize: '1.6rem', fontWeight: '700' }}>
+                    {selectedStudent.name}
+                  </h2>
+                  <p style={{ color: 'rgba(255,255,255,0.8)', margin: '4px 0 0 0', fontSize: '14px' }}>
+                    📧 {selectedStudent.email} &nbsp;|&nbsp; 🎓 {selectedStudent.stream || 'N/A'}
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => { setSelectedStudent(null); setActiveModalTab('overview'); }} style={{
+                background: 'rgba(255,255,255,0.2)', border: 'none',
+                color: 'white', width: '38px', height: '38px',
+                borderRadius: '50%', cursor: 'pointer', fontSize: '1.1rem',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>✕</button>
+            </div>
+
+            {/* Tabs */}
+            <div style={{
+              display: 'flex', borderBottom: '2px solid #f0f0f0',
+              padding: '0 30px', background: '#fafafa'
+            }}>
+              {[
+                { id: 'overview', label: '📊 Overview' },
+                { id: 'predictions', label: '🎯 Predictions History' },
+                { id: 'inputs', label: '📋 Student Inputs' },
+              ].map(tab => (
+                <button key={tab.id} onClick={() => setActiveModalTab(tab.id)} style={{
+                  padding: '14px 20px', border: 'none', background: 'none',
+                  cursor: 'pointer', fontSize: '14px', fontWeight: '600',
+                  color: activeModalTab === tab.id ? '#FF6B6B' : '#718096',
+                  borderBottom: activeModalTab === tab.id ? '3px solid #FF6B6B' : '3px solid transparent',
+                  marginBottom: '-2px', transition: 'all 0.2s'
+                }}>{tab.label}</button>
+              ))}
+            </div>
+
+            <div style={{ padding: '28px 30px' }}>
+              {modalLoading ? (
+                <div style={{ textAlign: 'center', padding: '60px', color: '#718096' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '10px' }}>⏳</div>
+                  Loading student details...
+                </div>
+              ) : (
+                <>
+                  {/* ===== OVERVIEW TAB ===== */}
+                  {activeModalTab === 'overview' && (
+                    <div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '25px' }}>
+                        {[
+                          { label: 'Stream', value: selectedStudent.stream || 'N/A', icon: '🎓', color: '#ebf8ff' },
+                          { label: 'Registered', value: new Date(selectedStudent.created_at).toLocaleDateString(), icon: '📅', color: '#f0fff4' },
+                          { label: 'Total Predictions', value: modalData?.predictions?.length || 0, icon: '🧠', color: '#faf5ff' },
+                          { label: 'Status', value: modalData?.predictions?.length > 0 ? 'Active ✅' : 'Pending ⏳', icon: '📌', color: '#fffaf0' },
+                        ].map((item, i) => (
+                          <div key={i} style={{ background: item.color, borderRadius: '14px', padding: '16px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '1.5rem' }}>{item.icon}</div>
+                            <p style={{ margin: '6px 0 2px 0', fontSize: '11px', color: '#718096', textTransform: 'uppercase', fontWeight: '600' }}>{item.label}</p>
+                            <p style={{ margin: 0, fontWeight: '700', color: '#2D3748', fontSize: '14px' }}>{item.value}</p>
+                          </div>
+                        ))}
+                      </div>
+
+                      {modalData?.predictions?.length > 0 && (
+                        <div style={{ marginBottom: '20px' }}>
+                          <h3 style={{ color: '#2D3748', marginBottom: '15px', fontSize: '1rem', fontWeight: '700' }}>
+                            🏆 Latest AI Prediction
+                          </h3>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {[
+                              { career: modalData.predictions[0].career_1, confidence: modalData.predictions[0].confidence_1, rank: 1, color: '#FF6B6B' },
+                              { career: modalData.predictions[0].career_2, confidence: modalData.predictions[0].confidence_2, rank: 2, color: '#38b2ac' },
+                              { career: modalData.predictions[0].career_3, confidence: modalData.predictions[0].confidence_3, rank: 3, color: '#6b46c1' },
+                            ].map((item, i) => (
+                              <div key={i} style={{
+                                border: `1px solid ${item.color}30`, borderLeft: `4px solid ${item.color}`,
+                                borderRadius: '12px', padding: '14px', background: `${item.color}08`,
+                                display: 'flex', alignItems: 'center', gap: '15px'
+                              }}>
+                                <span style={{ background: item.color, color: 'white', width: '30px', height: '30px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '13px', flexShrink: 0 }}>#{item.rank}</span>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                                    <strong style={{ color: '#2D3748' }}>{item.career}</strong>
+                                    <span style={{ background: item.color, color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '12px' }}>{item.confidence}%</span>
+                                  </div>
+                                  <div style={{ background: '#e2e8f0', borderRadius: '10px', height: '5px' }}>
+                                    <div style={{ background: item.color, height: '5px', borderRadius: '10px', width: `${item.confidence}%` }}></div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ===== PREDICTIONS HISTORY TAB ===== */}
+                  {activeModalTab === 'predictions' && (
+                    <div>
+                      {modalData?.predictions?.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#718096' }}>
+                          No predictions yet for this student.
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', gap: '20px' }}>
+                          
+                          {/* Left: Prediction List */}
+                          <div style={{ width: '220px', flexShrink: 0 }}>
+                            <p style={{ fontSize: '12px', color: '#718096', fontWeight: '600', textTransform: 'uppercase', marginBottom: '10px' }}>
+                              All Sessions ({modalData.predictions.length})
+                            </p>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                              {modalData.predictions.map((pred, i) => (
+                                <div key={i} onClick={() => setSelectedPrediction(i)} style={{
+                                  padding: '12px', borderRadius: '12px', cursor: 'pointer',
+                                  background: selectedPrediction === i ? '#fff5f5' : '#f8f9fa',
+                                  border: selectedPrediction === i ? '2px solid #FF6B6B' : '2px solid transparent',
+                                  transition: 'all 0.2s'
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span style={{
+                                      background: selectedPrediction === i ? '#FF6B6B' : '#e2e8f0',
+                                      color: selectedPrediction === i ? 'white' : '#718096',
+                                      width: '24px', height: '24px', borderRadius: '50%',
+                                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                      fontSize: '11px', fontWeight: '700', flexShrink: 0
+                                    }}>{i + 1}</span>
+                                    <div>
+                                      <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#2D3748' }}>{pred.career_1}</p>
+                                      <p style={{ margin: 0, fontSize: '11px', color: '#718096' }}>
+                                        {new Date(pred.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Right: Selected Prediction + Linked Inputs */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: '12px', color: '#718096', fontWeight: '600', textTransform: 'uppercase', marginBottom: '10px' }}>
+                              Session {selectedPrediction + 1} Details — {new Date(modalData.predictions[selectedPrediction]?.created_at).toLocaleString('en-IN')}
+                            </p>
+                            
+                            {/* Top 3 Predictions */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                              {[
+                                { career: modalData.predictions[selectedPrediction]?.career_1, confidence: modalData.predictions[selectedPrediction]?.confidence_1, explanation: modalData.predictions[selectedPrediction]?.explanation_1, rank: 1, color: '#FF6B6B' },
+                                { career: modalData.predictions[selectedPrediction]?.career_2, confidence: modalData.predictions[selectedPrediction]?.confidence_2, explanation: modalData.predictions[selectedPrediction]?.explanation_2, rank: 2, color: '#38b2ac' },
+                                { career: modalData.predictions[selectedPrediction]?.career_3, confidence: modalData.predictions[selectedPrediction]?.confidence_3, explanation: modalData.predictions[selectedPrediction]?.explanation_3, rank: 3, color: '#6b46c1' },
+                              ].map((item, i) => (
+                                <div key={i} style={{
+                                  border: `1px solid ${item.color}30`, borderLeft: `4px solid ${item.color}`,
+                                  borderRadius: '12px', padding: '14px', background: `${item.color}08`
+                                }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <span style={{ background: item.color, color: 'white', width: '26px', height: '26px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '12px' }}>#{item.rank}</span>
+                                      <strong style={{ color: '#2D3748' }}>{item.career}</strong>
+                                    </div>
+                                    <span style={{ background: item.color, color: 'white', padding: '3px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>{item.confidence}% match</span>
+                                  </div>
+                                  <div style={{ background: '#e2e8f0', borderRadius: '10px', height: '5px', marginBottom: '8px' }}>
+                                    <div style={{ background: item.color, height: '5px', borderRadius: '10px', width: `${item.confidence}%` }}></div>
+                                  </div>
+                                  <p style={{ margin: 0, fontSize: '12px', color: '#718096', lineHeight: '1.5' }}>{item.explanation}</p>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Inputs section for this prediction */}
+                            <div style={{ 
+                              borderTop: '2px dashed #f0f0f0', 
+                              paddingTop: '18px',
+                              marginTop: '8px'
+                            }}>
+                              {/* Header row */}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                                <span style={{ fontSize: '1rem' }}>📋</span>
+                                <h4 style={{ margin: 0, color: '#2D3748', fontSize: '0.9rem', fontWeight: '700' }}>
+                                  Inputs used for this prediction
+                                </h4>
+                                {currentPredictionInput && (
+                                  <span style={{ 
+                                    marginLeft: 'auto', fontSize: '11px', color: '#718096',
+                                    background: '#f0f0f0', padding: '2px 8px', borderRadius: '10px'
+                                  }}>
+                                    Submitted: {new Date(currentPredictionInput.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* If all sessions use the same input, show a notice */}
+                              {modalData?.allSameInput && modalData?.predictions?.length > 1 && (
+                                <div style={{
+                                  background: '#fffbeb', border: '1px solid #fde68a',
+                                  borderRadius: '10px', padding: '10px 14px',
+                                  marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px'
+                                }}>
+                                  <span style={{ fontSize: '14px' }}>ℹ️</span>
+                                  <p style={{ margin: 0, fontSize: '12px', color: '#92400e' }}>
+                                    <strong>Same inputs across all {modalData.predictions.length} sessions</strong> — This student filled the form once and ran the prediction {modalData.predictions.length} times.
+                                  </p>
+                                </div>
+                              )}
+
+                              {/* Show inputs or empty state */}
+                              {currentPredictionInput 
+                                ? <InputDetailsPanel inputData={currentPredictionInput} compact={true} />
+                                : (
+                                  <div style={{ 
+                                    textAlign: 'center', padding: '20px', color: '#718096',
+                                    background: '#f8f9fa', borderRadius: '10px', fontSize: '13px'
+                                  }}>
+                                    No input data linked to this prediction.
+                                  </div>
+                                )
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* ===== STUDENT INPUTS TAB ===== */}
+                  {/* ✅ Now shows the LATEST inputs (most recent submission) */}
+                  {activeModalTab === 'inputs' && (
+                    <div>
+                      {/* ✅ If multiple input sessions exist, show a switcher */}
+                      {modalData?.allInputs?.length > 1 && (
+                        <div style={{ 
+                          display: 'flex', gap: '8px', marginBottom: '20px', 
+                          flexWrap: 'wrap', alignItems: 'center'
+                        }}>
+                          <span style={{ fontSize: '12px', color: '#718096', fontWeight: '600' }}>Input Session:</span>
+                          {modalData.allInputs.map((inp, i) => (
+                            <button
+                              key={i}
+                              onClick={() => setModalData(prev => ({ ...prev, inputs: inp }))}
+                              style={{
+                                padding: '5px 12px', borderRadius: '20px', fontSize: '12px', cursor: 'pointer',
+                                fontWeight: '600', border: '2px solid',
+                                background: modalData.inputs?.created_at === inp.created_at ? '#FF6B6B' : 'transparent',
+                                color: modalData.inputs?.created_at === inp.created_at ? 'white' : '#718096',
+                                borderColor: modalData.inputs?.created_at === inp.created_at ? '#FF6B6B' : '#e2e8f0',
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              Session {i + 1} — {new Date(inp.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {!modalData?.inputs ? (
+                        <div style={{ textAlign: 'center', padding: '40px', color: '#718096' }}>
+                          No input data found for this student.
+                        </div>
+                      ) : (
+                        <InputDetailsPanel inputData={modalData.inputs} compact={false} />
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
+
 export default DashboardContent;
+
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState, useEffect } from 'react';
+// import { 
+//    PieChart, Pie, Cell, Tooltip,
+//   AreaChart, Area, XAxis, YAxis, CartesianGrid
+// } from 'recharts';
+// import { Edit2, Eye, Trash2 } from 'lucide-react'; 
+// import { supabase } from '../../../backend/supabaseClient';
+// import './DashboardContent.css';
+
+// const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
+//   const [dashboardStats, setDashboardStats] = useState({
+//     totalStudents: 0,
+//     totalPredictions: 0,
+//     accuracy: 91.9 
+//   });
+
+//   const [students, setStudents] = useState([]); 
+//   const [showAll, setShowAll] = useState(false); 
+//   const [pieData, setPieData] = useState([]);
+//   const [lineData, setLineData] = useState([]);
+//   const [satisfaction, setSatisfaction] = useState(0); 
+//   const [recentComments, setRecentComments] = useState([]);
+//   const [selectedStudent, setSelectedStudent] = useState(null);
+//   const [modalData, setModalData] = useState(null);
+//   const [modalLoading, setModalLoading] = useState(false);
+//   const [activeModalTab, setActiveModalTab] = useState('overview');
+//   const [selectedPrediction, setSelectedPrediction] = useState(0);
+
+//   useEffect(() => {
+//     const fetchRealData = async () => {
+//       try {
+//  // ✅ STEP 1: Fetch ALL users first
+//         const { data: allUsers, error: fetchError } = await supabase
+//           .from('users')
+//           .select(`
+//             *,
+//             user_inputs (stream),
+//             predictions (career_1)
+//           `)
+//           .order('created_at', { ascending: false });
+
+//         if (fetchError) {
+//           console.error("Supabase Error:", fetchError.message);
+//         }
+
+//         if (allUsers) {
+//           // ✅ STEP 2: CLIENT-SIDE FILTERING - Admin ko exclude karte hain
+//           const filteredStudents = allUsers.filter(user => {
+//             // Agar role field hai database mein
+//             if (user.role && user.role === 'admin') return false;
+            
+//             // Agar name "Admin" hai (case-insensitive)
+//             if (user.name && user.name.toLowerCase() === 'admin') return false;
+            
+//             // Agar email "support" ya "admin" contain karta hai
+//             if (user.email && (
+//               user.email.toLowerCase().includes('support') || 
+//               user.email.toLowerCase().includes('admin')
+//             )) return false;
+            
+//             return true; // Baaki sab students hain
+//           });
+
+//           const formattedStudents = filteredStudents.map(s => ({
+//             ...s,
+//             stream: s.user_inputs?.[0]?.stream || 'N/A',
+//             ai_career: s.predictions?.[0]?.career_1 || 'Pending...'
+//           }));
+          
+//           setStudents(formattedStudents);
+          
+//           // ✅ STEP 3: Update student count with filtered data
+//           setDashboardStats(prev => ({
+//             ...prev,
+//             totalStudents: formattedStudents.length
+//           }));
+//         }
+
+//         const { count: predictionCount } = await supabase
+//           .from('predictions')
+//           .select('*', { count: 'exact', head: true });
+
+//         const { data: predData } = await supabase.from('predictions').select('career_1');
+//         if (predData && predData.length > 0) {
+//           const counts = predData.reduce((acc, curr) => {
+//             const career = curr.career_1 || 'Unknown';
+//             acc[career] = (acc[career] || 0) + 1;
+//             return acc;
+//           }, {});
+
+//           const colors = ['#ff857d', '#1a365d', '#6b46c1', '#38b2ac', '#fbbf24'];
+//           const formattedPie = Object.keys(counts).map((key, index) => ({
+//             name: key,
+//             value: Math.round((counts[key] / predData.length) * 100),
+//             color: colors[index % colors.length]
+//           }));
+//           setPieData(formattedPie);
+//         }
+
+//         const { data: lineChartRaw } = await supabase.from('predictions').select('created_at');
+//         if (lineChartRaw && lineChartRaw.length > 0) {
+//           const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+//           const monthlyCounts = lineChartRaw.reduce((acc, curr) => {
+//             const date = new Date(curr.created_at);
+//             const monthName = months[date.getMonth()];
+//             acc[monthName] = (acc[monthName] || 0) + 1;
+//             return acc;
+//           }, {});
+
+//           const formattedLineData = Object.keys(monthlyCounts).map(month => ({
+//             name: month,
+//             value: monthlyCounts[month]
+//           }));
+//           setLineData(formattedLineData);
+//         }
+
+//         setDashboardStats(prev => ({
+//           ...prev,
+//           totalPredictions: predictionCount || 0,
+//           accuracy: 91.9 
+//         }));
+        
+//         const { data: fbData, error: fbError } = await supabase
+//           .from('feedbacks')
+//           .select('rating, comment')
+//           .order('created_at', { ascending: false });
+
+//         if (fbData && fbData.length > 0) {
+//           const totalRating = fbData.reduce((acc, curr) => acc + curr.rating, 0);
+//           const avgRating = totalRating / fbData.length;
+//           const percentage = Math.round(avgRating * 20); 
+          
+//           setSatisfaction(percentage);
+//           setRecentComments(fbData.slice(0, 2));
+//         }
+//       } catch (error) {
+//         console.error("Data fetch error:", error.message);
+//       }
+//     };
+//     fetchRealData();
+//   }, []);
+  
+//   const handleViewStudent = async (student) => {
+//   setSelectedStudent(student);
+//   setModalLoading(true);
+
+//   const { data: allPredictions } = await supabase
+//     .from('predictions')
+//     .select('*')
+//     .eq('user_id', student.id)
+//     .order('created_at', { ascending: false });
+
+//   const { data: inputData } = await supabase
+//     .from('user_inputs')
+//     .select('*')
+//     .eq('user_id', student.id)
+//     .order('created_at', { ascending: false });
+
+//   // Console mein dekho kya aa raha hai
+//   console.log('Student ID:', student.id);
+//   console.log('All Predictions:', allPredictions);
+//   console.log('All Inputs:', inputData);
+
+//   setModalData({ predictions: allPredictions || [], inputs: inputData?.[0] || null, allInputs: inputData || [] });
+//   setModalLoading(false);
+// };
+
+//   const handleDelete = async (id) => {
+//     if (window.confirm("Are you sure you want to delete this student?")) {
+//       const { error } = await supabase.from('users').delete().eq('id', id);
+//       if (!error) {
+//         setStudents(students.filter(student => student.id !== id));
+//         alert("Student deleted successfully!");
+//       } else {
+//         alert("Error: " + error.message);
+//       }
+//     }
+//   };
+
+//   const exportToCSV = () => {
+//   if (students.length === 0) {
+//     alert("No data available to export!");
+//     return;
+//   }
+
+//   // 1. CSV ke Headers define karein
+//   const headers = ["Name", "Email", "Stream", "Registration Date","AI Suggested Career"];
+
+//   // 2. Students data ko CSV rows mein convert karein
+//   const csvRows = students.map(student => {
+//     // Check karein ki predictions array mein data hai ya nahi
+//     const careerResult = (student.predictions && student.predictions.length > 0) 
+//       ? student.predictions[0].career_1 
+//       : "Pending...";
+
+//     return [
+//     student.name,
+//     student.email,
+//     student.stream || 'N/A',
+//     new Date(student.created_at).toLocaleDateString(),
+//     careerResult.replace(/,/g,"") 
+//    ];
+//   });
+
+//   // 3. Headers aur Rows ko join karein
+//   const csvContent = [
+//     headers.join(","), 
+//     ...csvRows.map(row => row.join(","))
+//   ].join("\n");
+
+//   // 4. Blob banayein aur download link trigger karein
+//   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+//   const url = URL.createObjectURL(blob);
+//   const link = document.createElement("a");
+//   link.setAttribute("href", url);
+//   link.setAttribute("download", `Student_List_${new Date().toLocaleDateString()}.csv`);
+//   link.style.visibility = 'hidden';
+//   document.body.appendChild(link);
+//   link.click();
+//   document.body.removeChild(link);
+// };
+
+//   return (
+//     <div className="dashboard-body">
+      
+//       {/* --- TOP SECTION --- */}
+//       <div className="dashboard-top-layout" style={{ display: (activeTab === 'students' || activeTab === 'predictions') ? 'block' : 'flex' }}>
+        
+//         <div className="stats-column" style={{ width: (activeTab === 'students' || activeTab === 'predictions') ? '100%' : 'auto' }}>
+//           <div className="section-header" style={{ 
+//           display: 'flex', 
+//           justifyContent: 'space-between', // Isse title left aur button right mein ho jayega
+//           alignItems: 'center',
+//           width: '100%',
+//           marginBottom: '20px',
+//           paddingRight: '20px' // Bilkul edge se chipke na, isliye thoda gap
+//       }}>
+//           <h3 className="section-title" style={{ margin: 0 }}>
+//               {activeTab === 'students' ? 'Student Statistics' : activeTab === 'predictions' ? 'AI Analytics' : 'Top Statistics Cards'}
+//           </h3>
+          
+//           {activeTab === 'students' && (
+//               <button className="btn-export" onClick={exportToCSV} style={{ 
+//                   marginLeft: 'auto', // Extra safety for right alignment
+//                   padding: '10px 20px'
+//               }}>
+//                   📗 Export CSV List
+//               </button>
+//           )}
+//       </div>
+
+//           <div className="stats-grid-vertical" style={{ display: (activeTab === 'students' || activeTab === 'predictions') ? 'block' : 'grid' }}>
+            
+//             {/* Total Students Card: Students aur Dashboard par dikhega */}
+//             {(activeTab === 'dashboard' || activeTab === 'students') && (
+//               <div className="stat-card" style={{ width: activeTab === 'students' ? '200%' : 'auto', marginBottom: '20px' }}>
+//                 <p>Total Registered Students</p>
+//                 <h2>{dashboardStats.totalStudents.toLocaleString()}</h2>
+//                 <div className="card-icon">👤</div>
+//               </div>
+//             )}
+
+//             {/* AI Predictions Card: Dashboard aur Predictions par dikhega */}
+//             {(activeTab === 'dashboard' || activeTab === 'predictions') && (
+//               <div className="stat-card" style={{ width: activeTab === 'predictions' ? '200%' : 'auto', marginBottom: '20px' }}>
+//                 <p>AI Predictions Made</p>
+//                 <h2>{dashboardStats.totalPredictions.toLocaleString()}</h2>
+//                 <div className="card-icon">🧠</div>
+//               </div>
+//             )}
+
+//             {/* Accuracy Card: Sirf Dashboard par */}
+//             {activeTab === 'dashboard' && (
+//               <div className="stat-card">
+//                 <p>System Accuracy</p>
+//                 <h2>{dashboardStats.accuracy}%</h2>
+//                 <div className="card-icon">📈</div>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+
+//         {/* GRAPHS: Dashboard aur Predictions par dikhenge */}
+//         {(activeTab === 'dashboard' || activeTab === 'predictions') && (
+//           <div className="insights-column" style={{ width: activeTab === 'predictions' ? '110%' : 'auto', marginTop: activeTab === 'predictions' ? '20px' : '0' }}>
+//             <div className='section-header right-header'>
+//                 <h3 className='section-title'>Key Insights</h3>
+//               </div>
+//             <div className="insights-white-box">
+//               <div className="insights-row-inner">
+//                 <div className="chart-container pie-container">
+//                   <h4 className="chart-title">Top Career Predictions</h4>
+//                   <div className="custom-donut-wrapper" style={{ display: 'flex', alignItems: 'center', height: '200px' }}>
+//                     {pieData.length > 0 ? (
+//                       <>
+//                         <PieChart width={200} height={200}>
+//                           <Pie data={pieData} innerRadius={50} outerRadius={75} paddingAngle={5} dataKey="value" stroke="none">
+//                             {pieData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+//                           </Pie>
+//                           <Tooltip />
+//                         </PieChart>
+//                         <div className="custom-legend">
+//                           {pieData.map((item, index) => (
+//                             <div className="legend-item" key={index}>
+//                               <span className="legend-dot" style={{ backgroundColor: item.color }}></span>
+//                               <span className="legend-text">{item.name} ({item.value}%)</span>
+//                             </div>
+//                           ))}
+//                         </div>
+//                       </>
+//                     ) : <div>Loading...</div>}
+//                   </div>
+//                 </div>
+//                 <div className="chart-divider"></div>
+//                 <div className="chart-container area-container">
+//                   <h4 className="chart-title">Prediction Volume</h4>
+//                   <AreaChart width={activeTab === 'predictions' ? 500 : 420} height={220} data={lineData}>
+//                   {/* margin{{top: 10, right: 45, left: 0, bottom:20}} */}
+//                     <defs>
+//                       <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+//                         <stop offset="5%" stopColor="#38b2ac" stopOpacity={0.3}/><stop offset="95%" stopColor="#38b2ac" stopOpacity={0}/>
+//                       </linearGradient>
+//                     </defs>
+//                     <CartesianGrid strokeDasharray="0" vertical={false} stroke="#f0f0f0" />
+//                     <XAxis dataKey="name" />
+//                     <YAxis />
+//                     <Tooltip />
+//                     <Area type="monotone" dataKey="value" stroke="#38b2ac" strokeWidth={3} fill="url(#colorValue)" />
+//                   </AreaChart>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+
+//       {/* --- BOTTOM SECTION: Student Table --- */}
+//       {(activeTab === 'dashboard' || activeTab === 'students') && (
+//         <div className="dashboard-bottom-layout" style={{ display: 'flex', gap: '20px', marginTop: activeTab === 'students' ? '5px' : '30px' }}>
+//           <div className="student-list-container" style={{ flex: 3, background: 'white', padding: '20px', borderRadius: '15px' }}>
+//             <div style={{
+//               display: 'flex',
+//               justifyContent: 'space-between',
+//               alignItems: 'center',
+//               marginBottom: '20px',
+//               flexWrap: 'wrap',
+//               gap: '15px'
+//             }}>
+//             <h3 className="section-title" style={{ margin: 0 }}>
+//       {activeTab === 'students' ? 'All Registered Students' : 'Student Registrations list'}
+//     </h3>
+
+//     {/* Naya Search Bar jo Table ke upar dikhega */}
+//     <div className="table-search-box" style={{
+//       position: 'relative',
+//       display: 'flex',
+//       alignItems: 'center',
+//       background: '#F7FAFC',
+//       border: '1px solid #E2E8F0',
+//       borderRadius: '10px',
+//       padding: '8px 15px',
+//       width: '300px'
+//     }}>
+//       <span style={{ marginRight: '10px', color: '#A0AEC0' }}>🔍</span>
+//       <input 
+//         type="text" 
+//         placeholder="Search by name or email..." 
+//         value={searchTerm} 
+//         onChange={(e) => setSearchTerm(e.target.value)}
+//         style={{
+//           border: 'none',
+//           background: 'transparent',
+//           outline: 'none',
+//           width: '100%',
+//           fontSize: '14px',
+//           color: '#2D3748'
+//         }}
+//       />
+//     </div>
+//   </div>
+//             <table className="student-table" style={{ width: '100%' }}>
+//               <thead>
+//                 <tr style={{ textAlign: 'left', borderBottom: '1px solid #f0f0f0', color: '#718096' }}>
+//                   <th style={{ padding: '12px' }}>Name</th>
+//                   <th>Email</th>
+//                   <th>Stream</th>
+//                   <th>Registered Date</th>
+//                   <th>AI Suggested Career</th>
+//                   {activeTab === 'students' && <th>Actions</th>}
+//                 </tr>
+//               </thead>
+//               <tbody>
+
+//                {students
+//                   .filter((student) => {
+//                     if (!searchTerm) return true;
+//                     const s = searchTerm.toLowerCase();
+//                     return (
+//                       student.name?.toLowerCase().includes(s) ||
+//                       student.email?.toLowerCase().includes(s)
+//                     );
+//                   })
+//                   .slice(0,  showAll ? students.length : 5).map((student, idx) => (
+//                   <tr key={idx} onClick={() => handleViewStudent(student)} 
+//                       style={{ cursor: 'pointer' }}
+//                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fff5f5'}
+//                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+//                     >
+//                     <td style={{ padding: '12px' }}>{student.name}</td>
+//                     <td>{student.email}</td>
+//                      {/* 👇 Naya dynamic data 👇 */}
+//                     <td>{student.stream}</td>  
+//                     <td>{new Date(student.created_at).toLocaleDateString()}</td>
+//                      {/* 👇 Naya dynamic career data 👇 */}
+//                     <td style={{ 
+//                         color: student.ai_career === 'Pending...' ? '#A0AEC0' : '#38b2ac',
+//                         fontWeight: student.ai_career === 'Pending...' ? 'normal' : '600' 
+//                     }}>
+//                       {student.ai_career}
+//                     </td>
+//                     {activeTab === 'students' && (
+//                     <td style={{ textAlign: 'center' }}>
+//                       <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+//                         <button onClick={() => alert("Viewing: " + student.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#38b2ac' }}>
+//                           <Eye size={20} />
+//                         </button>
+//                          <button  style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'green' }}>
+//                           <Edit2 size={20} />
+//                         </button>
+//                         <button onClick={() => handleDelete(student.id)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#e53e3e' }}>
+//                           <Trash2 size={20} />
+//                         </button>
+//                       </div>
+//                     </td>
+//                   )}
+//                 </tr>
+//               ))}
+//               {/* No results message */}
+//               {students.filter(s => 
+//                 s.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+//                 s.email?.toLowerCase().includes(searchTerm.toLowerCase())
+//               ).length === 0 && searchTerm !== "" && (
+//                 <tr>
+//                   <td colSpan="6" style={{ textAlign: 'center', padding: '30px', color: '#718096' }}>
+//                     No student found matching "{searchTerm}"
+//                   </td>
+//                 </tr>
+//               )}
+//               </tbody>
+//             </table>
+            
+//              {/* 👇 NAYA: Toggle Button (View All / View Less) 👇 */}
+             
+//           {students.length > 5 && (
+//             <div style={{ textAlign: 'center', marginTop: '20px' }}>
+//               {showAll ? (
+//                 // Jab saare records dikh rahe hon, tab 'View Less' dikhao
+//                 <button 
+//                   onClick={() => setShowAll(false)}
+//                   style={{ 
+//                     background: '#FF8787', // Thoda alag color taaki pata chale ye 'Less' ke liye hai
+//                     color: 'white', 
+//                     border: 'none', 
+//                     padding: '10px 20px', 
+//                     borderRadius: '8px', 
+//                     cursor: 'pointer', 
+//                     fontWeight: 'bold' 
+//                   }}
+//                 >
+//                   View Less Records
+//                 </button>
+//               ) : (
+//                 // Jab sirf 5 records dikh rahe hon, tab 'View All' dikhao
+//                 <button 
+//                   onClick={() => setShowAll(true)}
+//                   style={{ 
+//                     background: '#FF8787', 
+//                     color: 'white', 
+//                     border: 'none', 
+//                     padding: '10px 20px', 
+//                     borderRadius: '8px', 
+//                     cursor: 'pointer', 
+//                     fontWeight: 'bold' 
+//                   }}
+//                 >
+//                   View All Records
+//                 </button>
+//               )}
+//             </div>
+//             )}
+//           </div>
+
+//            {/* Feedback Corner: Sirf Dashboard par dikhega */}
+//         {/* Feedback Corner */}
+//               <div className="feedback-corner" style={{ flex: 1, background: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+//                 <h3 className="section-title">User Satisfaction</h3>
+//                 <div className="satisfaction-gauge" style={{ textAlign: 'center', margin: '20px 0' }}>
+//                   <div style={{ position: 'relative', height: '100px', overflow: 'hidden' }}>
+//                       {/* Gauge color adjust karne ke liye borderTopColor ko dynamic bhi kar sakte hain */}
+//                       <div style={{ 
+//                           width: '150px', height: '150px', 
+//                           border: '15px solid #EDF2F7', 
+//                           borderTopColor: satisfaction > 70 ? '#48BB78' : '#FF8787', // 70% se upar green, niche red
+//                           borderRadius: '50%', margin: '0 auto',
+//                           transform: `rotate(${satisfaction * 1.8}deg)`, // Optional: thoda rotate karne ke liye
+//                           transition: 'all 1s ease-out'
+//                       }}></div>
+//                       <h2 style={{ marginTop: '-40px' }}>{satisfaction}%</h2>
+//                   </div>
+//                 </div>
+                
+//                 <div className="feedback-comments" style={{ fontSize: '13px', color: '#718096' }}>
+//                   <p>Recent positive comments:</p>
+//                   {recentComments.length > 0 ? (
+//                     recentComments.map((fb, index) => (
+//                       <div key={index} style={{ marginTop: '10px' }}>
+//                         <strong style={{ color: '#2D3748' }}>"{fb.comment}"</strong>
+//                       </div>
+//                     ))
+//                   ) : (
+//                     <p>No feedbacks yet.</p>
+//                   )}
+//                 </div>
+//               </div>
+//         </div>
+
+        
+
+
+//       )}
+
+// {/* STUDENT DETAIL MODAL */}
+// {selectedStudent && (
+//   <div onClick={() => setSelectedStudent(null)} style={{
+//     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+//     backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1000,
+//     display: 'flex', alignItems: 'center', justifyContent: 'center',
+//     padding: '20px', backdropFilter: 'blur(4px)'
+//   }}>
+//     <div onClick={(e) => e.stopPropagation()} style={{
+//       background: 'white', borderRadius: '24px', width: '100%',
+//       maxWidth: '850px', maxHeight: '88vh', overflowY: 'auto',
+//       boxShadow: '0 30px 60px rgba(0,0,0,0.4)'
+//     }}>
+
+//       {/* Header */}
+//       <div style={{
+//         background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)',
+//         padding: '28px 30px', borderRadius: '24px 24px 0 0',
+//         display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+//       }}>
+//         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+//           <div style={{
+//             width: '55px', height: '55px', borderRadius: '50%',
+//             background: 'rgba(255,255,255,0.25)',
+//             display: 'flex', alignItems: 'center', justifyContent: 'center',
+//             fontSize: '1.5rem', fontWeight: '700', color: 'white'
+//           }}>
+//             {selectedStudent.name?.charAt(0).toUpperCase()}
+//           </div>
+//           <div>
+//             <h2 style={{ color: 'white', margin: 0, fontSize: '1.6rem', fontWeight: '700' }}>
+//               {selectedStudent.name}
+//             </h2>
+//             <p style={{ color: 'rgba(255,255,255,0.8)', margin: '4px 0 0 0', fontSize: '14px' }}>
+//               📧 {selectedStudent.email} &nbsp;|&nbsp; 🎓 {selectedStudent.stream || 'N/A'}
+//             </p>
+//           </div>
+//         </div>
+//         <button onClick={() => { setSelectedStudent(null); setActiveModalTab('overview'); }} style={{
+//           background: 'rgba(255,255,255,0.2)', border: 'none',
+//           color: 'white', width: '38px', height: '38px',
+//           borderRadius: '50%', cursor: 'pointer', fontSize: '1.1rem',
+//           display: 'flex', alignItems: 'center', justifyContent: 'center'
+//         }}>✕</button>
+//       </div>
+
+//       {/* Tabs */}
+//       <div style={{
+//         display: 'flex', borderBottom: '2px solid #f0f0f0',
+//         padding: '0 30px', background: '#fafafa'
+//       }}>
+//         {[
+//           { id: 'overview', label: '📊 Overview' },
+//           { id: 'predictions', label: '🎯 Predictions History' },
+//           { id: 'inputs', label: '📋 Student Inputs' },
+//         ].map(tab => (
+//           <button key={tab.id} onClick={() => setActiveModalTab(tab.id)} style={{
+//             padding: '14px 20px', border: 'none', background: 'none',
+//             cursor: 'pointer', fontSize: '14px', fontWeight: '600',
+//             color: activeModalTab === tab.id ? '#FF6B6B' : '#718096',
+//             borderBottom: activeModalTab === tab.id ? '3px solid #FF6B6B' : '3px solid transparent',
+//             marginBottom: '-2px', transition: 'all 0.2s'
+//           }}>{tab.label}</button>
+//         ))}
+//       </div>
+
+//       <div style={{ padding: '28px 30px' }}>
+//         {modalLoading ? (
+//           <div style={{ textAlign: 'center', padding: '60px', color: '#718096' }}>
+//             <div style={{ fontSize: '2rem', marginBottom: '10px' }}>⏳</div>
+//             Loading student details...
+//           </div>
+//         ) : (
+//           <>
+//             {/* ===== OVERVIEW TAB ===== */}
+//             {activeModalTab === 'overview' && (
+//               <div>
+//                 {/* Stats Row */}
+//                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '25px' }}>
+//                   {[
+//                     { label: 'Stream', value: selectedStudent.stream || 'N/A', icon: '🎓', color: '#ebf8ff' },
+//                     { label: 'Registered', value: new Date(selectedStudent.created_at).toLocaleDateString(), icon: '📅', color: '#f0fff4' },
+//                     { label: 'Total Predictions', value: modalData?.predictions?.length || 0, icon: '🧠', color: '#faf5ff' },
+//                     { label: 'Status', value: modalData?.predictions?.length > 0 ? 'Active ✅' : 'Pending ⏳', icon: '📌', color: '#fffaf0' },
+//                   ].map((item, i) => (
+//                     <div key={i} style={{
+//                       background: item.color, borderRadius: '14px',
+//                       padding: '16px', textAlign: 'center'
+//                     }}>
+//                       <div style={{ fontSize: '1.5rem' }}>{item.icon}</div>
+//                       <p style={{ margin: '6px 0 2px 0', fontSize: '11px', color: '#718096', textTransform: 'uppercase', fontWeight: '600' }}>{item.label}</p>
+//                       <p style={{ margin: 0, fontWeight: '700', color: '#2D3748', fontSize: '14px' }}>{item.value}</p>
+//                     </div>
+//                   ))}
+//                 </div>
+
+//                 {/* Latest Prediction */}
+//                 {modalData?.predictions?.length > 0 && (
+//                   <div style={{ marginBottom: '20px' }}>
+//                     <h3 style={{ color: '#2D3748', marginBottom: '15px', fontSize: '1rem', fontWeight: '700' }}>
+//                       🏆 Latest AI Prediction
+//                     </h3>
+//                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+//                       {[
+//                         { career: modalData.predictions[0].career_1, confidence: modalData.predictions[0].confidence_1, explanation: modalData.predictions[0].explanation_1, rank: 1, color: '#FF6B6B' },
+//                         { career: modalData.predictions[0].career_2, confidence: modalData.predictions[0].confidence_2, explanation: modalData.predictions[0].explanation_2, rank: 2, color: '#38b2ac' },
+//                         { career: modalData.predictions[0].career_3, confidence: modalData.predictions[0].confidence_3, explanation: modalData.predictions[0].explanation_3, rank: 3, color: '#6b46c1' },
+//                       ].map((item, i) => (
+//                         <div key={i} style={{
+//                           border: `1px solid ${item.color}30`,
+//                           borderLeft: `4px solid ${item.color}`,
+//                           borderRadius: '12px', padding: '14px',
+//                           background: `${item.color}08`,
+//                           display: 'flex', alignItems: 'center', gap: '15px'
+//                         }}>
+//                           <span style={{
+//                             background: item.color, color: 'white',
+//                             width: '30px', height: '30px', borderRadius: '50%',
+//                             display: 'flex', alignItems: 'center', justifyContent: 'center',
+//                             fontWeight: '700', fontSize: '13px', flexShrink: 0
+//                           }}>#{item.rank}</span>
+//                           <div style={{ flex: 1 }}>
+//                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+//                               <strong style={{ color: '#2D3748' }}>{item.career}</strong>
+//                               <span style={{ background: item.color, color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '12px' }}>{item.confidence}%</span>
+//                             </div>
+//                             <div style={{ background: '#e2e8f0', borderRadius: '10px', height: '5px' }}>
+//                               <div style={{ background: item.color, height: '5px', borderRadius: '10px', width: `${item.confidence}%` }}></div>
+//                             </div>
+//                           </div>
+//                         </div>
+//                       ))}
+//                     </div>
+//                   </div>
+//                 )}
+//               </div>
+//             )}
+
+//             {/* ===== PREDICTIONS HISTORY TAB ===== */}
+//             {activeModalTab === 'predictions' && (
+//               <div>
+//                 {modalData?.predictions?.length === 0 ? (
+//                   <div style={{ textAlign: 'center', padding: '40px', color: '#718096' }}>
+//                     No predictions yet for this student.
+//                   </div>
+//                 ) : (
+//                   <div style={{ display: 'flex', gap: '20px' }}>
+                    
+//                     {/* Left: Prediction List */}
+//                     <div style={{ width: '220px', flexShrink: 0 }}>
+//                       <p style={{ fontSize: '12px', color: '#718096', fontWeight: '600', textTransform: 'uppercase', marginBottom: '10px' }}>
+//                         All Sessions ({modalData.predictions.length})
+//                       </p>
+//                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+//                         {modalData.predictions.map((pred, i) => (
+//                           <div key={i} onClick={() => setSelectedPrediction(i)} style={{
+//                             padding: '12px', borderRadius: '12px', cursor: 'pointer',
+//                             background: selectedPrediction === i ? '#fff5f5' : '#f8f9fa',
+//                             border: selectedPrediction === i ? '2px solid #FF6B6B' : '2px solid transparent',
+//                             transition: 'all 0.2s'
+//                           }}>
+//                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+//                               <span style={{
+//                                 background: selectedPrediction === i ? '#FF6B6B' : '#e2e8f0',
+//                                 color: selectedPrediction === i ? 'white' : '#718096',
+//                                 width: '24px', height: '24px', borderRadius: '50%',
+//                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
+//                                 fontSize: '11px', fontWeight: '700', flexShrink: 0
+//                               }}>{i + 1}</span>
+//                               <div>
+//                                 <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#2D3748' }}>{pred.career_1}</p>
+//                                 <p style={{ margin: 0, fontSize: '11px', color: '#718096' }}>
+//                                   {new Date(pred.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' })}
+//                                 </p>
+//                               </div>
+//                             </div>
+//                           </div>
+//                         ))}
+//                       </div>
+//                     </div>
+
+//                     {/* Right: Selected Prediction Detail */}
+//                     <div style={{ flex: 1 }}>
+//                       <p style={{ fontSize: '12px', color: '#718096', fontWeight: '600', textTransform: 'uppercase', marginBottom: '10px' }}>
+//                         Session {selectedPrediction + 1} Details — {new Date(modalData.predictions[selectedPrediction]?.created_at).toLocaleString('en-IN')}
+//                       </p>
+//                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+//                         {[
+//                           { career: modalData.predictions[selectedPrediction]?.career_1, confidence: modalData.predictions[selectedPrediction]?.confidence_1, explanation: modalData.predictions[selectedPrediction]?.explanation_1, rank: 1, color: '#FF6B6B' },
+//                           { career: modalData.predictions[selectedPrediction]?.career_2, confidence: modalData.predictions[selectedPrediction]?.confidence_2, explanation: modalData.predictions[selectedPrediction]?.explanation_2, rank: 2, color: '#38b2ac' },
+//                           { career: modalData.predictions[selectedPrediction]?.career_3, confidence: modalData.predictions[selectedPrediction]?.confidence_3, explanation: modalData.predictions[selectedPrediction]?.explanation_3, rank: 3, color: '#6b46c1' },
+//                         ].map((item, i) => (
+//                           <div key={i} style={{
+//                             border: `1px solid ${item.color}30`,
+//                             borderLeft: `4px solid ${item.color}`,
+//                             borderRadius: '12px', padding: '14px',
+//                             background: `${item.color}08`
+//                           }}>
+//                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+//                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+//                                 <span style={{
+//                                   background: item.color, color: 'white',
+//                                   width: '26px', height: '26px', borderRadius: '50%',
+//                                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+//                                   fontWeight: '700', fontSize: '12px'
+//                                 }}>#{item.rank}</span>
+//                                 <strong style={{ color: '#2D3748' }}>{item.career}</strong>
+//                               </div>
+//                               <span style={{ background: item.color, color: 'white', padding: '3px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600' }}>{item.confidence}% match</span>
+//                             </div>
+//                             <div style={{ background: '#e2e8f0', borderRadius: '10px', height: '5px', marginBottom: '8px' }}>
+//                               <div style={{ background: item.color, height: '5px', borderRadius: '10px', width: `${item.confidence}%` }}></div>
+//                             </div>
+//                             <p style={{ margin: 0, fontSize: '12px', color: '#718096', lineHeight: '1.5' }}>{item.explanation}</p>
+//                           </div>
+//                         ))}
+//                       </div>
+//                     </div>
+//                   </div>
+//                 )}
+//               </div>
+//             )}
+
+//             {/* ===== STUDENT INPUTS TAB ===== */}
+//             {activeModalTab === 'inputs' && (
+//               <div>
+//                 {!modalData?.inputs ? (
+//                   <div style={{ textAlign: 'center', padding: '40px', color: '#718096' }}>
+//                     No input data found for this student.
+//                   </div>
+//                 ) : (
+//                   <>
+//                     {/* Academic Marks */}
+//                     <div style={{ marginBottom: '25px' }}>
+//                       <h3 style={{ color: '#2D3748', marginBottom: '15px', fontSize: '1rem', fontWeight: '700' }}>📚 Academic Marks</h3>
+//                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+//                         {[
+//                           { label: 'Physics', value: modalData.inputs.physics },
+//                           { label: 'Chemistry', value: modalData.inputs.chemistry },
+//                           { label: 'Biology', value: modalData.inputs.biology },
+//                           { label: 'Maths', value: modalData.inputs.mathematics },
+//                           { label: 'English', value: modalData.inputs.english },
+//                           { label: 'Computer Sc.', value: modalData.inputs.computerscience },
+//                           { label: 'Accountancy', value: modalData.inputs.accountancy },
+//                           { label: 'Business St.', value: modalData.inputs.businessstudies },
+//                           { label: 'Economics', value: modalData.inputs.economics },
+//                           { label: 'History', value: modalData.inputs.history },
+//                           { label: 'Geography', value: modalData.inputs.geography },
+//                           { label: 'Pol. Science', value: modalData.inputs.politicalscience },
+//                           { label: 'Sociology', value: modalData.inputs.sociology },
+//                         ].filter(item => item.value > 0).map((item, i) => (
+//                           <div key={i} style={{
+//                             background: '#f0fff4', border: '1px solid #c6f6d5',
+//                             borderRadius: '10px', padding: '12px', textAlign: 'center'
+//                           }}>
+//                             <p style={{ margin: 0, fontSize: '11px', color: '#718096' }}>{item.label}</p>
+//                             <p style={{ margin: '4px 0 0 0', fontWeight: '700', color: '#276749', fontSize: '1.2rem' }}>{item.value}</p>
+//                           </div>
+//                         ))}
+//                       </div>
+//                     </div>
+
+//                     {/* Interests */}
+//                     <div style={{ marginBottom: '25px' }}>
+//                       <h3 style={{ color: '#2D3748', marginBottom: '15px', fontSize: '1rem', fontWeight: '700' }}>💡 Interests</h3>
+//                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+//                         {[
+//                           { label: 'Technology', value: modalData.inputs.interest_tech },
+//                           { label: 'Entrepreneurship', value: modalData.inputs.interest_entrepreneurship },
+//                           { label: 'Leadership', value: modalData.inputs.interest_leadership },
+//                           { label: 'Innovation', value: modalData.inputs.interest_innovation },
+//                           { label: 'Critical Thinking', value: modalData.inputs.interest_criticalthinking },
+//                           { label: 'Research', value: modalData.inputs.interest_research },
+//                           { label: 'Computer Skills', value: modalData.inputs.interest_computerskill },
+//                           { label: 'Hardware Skills', value: modalData.inputs.interest_hardwareskill },
+//                           { label: 'Food', value: modalData.inputs.interest_food },
+//                           { label: 'Creativity', value: modalData.inputs.interest_creativity },
+//                         ].filter(item => item.value === 1).map((item, i) => (
+//                           <span key={i} style={{
+//                             background: '#ebf8ff', color: '#2b6cb0',
+//                             padding: '7px 16px', borderRadius: '20px',
+//                             fontSize: '13px', fontWeight: '500', border: '1px solid #bee3f8'
+//                           }}>✓ {item.label}</span>
+//                         ))}
+//                       </div>
+//                     </div>
+
+//                     {/* Personality */}
+//                     <div style={{ marginBottom: '25px' }}>
+//                       <h3 style={{ color: '#2D3748', marginBottom: '15px', fontSize: '1rem', fontWeight: '700' }}>🧠 Personality Traits</h3>
+//                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+//                         {[
+//                           { label: 'Openness', value: modalData.inputs.oppenness },
+//                           { label: 'Conscientious', value: modalData.inputs.conscientiousness },
+//                           { label: 'Extraversion', value: modalData.inputs.extraversion },
+//                           { label: 'Agreeableness', value: modalData.inputs.agreeableness },
+//                           { label: 'Neuroticism', value: modalData.inputs.neuroticism },
+//                         ].map((item, i) => (
+//                           <div key={i} style={{
+//                             background: '#faf5ff', border: '1px solid #e9d8fd',
+//                             borderRadius: '10px', padding: '12px', textAlign: 'center'
+//                           }}>
+//                             <p style={{ margin: 0, fontSize: '11px', color: '#718096' }}>{item.label}</p>
+//                             <p style={{ margin: '4px 0 0 0', fontWeight: '700', color: '#553c9a', fontSize: '1.3rem' }}>{item.value}/5</p>
+//                           </div>
+//                         ))}
+//                       </div>
+//                     </div>
+
+//                     {/* Activities */}
+//                     <div>
+//                       <h3 style={{ color: '#2D3748', marginBottom: '15px', fontSize: '1rem', fontWeight: '700' }}>🏆 Participated Activities</h3>
+//                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+//                         {[
+//                           { label: 'Hackathon', value: modalData.inputs.participated_hackathon },
+//                           { label: 'Olympiad', value: modalData.inputs.participated_olympiad },
+//                           { label: 'Kabaddi', value: modalData.inputs.participated_kabaddi },
+//                           { label: 'Kho-Kho', value: modalData.inputs.participated_khokho },
+//                           { label: 'Cricket', value: modalData.inputs.participated_cricket },
+//                         ].filter(item => item.value === 1).map((item, i) => (
+//                           <span key={i} style={{
+//                             background: '#fffaf0', color: '#c05621',
+//                             padding: '7px 16px', borderRadius: '20px',
+//                             fontSize: '13px', fontWeight: '500', border: '1px solid #fbd38d'
+//                           }}>🏅 {item.label}</span>
+//                         ))}
+//                         {['participated_hackathon','participated_olympiad','participated_kabaddi','participated_khokho','participated_cricket']
+//                           .every(k => !modalData.inputs[k]) && (
+//                           <p style={{ color: '#718096', fontSize: '13px' }}>No activities participated</p>
+//                         )}
+//                       </div>
+//                     </div>
+//                   </>
+//                 )}
+//               </div>
+//             )}
+//           </>
+//         )}
+//       </div>
+//     </div>
+//   </div>
+// )}
+
+//     </div>
+//   );
+// };
+// export default DashboardContent;

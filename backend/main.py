@@ -4,6 +4,10 @@ import joblib
 import pandas as pd
 import shap
 import numpy as np
+from dotenv import load_dotenv
+from routes.reset_password import router as reset_password_router
+
+load_dotenv() 
 app = FastAPI()
 
 app.add_middleware(
@@ -12,6 +16,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ✅ Include reset password router
+app.include_router(reset_password_router, prefix="/api", tags=["auth"])
 
 
 # Load Model & Encoders (from model folder)

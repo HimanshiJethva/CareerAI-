@@ -121,7 +121,8 @@
   background-color: #f9f9f9;
 }
 
-.logout-btn {
-  color: #ff857d;
-  font-weight: 600;
+.dropdown-logout-btn {
+  color: #ff857d !important;
+  font-weight: 400 !important;  /* explicitly normal weight force karo */
+  font-size: 0.95rem !important; /* baaki items jaisa exact size */
 }

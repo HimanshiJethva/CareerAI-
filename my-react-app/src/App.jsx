@@ -10,7 +10,8 @@ import DashboardPage from "./pages/DashboardPage";
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDash/AdminDashboard';
-
+import MyPredictionsPage from './pages/MyPredictionsPage';
+import UpdatePasswordPage from "./pages/UpdatePasswordPage";
 
 // ── Protected Route: only for logged-in users ──────────────────────────────
 function PrivateRoute({ children }) {
@@ -93,6 +94,8 @@ function App() {
         <Route path="/login"           element={<LoginPage />} />
         <Route path="/signup"          element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        // Routes mein add karo:
+       <Route path="/update-password" element={<UpdatePasswordPage />} />  
 
         {/* Protected routes */}
         <Route path="/dashboard" element={
@@ -100,6 +103,9 @@ function App() {
         } />
         <Route path="/profile" element={
           <PrivateRoute><ProfilePage /></PrivateRoute>
+        } />
+        <Route path="/my-predictions" element={
+        <PrivateRoute><MyPredictionsPage /></PrivateRoute>
         } />
 
         {/* Admin-only route */}

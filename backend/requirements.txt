@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+resend
+python-dotenv
+supabase
+pydantic[email]
