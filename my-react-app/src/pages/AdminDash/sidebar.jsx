@@ -18,7 +18,7 @@ const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
       
       localStorage.clear();  
       navigate('/login');
-      toast.success("Logout successful!");  
+      toast.success("Logout successfully!");  
     } catch (error) {
       console.error("Logout Error:", error.message);
       // Force logout if supabase fails
@@ -89,7 +89,7 @@ const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
             <Eye size={22} /> <span className="nav-label">Landing Page</span>
           </div>
 
-          <div className="nav-item secondary" onClick={() => navigate('/DashboardPage')}>
+          <div className="nav-item secondary" onClick={() => navigate('/Dashboardpage')}>
             <Monitor size={22} /> <span className="nav-label">Student View</span>
           </div>
         </div>

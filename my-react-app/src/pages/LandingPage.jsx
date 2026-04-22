@@ -8,7 +8,7 @@ import ProcessStep from "../components/ProcessStep"
 import SliderGroup from "../components/SliderGroup"
 import TestimonialCard from "../components/TestimonialCard"
 import hero_students from "../assets/hero_students.png"
-import { useNavigate } from "react-router-dom"
+import { useNavigate ,Link} from "react-router-dom"
 
 function LandingPage()
 {
@@ -135,7 +135,7 @@ function LandingPage()
 
         <div className="testimonials-grid">
           <TestimonialCard 
-              text="This tool completely changed my career trajectory. I was stuck between multiple paths, but the AI predictions gave me the clarity I needed. Now I'm thriving as an ML Engineer at Google." 
+              text="This tool completely changed my career trajectory. I was stuck between multiple paths, but the AI predictions gave me the clarity I needed. Now I'm thriving as an ML Engineer." 
               initials="PS" name="Priya Sharma" 
           />
           <TestimonialCard 

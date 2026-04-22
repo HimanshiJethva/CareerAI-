@@ -47,6 +47,10 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
   const [activeModalTab, setActiveModalTab] = useState('overview');
   const [selectedPrediction, setSelectedPrediction] = useState(0);
 
+  const [editStudent, setEditStudent] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editLoading, setEditLoading] = useState(false);
+
   useEffect(() => {
     const fetchRealData = async () => {
       try {
@@ -241,6 +245,39 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
         No input data found for this session.
       </div>
     );
+
+  const handleEdit = (e, student) => {
+  e.stopPropagation();
+  setEditStudent(student);
+  setEditName(student.name);
+};
+
+const handleSaveEdit = async (e) => {
+  e.preventDefault();
+  if (!editName.trim()) {
+    alert("Naam khali nahi ho sakta!");
+    return;
+  }
+  setEditLoading(true);
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({ name: editName.trim() })
+      .eq('id', editStudent.id);
+
+    if (error) throw error;
+
+    setStudents(students.map(s =>
+      s.id === editStudent.id ? { ...s, name: editName.trim() } : s
+    ));
+    setEditStudent(null);
+    alert("Naam successfully update ho gaya! 🎉");
+  } catch (err) {
+    alert("Error: " + err.message);
+  } finally {
+    setEditLoading(false);
+  }
+};
 
     return (
       <>
@@ -519,7 +556,8 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
                           <button onClick={() => alert("Viewing: " + student.name)} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#38b2ac' }}>
                             <Eye size={20} />
                           </button>
-                          <button style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'green' }}>
+                          <button onClick={(e) => handleEdit(e, student)} 
+                          style={{ border: 'none', background: 'none', cursor: 'pointer', color: 'green' }}>
                             <Edit2 size={20} />
                           </button>
                           <button onClick={(e) => { e.stopPropagation(); handleDelete(student.id); }} style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#e53e3e' }}>
@@ -890,7 +928,141 @@ const DashboardContent = ({ activeTab, searchTerm, setSearchTerm }) => {
           </div>
         </div>
       )}
+    {/* EDIT STUDENT MODAL */}
+{editStudent && (
+  <div onClick={() => setEditStudent(null)} style={{
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1100,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    backdropFilter: 'blur(4px)'
+  }}>
+    <div onClick={(e) => e.stopPropagation()} style={{
+      background: 'white', borderRadius: '24px',
+      width: '420px', boxShadow: '0 30px 60px rgba(0,0,0,0.3)',
+      overflow: 'hidden'
+    }}>
 
+      {/* Header — ProfilePage jaisa gradient */}
+      <div style={{
+        background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)',
+        padding: '26px 28px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          {/* Avatar circle — ProfilePage jaisa */}
+          <div style={{
+            width: '50px', height: '50px', borderRadius: '50%',
+            background: 'rgba(255,255,255,0.25)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '1.4rem', fontWeight: '700', color: 'white'
+          }}>
+            {editStudent.name?.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h3 style={{ color: 'white', margin: 0, fontSize: '1.15rem', fontWeight: '700' }}>
+              Edit Student
+            </h3>
+            <p style={{ color: 'rgba(255,255,255,0.8)', margin: '3px 0 0 0', fontSize: '13px' }}>
+              Update display name
+            </p>
+          </div>
+        </div>
+        <button onClick={() => setEditStudent(null)} style={{
+          background: 'rgba(255,255,255,0.2)', border: 'none',
+          color: 'white', width: '34px', height: '34px',
+          borderRadius: '50%', cursor: 'pointer', fontSize: '1rem',
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>✕</button>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: '28px' }}>
+
+        {/* Current Name — ProfilePage ka read-only style */}
+        <div style={{
+          background: '#fff5f5', border: '1px solid #fed7d7',
+          borderRadius: '12px', padding: '14px 16px', marginBottom: '22px'
+        }}>
+          <p style={{ margin: 0, fontSize: '11px', color: '#718096', 
+            fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            Current Name
+          </p>
+          <p style={{ margin: '5px 0 0 0', fontWeight: '700', 
+            color: '#2D3748', fontSize: '15px' }}>
+            {editStudent.name}
+          </p>
+        </div>
+
+        {/* Form — ProfilePage ka input style */}
+        <form onSubmit={handleSaveEdit}>
+          <div style={{ marginBottom: '22px' }}>
+            <label style={{
+              display: 'block', fontSize: '11px', fontWeight: '700',
+              color: '#718096', textTransform: 'uppercase',
+              letterSpacing: '0.8px', marginBottom: '8px'
+            }}>
+              Full Name
+            </label>
+            <div style={{
+              display: 'flex', alignItems: 'center',
+              border: '2px solid #e2e8f0', borderRadius: '10px',
+              padding: '0 14px', transition: 'border 0.2s',
+              background: 'white'
+            }}
+              onFocus={() => {}}
+            >
+              <span style={{ marginRight: '10px', fontSize: '16px' }}>👤</span>
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Naya naam likho..."
+                autoFocus
+                onFocus={(e) => e.target.parentNode.style.borderColor = '#FF6B6B'}
+                onBlur={(e) => e.target.parentNode.style.borderColor = '#e2e8f0'}
+                style={{
+                  border: 'none', outline: 'none', width: '100%',
+                  fontSize: '15px', padding: '12px 0', background: 'transparent',
+                  color: '#2D3748'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Buttons — ProfilePage jaisa */}
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              type="button"
+              onClick={() => setEditStudent(null)}
+              style={{
+                flex: 1, padding: '12px', borderRadius: '10px',
+                border: '2px solid #e2e8f0', background: 'white',
+                color: '#718096', fontWeight: '600', fontSize: '14px',
+                cursor: 'pointer'
+              }}
+            >
+              ← Back
+            </button>
+            <button
+              type="submit"
+              disabled={editLoading}
+              style={{
+                flex: 1, padding: '12px', borderRadius: '10px',
+                border: 'none',
+                background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)',
+                color: 'white', fontWeight: '700', fontSize: '14px',
+                cursor: editLoading ? 'not-allowed' : 'pointer',
+                opacity: editLoading ? 0.8 : 1
+              }}
+            >
+              {editLoading ? "Saving..." : "💾 Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 };

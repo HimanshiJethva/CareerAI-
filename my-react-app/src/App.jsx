@@ -12,6 +12,14 @@ import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDash/AdminDashboard';
 import MyPredictionsPage from './pages/MyPredictionsPage';
 import UpdatePasswordPage from "./pages/UpdatePasswordPage";
+import PredictionsPage from './pages/PredictionsPage';
+import SettingsPage from './pages/SettingsPage';
+import DashboardHome from './pages/DashboardHome';
+import AboutPage from './pages/AboutPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import ContactPage from './pages/ContactPage';
+
 
 // ── Protected Route: only for logged-in users ──────────────────────────────
 function PrivateRoute({ children }) {
@@ -96,17 +104,43 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         // Routes mein add karo:
        <Route path="/update-password" element={<UpdatePasswordPage />} />  
+        <Route path="/about"   element={<AboutPage />} />
+        <Route path="/terms"   element={<TermsPage />} />
+        <Route path="/privacy"   element={<PrivacyPolicyPage />} />
+         <Route path="/contact"   element={<ContactPage />} />
+
+
+
+        {/* <Route path="/dashboard" element={<DashboardHome />} />
+        <Route path='/predict' element={<DashboardPage/>} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/predictions" element={<PredictionsPage />} />
+        <Route path="/settings" element={<SettingsPage />} /> */}
+        
+
 
         {/* Protected routes */}
         <Route path="/dashboard" element={
+          <PrivateRoute><DashboardHome /></PrivateRoute>
+        } />
+
+        <Route path="/predict" element={
           <PrivateRoute><DashboardPage /></PrivateRoute>
         } />
+
         <Route path="/profile" element={
           <PrivateRoute><ProfilePage /></PrivateRoute>
         } />
         <Route path="/my-predictions" element={
         <PrivateRoute><MyPredictionsPage /></PrivateRoute>
         } />
+
+        <Route path="/predictions" element={
+          <PrivateRoute><PredictionsPage /></PrivateRoute>}
+        />
+        <Route path="/settings"   element={
+          <PrivateRoute><SettingsPage /></PrivateRoute>} 
+          />
 
         {/* Admin-only route */}
         <Route path="/admin" element={

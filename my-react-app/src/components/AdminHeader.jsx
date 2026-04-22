@@ -56,12 +56,12 @@ function AdminHeader() {
       </div>
 
       <div className="header-right">
-        <div className="header-search">
+        {/* <div className="header-search">
           <span className="search-icon">🔍</span>
           <input type="text" placeholder="Search" />
-        </div>
+        </div> */}
 
-        <div className="header-notification">🔔</div>
+        {/* <div className="header-notification">🔔</div> */}
 
         <div className="header-profile-container">
           <div className="profile-trigger" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>

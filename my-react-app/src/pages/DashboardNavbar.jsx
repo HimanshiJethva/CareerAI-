@@ -109,7 +109,7 @@ function DashboardNavbar() {
               {userRole?.toLowerCase() !== 'admin' && (
               <button className="dropdown-item" onClick={() => {
                   setIsDropdownOpen(false);
-                  navigate('/my-predictions');
+                  navigate('/predictions');
               }}>
                  <span className="item-icon">📊</span> My Predictions
               </button>
