@@ -61,6 +61,7 @@ import DashboardContent from '../../components/DashboardContent';
 import Sidebar from './sidebar';
 import ProfilePage from '../ProfilePage';
 import { Navigate, useNavigate } from 'react-router-dom';
+import SettingsPage from '../../components/SettingsPage';
 
 
 
@@ -124,9 +125,7 @@ function AdminDashboard() {
             {activeTab === 'My Profile' && <ProfilePage setView={setView} />}
 
             {/* Settings Tab */}
-            {activeTab === 'Settings' && (
-               <section><h1>Settings Page Coming Soon...</h1></section>
-            )}
+            {activeTab === 'Settings' && <SettingsPage/>}
                
            </div>
         </main>

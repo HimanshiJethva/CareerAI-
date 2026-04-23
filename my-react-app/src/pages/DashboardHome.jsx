@@ -3,11 +3,19 @@ import { supabase } from "../../../backend/supabaseClient";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 
+
 const formatName = (raw = "") => {
   if (!raw) return "Student";
+  // Take only the part before @ if it's an email
   let name = raw.includes("@") ? raw.split("@")[0] : raw;
-  return name.replace(/[._\-]/g, " ").replace(/\s+/g, " ").trim()
-    .replace(/\b\w/g, c => c.toUpperCase());
+  // Remove numbers entirely (1508 etc)
+  name = name.replace(/[0-9]/g, "");
+  // Replace dots, underscores, hyphens with spaces
+  name = name.replace(/[._\-]/g, " ");
+  // Clean up extra spaces
+  name = name.replace(/\s+/g, " ").trim();
+  // Capitalise each word
+  return name.replace(/\b\w/g, c => c.toUpperCase()) || "Student";
 };
 
 const getGreeting = () => {

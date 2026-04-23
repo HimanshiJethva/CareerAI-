@@ -16,7 +16,7 @@
   display: flex;
   gap: 30px;
   align-items: stretch; 
-  transition: all 0.4s ease-in-out; /* Smooth transition for switching tabs */
+  transition: all 0.4s ease-in-out; 
    margin-bottom: 30px;
 }
 

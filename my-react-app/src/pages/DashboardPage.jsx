@@ -12,13 +12,16 @@ const slugLabel = (s) => s.replace(/([A-Z])/g, " $1").trim();
 // Properly formats any name or email into "First Last" with spaces
 const formatName = (raw = "") => {
   if (!raw) return "Student";
+  // Take only the part before @ if it's an email
   let name = raw.includes("@") ? raw.split("@")[0] : raw;
-  // replace dots, underscores, hyphens with spaces then capitalise each word
-  return name
-    .replace(/[._\-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  // Remove numbers entirely (1508 etc)
+  name = name.replace(/[0-9]/g, "");
+  // Replace dots, underscores, hyphens with spaces
+  name = name.replace(/[._\-]/g, " ");
+  // Clean up extra spaces
+  name = name.replace(/\s+/g, " ").trim();
+  // Capitalise each word
+  return name.replace(/\b\w/g, c => c.toUpperCase()) || "Student";
 };
 
 /* ─────────────────────────────────────────────
@@ -775,11 +778,27 @@ const DashboardPage = () => {
 
         {/* ─── SIDEBAR ─── */}
         <aside className="dsb">
-          <div className="dsb-glow" /><div className="dsb-glow2" />
-          <div className="dsb-brand">
-            <div className="dsb-name">CareerAI</div>
-            <div className="dsb-tag">AI Career Prediction</div>
-          </div>
+  <div className="dsb-glow" /><div className="dsb-glow2" />
+  <div className="dsb-brand">
+
+    {/* ADD THIS — back to home link */}
+    <div
+      onClick={() => navigate("/dashboard")}
+      style={{
+        display: "flex", alignItems: "center", gap: 6,
+        fontSize: 12, color: "rgba(255,255,255,0.4)",
+        cursor: "pointer", marginBottom: 12,
+        transition: "color 0.2s",
+      }}
+      onMouseEnter={e => e.currentTarget.style.color = "rgba(255,255,255,0.8)"}
+      onMouseLeave={e => e.currentTarget.style.color = "rgba(255,255,255,0.4)"}
+    >
+      ← Back to Home
+    </div>
+
+    <div className="dsb-name">CareerAI</div>
+    <div className="dsb-tag">AI Career Prediction</div>
+  </div>
           <div className="dsb-steps">
             {STEPS.map(s => (
               <div key={s.n} className={`step-item ${step===s.n?"active":""} ${step>s.n?"completed":""}`}>

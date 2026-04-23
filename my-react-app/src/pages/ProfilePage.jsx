@@ -284,19 +284,20 @@ const handleAvatarRemove = async () => {
   /* 3. VIEW: MAIN PROFILE DASHBOARD (Default View) */
   : (
     <div className="profile-content animate-in">
+      
       {/* CARD 1: HEADER */}
       <div className="profile-card-ref">
         <div className="ref-header-left">
           {/* CARD 1: HEADER — ref-avatar div replace karo */}
-<div className="ref-avatar" style={{overflow:'hidden'}}>
-  {avatarUrl ? (
-    <img src={avatarUrl} alt="avatar" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} />
-  ) : (
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-    </svg>
-  )}
-</div>
+        <div className="ref-avatar" style={{overflow:'hidden'}}>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="avatar" style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'50%'}} />
+          ) : (
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+          )}
+        </div>
           <div className="ref-info">
             <h2>{fullName}</h2>
             <p>✉ {email}</p>

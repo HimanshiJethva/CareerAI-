@@ -33,6 +33,10 @@
   width: 200px;
 }
 
+.header-left{
+  font-size: 1.3rem;
+}
+
 .header-search input {
   border: none;
   outline: none;

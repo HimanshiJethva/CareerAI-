@@ -33,9 +33,9 @@ const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
     <aside className="admin-sidebar">
       {/* Brand Logo Section */}
       <div className="sidebar-header">
-        <div className="logo-box">
+        {/* <div className="logo-box">
           <BrainCircuit size={28} color="#ff8e9e"/>
-        </div>
+        </div> */}
         <div className="logo-text">
           <span className="skill">Career</span> <span className="link">AI</span>
         </div>
@@ -68,7 +68,7 @@ const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
 
         {/* ACCOUNT SECTION */}
         <div className="nav-section">
-          <div className="section-title">ACCOUNT</div>
+          {/* <div className="section-title">ACCOUNT</div> */}
           
           <div className={`nav-item ${activeTab === 'My Profile' ? 'active' : ''}`}
             onClick={() => navigate('/profile')}>
@@ -82,7 +82,7 @@ const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
         </div>
 
         {/* LIVE PREVIEWS SECTION */}
-        <div className="nav-section">
+        {/* <div className="nav-section">
           <div className="section-title">PREVIEWS</div>
           
           <div className="nav-item secondary" onClick={() => navigate('/')}>
@@ -92,7 +92,7 @@ const Sidebar = ({ activeTab, setActiveTab, navigate }) => {
           <div className="nav-item secondary" onClick={() => navigate('/Dashboardpage')}>
             <Monitor size={22} /> <span className="nav-label">Student View</span>
           </div>
-        </div>
+        </div> */}
       </nav>
 
       {/* Logout at bottom */}

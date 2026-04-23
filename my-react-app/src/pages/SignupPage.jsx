@@ -154,6 +154,7 @@ export default function SignupPage() {
         .back:hover { color:${C.text}; }
         .logo { font-family:'Sora',sans-serif; font-size:20px; font-weight:800; color:${C.primary};
           text-align:center; margin-bottom:0.5rem; letter-spacing:-0.5px; }
+        .logo:hover { color:${C.primary}; }
         h1 { font-family:'Sora',sans-serif; font-size:26px; font-weight:800; color:${C.text};
           text-align:center; margin-bottom:6px; letter-spacing:-0.5px; }
         .subtitle { font-size:13px; color:${C.muted}; text-align:center; margin-bottom:1.75rem; }
